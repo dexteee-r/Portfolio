@@ -1,0 +1,6 @@
+# Fixture: draft — never visible in a production build.
+chapter: dev
+status: draft
+order: 3
+fr:
+  title: Gamma brouillon

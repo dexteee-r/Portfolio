@@ -1,0 +1,14 @@
+# Fixture: shared fields inside the default locale block, as Sveltia CMS may write them.
+lang: [fr, en]
+fr:
+  chapter: infra
+  status: published
+  order: 1
+  title: Homelab
+  summary: Un homelab de test.
+en:
+  chapter: infra
+  status: published
+  order: 1
+  title: Homelab
+  summary: A test homelab.

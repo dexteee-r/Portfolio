@@ -1,0 +1,45 @@
+# Fixture: published, fully translated, with a cover and a rich text.
+chapter: dev
+status: published
+order: 1
+year: 2025
+cover: /media/fixtures/alpha-cover.webp
+links:
+  - kind: site
+    url: https://example.com/alpha
+  - kind: repo
+    url: https://github.com/example/alpha
+fr:
+  title: Alpha
+  summary: Une application de test, entièrement traduite.
+  coverAlt: Dégradé indigo, image de test.
+  body: |
+    ## Contexte
+
+    Texte long en français, avec un [lien vers le chapitre](/fr/dev) et un
+    [lien externe](https://example.com).
+
+    ![Capture de test au format 4:3](/media/fixtures/alpha-shot.png "Légende de la capture")
+
+    ## Choix techniques
+
+    | Couche  | Choix     |
+    | ------- | --------- |
+    | Interface | Next.js |
+    | Données | Fichiers  |
+
+    ```ts
+    const answer = 42;
+    ```
+
+    # Titre écrit en niveau 1
+en:
+  title: Alpha
+  summary: A test application, fully translated.
+  coverAlt: Indigo gradient, test image.
+  body: |
+    ## Context
+
+    Long text in English, with a [link to the chapter](/en/dev).
+
+    ![Test screenshot, 4:3](/media/fixtures/alpha-shot.png "Screenshot caption")

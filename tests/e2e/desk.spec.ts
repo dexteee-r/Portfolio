@@ -1,0 +1,126 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test, type Page } from "@playwright/test";
+import { horizontalOverflow } from "./helpers";
+
+/** Fixture content: dev 2 published + 1 draft, infra 1, repair 0, creative 1. */
+const FR_MARKS = [
+  { name: "Développement 2 projets", href: "/fr/dev" },
+  { name: "Infrastructure 1 projet", href: "/fr/infra" },
+  { name: "Réparation 0 projet", href: "/fr/repair" },
+  { name: "Création 1 projet", href: "/fr/creatif" },
+];
+
+async function marks(page: Page) {
+  return page.getByRole("navigation", { name: /Chapitres|Chapters/ }).getByRole("link");
+}
+
+test.describe("desk", () => {
+  test("shows the name and the activity on first paint", async ({ page }) => {
+    await page.goto("/fr");
+    const name = page.getByRole("heading", { level: 1 });
+    const identity = page.getByText(
+      "Développeur full-stack et infrastructure, en Belgique. Je répare et je filme aussi.",
+    );
+    await expect(name).toBeInViewport();
+    await expect(identity).toBeInViewport();
+  });
+
+  test("lists the four chapters with their real, published-only counts", async ({ page }) => {
+    await page.goto("/fr");
+    const links = await marks(page);
+    await expect(links).toHaveCount(4);
+    for (const [index, mark] of FR_MARKS.entries()) {
+      await expect(links.nth(index)).toHaveAccessibleName(mark.name);
+      await expect(links.nth(index)).toHaveAttribute("href", mark.href);
+    }
+  });
+
+  test("keeps all four folders in the first screen", async ({ page }) => {
+    await page.goto("/fr");
+    const links = await marks(page);
+    for (let i = 0; i < 4; i++) await expect(links.nth(i)).toBeInViewport();
+  });
+
+  test("never scrolls sideways, and clips nothing — desk and 404, down to 320px", async ({ page }) => {
+    for (const width of [page.viewportSize()!.width, 320]) {
+      await page.setViewportSize({ width, height: 700 });
+      for (const path of ["/fr", "/en", "/fr/missing", "/en/missing"]) {
+        await page.goto(path);
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        expect(overflow, `${path} @${width}`).toBe(0);
+        expect(await horizontalOverflow(page), `${path} @${width}`).toEqual([]);
+      }
+    }
+  });
+
+  test("declares every language version to search engines", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://elmzn.be/en");
+    const alternates = page.locator('link[rel="alternate"][hreflang]');
+    await expect(alternates).toHaveCount(3);
+    await expect(page.locator('link[hreflang="fr"]')).toHaveAttribute("href", "https://elmzn.be/fr");
+    await expect(page.locator('link[hreflang="en"]')).toHaveAttribute("href", "https://elmzn.be/en");
+    await expect(page.locator('link[hreflang="x-default"]')).toHaveAttribute("href", "https://elmzn.be/fr");
+  });
+
+  test("switches language from the visible selector, and only from there", async ({ page }) => {
+    await page.goto("/fr");
+    await page.getByRole("navigation", { name: "Langue" }).getByRole("link", { name: /EN/ }).click();
+    await expect(page).toHaveURL(/\/en$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByText("Full-stack and infrastructure developer", { exact: false })).toBeVisible();
+    const links = await marks(page);
+    await expect(links.nth(3)).toHaveAttribute("href", "/en/creative");
+    await expect(links.nth(2)).toHaveAccessibleName("Repair 0 projects");
+  });
+
+  test("shows the local time once hydrated", async ({ page }) => {
+    await page.goto("/fr");
+    await expect(page.getByRole("banner").locator("time")).toHaveText(/^\d{2}:\d{2}$/);
+  });
+
+  test("lets keyboard users skip straight to the content", async ({ page, isMobile }) => {
+    test.skip(isMobile, "keyboard navigation is a desktop concern");
+    await page.goto("/fr");
+    await page.keyboard.press("Tab");
+    const skip = page.getByRole("link", { name: "Aller au contenu" });
+    await expect(skip).toBeFocused();
+    await expect(skip).toBeInViewport();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#content$/);
+  });
+
+  test("shows a visible focus ring on the folders", async ({ page, isMobile }) => {
+    test.skip(isMobile, "keyboard navigation is a desktop concern");
+    await page.goto("/fr");
+    const first = (await marks(page)).first();
+    await first.focus();
+    const outline = await first.evaluate((el) => getComputedStyle(el).outlineStyle);
+    expect(outline).not.toBe("none");
+  });
+});
+
+test.describe("desk without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("is complete: name, activity and the four links are in the HTML", async ({ page }) => {
+    await page.goto("/fr");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByText("Je répare et je filme aussi.", { exact: false })).toBeVisible();
+    await expect(await marks(page)).toHaveCount(4);
+  });
+});
+
+test.describe("accessibility (axe, WCAG 2.1 AA)", () => {
+  for (const path of ["/fr", "/en", "/fr/nope"]) {
+    test(`${path} has no violations`, async ({ page }) => {
+      await page.goto(path);
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        .analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+    });
+  }
+});

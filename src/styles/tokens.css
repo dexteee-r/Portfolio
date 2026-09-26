@@ -1,0 +1,319 @@
+/* =============================================================================
+   ELMZN — design tokens
+   Portfolio shell + four chapter grades.
+
+   Four rules this file encodes:
+   1. The frame carries no colour other than the four chapter marks.
+   2. A chapter redefines palette and material only — never grid, type scale,
+      spacing or motion.
+   3. One transition carries the site: desktop -> chapter. Everything else is quiet.
+   4. Every chapter colour exists in two values: a mark (on the light frame)
+      and a grade (on the chapter's own dark ground).
+
+   Usage: set data-chapter="dev|infra|repair|creative" on <html> or on the
+   chapter root. Components read the --chapter-* aliases, never the per-chapter
+   variables directly.
+
+   Tailwind v4: re-export the values below inside an @theme block.
+   Tailwind v3: mirror them in theme.extend of tailwind.config.
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     FRAME — the desktop. Light, achromatic, no accent colour of its own.
+     --------------------------------------------------------------------------- */
+
+  /* Contrast measured against --color-ground (#f6f6f4):
+       --color-ink        17.45:1
+       --color-ink-muted   4.95:1
+     Both clear WCAG AA for body text (4.5:1).
+
+     There is deliberately no third, lighter grey. The top bar and the project
+     counters used to sit at 3.21:1 and 2.34:1 — the counters were effectively
+     invisible. Hierarchy below --color-ink-muted is carried by size, weight and
+     letter-spacing, never by a lighter grey. */
+
+  --color-ground: #f6f6f4;
+  --color-surface: #efefec;
+  --color-ink: #101114;
+  --color-ink-muted: #6b6b66;
+  --color-line: #e2e2dd;
+  --color-line-strong: #cfcfc9;
+
+  /* ---------------------------------------------------------------------------
+     CHAPTER MARKS — the only colour allowed on the light frame.
+     Darkened variants of each grade accent so they hold against #f6f6f4.
+
+     Measured on --color-ground: dev 5.45:1, infra 3.64:1, repair 5.41:1,
+     creative 3.50:1. All clear 3:1 for graphics, but infra and creative stay
+     under 4.5:1 — a mark colours a shape (the folder), never text.
+     --------------------------------------------------------------------------- */
+
+  --mark-dev: #4a55d6;
+  --mark-infra: #1b8f89;
+  --mark-repair: #b23d26;
+  --mark-creative: #b2771c;
+
+  /* ---------------------------------------------------------------------------
+     CHAPTER GRADES — each chapter's own dark world.
+
+     Every chapter carries TWO accents:
+       --*-accent       display only (chapter titles), needs 3:1
+       --*-accent-text  small text and UI, needs 4.5:1
+     They are identical everywhere except:
+       repair — its brick reads 3.86:1 on its own ground: fine for a 6.5cqw
+                title, below AA for anything smaller;
+       dev    — its indigo reads 4.55:1 on the ground but only 4.09:1 on
+                --dev-surface, so small text on a card would fail AA.
+     Every --*-accent-text clears 4.5:1 on BOTH its ground and its surface —
+     tests/unit/tokens.test.ts recomputes every ratio in this file.
+     Never use --*-accent below display size.
+
+     --*-line is the chapter hairline: 16% of the ink into the ground. The
+     frame hairline (#e2e2dd) would glare on a dark grade.
+     --------------------------------------------------------------------------- */
+
+  /* dev — indigo, screen light */
+  --dev-bg: #0d0f1f;
+  --dev-surface: #161a33;
+  --dev-ink: #e6e8fa;          /* 15.64:1 */
+  --dev-muted: #8e93c4;        /*  6.44:1 */
+  --dev-accent: #6470e8;       /*  4.55:1 — display only */
+  --dev-accent-text: #717cea;  /* 5.22:1 on ground, 4.69:1 on surface */
+  --dev-line: #303242;
+
+  /* infra — phosphor, systems console */
+  --infra-bg: #07100f;
+  --infra-surface: #0e1c1b;
+  --infra-ink: #dcefec;        /* 16.15:1 */
+  --infra-muted: #7fa5a1;      /*  7.15:1 */
+  --infra-accent: #58c4be;     /*  9.22:1 */
+  --infra-accent-text: #58c4be;
+  --infra-line: #293432;
+
+  /* repair — brick, workshop bench */
+  --repair-bg: #14100e;
+  --repair-surface: #211a16;
+  --repair-ink: #f0e8e2;       /* 15.62:1 */
+  --repair-muted: #a8968b;     /*  6.67:1 */
+  --repair-accent: #c4472f;    /*  3.86:1 — display only */
+  --repair-accent-text: #dc6447; /* 5.37:1 on ground, 4.87:1 on surface */
+  --repair-line: #373330;
+
+  /* creative — amber, projection */
+  --creative-bg: #0c0b08;
+  --creative-surface: #171309;
+  --creative-ink: #f2ede3;     /* 16.87:1 */
+  --creative-muted: #a0968a;   /*  6.77:1 */
+  --creative-accent: #e8a33d;  /*  9.13:1 */
+  --creative-accent-text: #e8a33d;
+  --creative-line: #312f2b;
+
+  /* ---------------------------------------------------------------------------
+     ACTIVE CHAPTER — aliases components consume. Default to the frame so the
+     desktop renders correctly with no data-chapter set.
+     --------------------------------------------------------------------------- */
+
+  --chapter-bg: var(--color-ground);
+  --chapter-surface: var(--color-surface);
+  --chapter-ink: var(--color-ink);
+  --chapter-muted: var(--color-ink-muted);
+  --chapter-accent: var(--color-ink);
+  --chapter-accent-text: var(--color-ink);
+  --chapter-line: var(--color-line);
+
+  /* ---------------------------------------------------------------------------
+     TYPE — one family for interface and editorial, one monospace for system data.
+     No third face: on a desktop, hierarchy comes from scale and emptiness.
+     --------------------------------------------------------------------------- */
+
+  --font-ui: "Schibsted Grotesk", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --text-2xs: 0.6875rem;  /* mono labels, counters */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: clamp(2.5rem, 4vw, 3.5rem);
+  --text-4xl: clamp(3.25rem, 8vw, 7rem);   /* desktop name, chapter title */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --leading-tight: 1.04;   /* display only */
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+
+  --tracking-display: -0.035em;
+  --tracking-normal: 0em;
+  --tracking-label: 0.14em;   /* uppercase mono labels */
+
+  --measure: 65ch;
+
+  /* ---------------------------------------------------------------------------
+     SPACE — 4px base.
+     --------------------------------------------------------------------------- */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 5rem;
+  --space-11: 6rem;
+  --space-12: 8rem;
+
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --max-content: 64rem;
+
+  /* ---------------------------------------------------------------------------
+     RADIUS & LINES — deliberately small. Nothing rounded reads as soft here.
+     --------------------------------------------------------------------------- */
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --border-hairline: 1px;
+
+  /* ---------------------------------------------------------------------------
+     MOTION — one signature transition, everything else restrained.
+     --ease-flood is the signature curve — fast out, slow settle — used by the
+     drawer (src/lib/transitions.ts) and the folders landing at the end of the
+     boot sequence. --duration-flood is kept for the flood technique, should it
+     ever return; the drawer itself runs 560 ms.
+     Never cut straight from the light frame to a dark grade: that reads as a flash.
+     --------------------------------------------------------------------------- */
+
+  --duration-fast: 160ms;
+  --duration-base: 260ms;
+  --duration-slow: 420ms;
+  --duration-flood: 700ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-flood: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---------------------------------------------------------------------------
+     ELEVATION — used sparingly. Border and ground do most of the separating.
+     --------------------------------------------------------------------------- */
+
+  --shadow-raised: 0 1px 2px rgb(16 17 20 / 0.06), 0 8px 24px rgb(16 17 20 / 0.06);
+}
+
+/* =============================================================================
+   CHAPTER ACTIVATION
+   ============================================================================= */
+
+[data-chapter="dev"] {
+  --chapter-bg: var(--dev-bg);
+  --chapter-surface: var(--dev-surface);
+  --chapter-ink: var(--dev-ink);
+  --chapter-muted: var(--dev-muted);
+  --chapter-accent: var(--dev-accent);
+  --chapter-accent-text: var(--dev-accent-text);
+  --chapter-line: var(--dev-line);
+}
+
+[data-chapter="infra"] {
+  --chapter-bg: var(--infra-bg);
+  --chapter-surface: var(--infra-surface);
+  --chapter-ink: var(--infra-ink);
+  --chapter-muted: var(--infra-muted);
+  --chapter-accent: var(--infra-accent);
+  --chapter-accent-text: var(--infra-accent-text);
+  --chapter-line: var(--infra-line);
+}
+
+[data-chapter="repair"] {
+  --chapter-bg: var(--repair-bg);
+  --chapter-surface: var(--repair-surface);
+  --chapter-ink: var(--repair-ink);
+  --chapter-muted: var(--repair-muted);
+  --chapter-accent: var(--repair-accent);
+  --chapter-accent-text: var(--repair-accent-text);
+  --chapter-line: var(--repair-line);
+}
+
+[data-chapter="creative"] {
+  --chapter-bg: var(--creative-bg);
+  --chapter-surface: var(--creative-surface);
+  --chapter-ink: var(--creative-ink);
+  --chapter-muted: var(--creative-muted);
+  --chapter-accent: var(--creative-accent);
+  --chapter-accent-text: var(--creative-accent-text);
+  --chapter-line: var(--creative-line);
+}
+
+/* The document takes the ground of the chapter view it holds — direct loads,
+   iOS overscroll and the edges of a receding view never show the light frame
+   behind a dark grade. Ground only: the aliases stay scoped to the chapter
+   view, so a desk still on screen during the drawer keeps its own colours. */
+html:has([data-chapter="dev"]),
+html:has([data-chapter="dev"]) body {
+  background-color: var(--dev-bg);
+}
+
+html:has([data-chapter="infra"]),
+html:has([data-chapter="infra"]) body {
+  background-color: var(--infra-bg);
+}
+
+html:has([data-chapter="repair"]),
+html:has([data-chapter="repair"]) body {
+  background-color: var(--repair-bg);
+}
+
+html:has([data-chapter="creative"]),
+html:has([data-chapter="creative"]) body {
+  background-color: var(--creative-bg);
+}
+
+/* =============================================================================
+   BASE
+   ============================================================================= */
+
+/* No transition on the document's ground. It belonged to the "flood"
+   technique; the drawer changes the ground behind opaque views, where a fade
+   is never seen — while on a direct load of a chapter it would fade the whole
+   page from the light frame to the dark grade: the very flash rule 3 forbids. */
+html {
+  background: var(--chapter-bg);
+}
+
+body {
+  background: var(--chapter-bg);
+  color: var(--chapter-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =============================================================================
+   REDUCED MOTION — the flood is the one thing that must never be forced.
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-base: 1ms;
+    --duration-slow: 1ms;
+    --duration-flood: 1ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

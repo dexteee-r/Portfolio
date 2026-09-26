@@ -1,0 +1,7 @@
+# Fixture: published, French only — English falls back to French.
+chapter: dev
+status: published
+order: 2
+fr:
+  title: Bêta
+  summary: Seulement en français pour l’instant.

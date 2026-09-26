@@ -1,0 +1,397 @@
+@import "tailwindcss";
+/* Unlayered on purpose: it must win over Tailwind's layered defaults
+   wherever both define the same variable (--text-xs, --font-mono…). */
+@import "../styles/tokens.css";
+
+/*
+ * Tailwind reads tokens.css; it never brings a value of its own.
+ *
+ * - Its default palette is wiped. A colour that is not a token cannot even
+ *   be written: `text-red-500` generates nothing.
+ * - Colour utilities are named after the --chapter-* aliases, so a component
+ *   follows whichever chapter it sits in without knowing which one it is
+ *   (rule 2). Marks exist for the frame only.
+ * - Type, spacing, radius and easing utilities point at the same tokens every
+ *   chapter shares — a chapter cannot change them.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-chapter-bg: var(--chapter-bg);
+  --color-chapter-surface: var(--chapter-surface);
+  --color-chapter-ink: var(--chapter-ink);
+  --color-chapter-muted: var(--chapter-muted);
+  --color-chapter-accent: var(--chapter-accent);
+  --color-chapter-accent-text: var(--chapter-accent-text);
+  --color-chapter-line: var(--chapter-line);
+  --color-mark-dev: var(--mark-dev);
+  --color-mark-infra: var(--mark-infra);
+  --color-mark-repair: var(--mark-repair);
+  --color-mark-creative: var(--mark-creative);
+
+  --font-*: initial;
+  --font-ui: var(--font-ui);
+  --font-mono: var(--font-mono);
+
+  --text-*: initial;
+  --text-2xs: var(--text-2xs);
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  --font-weight-*: initial;
+  --font-weight-regular: var(--weight-regular);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+
+  --leading-*: initial;
+  --leading-tight: var(--leading-tight);
+  --leading-snug: var(--leading-snug);
+  --leading-body: var(--leading-body);
+
+  --tracking-*: initial;
+  --tracking-display: var(--tracking-display);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-label: var(--tracking-label);
+
+  /* Same 4px base as tokens.css, so Tailwind steps land on the token scale.
+     Numbers keep their usual Tailwind meaning (h-12 = 3rem). The token
+     steps map to: --space-1..4 → 1..4, -5 → 6, -6 → 8, -7 → 10, -8 → 12,
+     -9 → 16, -10 → 20, -11 → 24, -12 → 32. */
+  --spacing: 0.25rem;
+  --spacing-gutter: var(--gutter);
+
+  --container-measure: var(--measure);
+  --container-content: var(--max-content);
+
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+
+  --shadow-*: initial;
+  --shadow-raised: var(--shadow-raised);
+
+  --ease-*: initial;
+  --ease-standard: var(--ease-standard);
+  --ease-flood: var(--ease-flood);
+  --ease-exit: var(--ease-exit);
+}
+
+/* next/font self-hosts the two families under generated names; point the type
+   tokens at them and keep tokens.css's fallbacks. */
+:root {
+  --font-ui: var(--font-schibsted), system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--chapter-ink);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--chapter-ink);
+    color: var(--chapter-bg);
+  }
+}
+
+/*
+ * Boot sequence — see src/lib/boot.ts. Every time comes from there, through
+ * the custom properties BootSequence sets. Hidden unless the inline boot
+ * runtime has set data-boot="play" on <html>: no JavaScript, no sequence.
+ * Steps 1–3 are played here; the finale (the folders flying to their marks)
+ * is started by the end of `boot-hold` and played by the runtime.
+ */
+@layer components {
+  .boot {
+    display: none;
+  }
+
+  html[data-boot="play"] .boot {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: block;
+    pointer-events: none;
+    /* Does nothing but end on time: the shared clock for the finale. */
+    animation: boot-hold var(--boot-split-at) linear forwards;
+  }
+
+  .boot-ground {
+    position: absolute;
+    inset: 0;
+    background: var(--chapter-bg);
+  }
+
+  .boot-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding-inline: var(--gutter);
+    color: var(--chapter-ink);
+    text-align: center;
+  }
+
+  /* Placed and flown by the runtime; invisible until then. */
+  .boot-fly {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 5rem;
+    opacity: 0;
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+
+  /* The desk's own folders wait for theirs to land. */
+  html[data-boot="play"] [data-chapter-mark] svg {
+    opacity: 0;
+  }
+
+  .boot-folder {
+    width: 5rem;
+    overflow: visible;
+  }
+
+  .boot-folder path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  html[data-boot="play"] .boot-folder path {
+    animation: boot-trace var(--boot-trace-duration) var(--ease-standard) var(--boot-trace-at) forwards;
+  }
+
+  .boot-label {
+    position: relative;
+    height: calc(var(--text-sm) * var(--leading-body));
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+    color: var(--chapter-muted);
+  }
+
+  .boot-name {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  /* On for its whole window, off at its end: one name at a time. */
+  html[data-boot="play"] .boot-name {
+    animation: boot-name var(--boot-for) step-end var(--boot-at) forwards;
+  }
+
+  .boot-phrase {
+    margin-top: var(--space-5);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-display);
+    opacity: 0;
+  }
+
+  html[data-boot="play"] .boot-phrase {
+    animation: boot-in var(--boot-phrase-duration) var(--ease-standard) var(--boot-phrase-at) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html[data-boot] .boot {
+      display: none;
+    }
+  }
+}
+
+@keyframes boot-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes boot-name {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes boot-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes boot-hold {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Long-form project text. Same scale, spacing and measure in every chapter
+ * (rule 2); only the --chapter-* colours change. Links use the accent-text
+ * value, which clears AA on both ground and surface.
+ */
+@layer components {
+  .prose {
+    max-width: var(--measure);
+    color: var(--chapter-ink);
+    font-size: var(--text-base);
+    line-height: var(--leading-body);
+  }
+
+  .prose > * + * {
+    margin-top: var(--space-5);
+  }
+
+  .prose h2 {
+    margin-top: var(--space-9);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .prose h3,
+  .prose h4 {
+    margin-top: var(--space-7);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+  }
+
+  .prose > :first-child {
+    margin-top: 0;
+  }
+
+  .prose a {
+    color: var(--chapter-accent-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .prose strong {
+    font-weight: var(--weight-semibold);
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: var(--space-5);
+  }
+
+  .prose ul {
+    list-style: disc;
+  }
+
+  .prose ol {
+    list-style: decimal;
+  }
+
+  .prose li + li {
+    margin-top: var(--space-2);
+  }
+
+  .prose li::marker {
+    color: var(--chapter-muted);
+  }
+
+  .prose blockquote {
+    border-left: var(--border-hairline) solid var(--chapter-line);
+    padding-left: var(--space-5);
+    color: var(--chapter-muted);
+  }
+
+  .prose code {
+    border-radius: var(--radius-sm);
+    background: var(--chapter-surface);
+    padding: 0.1em 0.35em;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+  }
+
+  .prose pre {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    background: var(--chapter-surface);
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  .prose pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .prose hr {
+    border: 0;
+    border-top: var(--border-hairline) solid var(--chapter-line);
+  }
+
+  .prose figure {
+    margin-block: var(--space-7);
+  }
+
+  .prose figcaption {
+    margin-top: var(--space-3);
+    color: var(--chapter-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .prose .prose-scroll {
+    overflow-x: auto;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .prose th,
+  .prose td {
+    border-bottom: var(--border-hairline) solid var(--chapter-line);
+    padding: var(--space-2) var(--space-4) var(--space-2) 0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .prose th {
+    color: var(--chapter-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-regular);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+}
