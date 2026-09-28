@@ -3,22 +3,28 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { pagePath } from "@/i18n/paths";
 import { site } from "@/site";
+import { BrandIcon, MailIcon, type Brand } from "./ContactIcons";
 import { SiteLink } from "./SiteLink";
-
-/** Profile names are brands: the same in every language. */
-const PROFILE_NAMES: Record<Profile, string> = {
-  instagram: "Instagram",
-  github: "GitHub",
-};
 
 type Profile = keyof typeof site.social;
 
+/** Profile names are brands: the same in every language. Each has its icon. */
+const PROFILES: Record<Profile, { name: string; icon: Brand }> = {
+  instagram: { name: "Instagram", icon: "instagram" },
+  github: { name: "GitHub", icon: "github" },
+};
+
 /** Public profiles that are filled in, with their names. An empty one is left out. */
-export function profileLinks(social: Record<Profile, string> = site.social): Array<{ name: string; url: string }> {
+export function profileLinks(
+  social: Record<Profile, string> = site.social,
+): Array<{ name: string; url: string; icon: Brand }> {
   return (Object.keys(social) as Profile[])
     .filter((key) => social[key] !== "")
-    .map((key) => ({ name: PROFILE_NAMES[key], url: social[key] }));
+    .map((key) => ({ ...PROFILES[key], url: social[key] }));
 }
+
+/** Small enough to sit with the footer's small capitals, never above them. */
+const ICON = "size-3.5 shrink-0";
 
 interface SiteFooterProps {
   locale: Locale;
@@ -48,16 +54,21 @@ export function SiteFooter({ locale, dict, back, current, plain = false }: SiteF
       <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-baseline md:justify-between md:gap-x-10">
         {back && <div>{back}</div>}
         {/* A heading may not sit inside <address>: it labels it from outside. */}
-        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <h2 className="font-mono text-2xs font-normal">{dict.footer.contact}</h2>
-          <address className="flex flex-wrap items-baseline gap-x-5 gap-y-2 not-italic">
-            <a href={`mailto:${site.email}`} className={`${link} normal-case tracking-normal`}>
+          <address className="flex flex-wrap items-center gap-x-5 gap-y-2 not-italic">
+            <a
+              href={`mailto:${site.email}`}
+              className={`${link} inline-flex items-center gap-1.5 normal-case tracking-normal`}
+            >
+              <MailIcon className={ICON} />
               {site.email}
             </a>
             {profileLinks().map((profile) => (
-              <a key={profile.url} href={profile.url} rel="me" className={link}>
+              <a key={profile.url} href={profile.url} rel="me" className={`${link} inline-flex items-center gap-1.5`}>
+                <BrandIcon brand={profile.icon} className={ICON} />
                 {profile.name}
-                <span aria-hidden="true"> ↗</span>
+                <span aria-hidden="true">↗</span>
               </a>
             ))}
           </address>

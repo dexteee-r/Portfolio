@@ -177,8 +177,44 @@ describe("SiteFooter", () => {
 
   it("leaves out a profile that is not filled in", () => {
     expect(profileLinks({ instagram: "https://instagram.com/x", github: "" })).toEqual([
-      { name: "Instagram", url: "https://instagram.com/x" },
+      { name: "Instagram", url: "https://instagram.com/x", icon: "instagram" },
     ]);
+  });
+
+  it("puts an icon before each way of reaching the owner — decorative, the words name the link", () => {
+    render(<SiteFooter locale="fr" dict={fr} />);
+    const footer = screen.getByRole("contentinfo");
+    const links = [
+      within(footer).getByRole("link", { name: site.email }),
+      within(footer).getByRole("link", { name: /^Instagram/ }),
+      within(footer).getByRole("link", { name: /^GitHub/ }),
+    ];
+    for (const link of links) {
+      const icon = link.querySelector("svg")!;
+      expect(icon, link.textContent ?? "").not.toBeNull();
+      expect(link.firstElementChild).toBe(icon); // before the words
+      expect(icon).toHaveAttribute("aria-hidden", "true");
+      expect(icon).toHaveAttribute("focusable", "false");
+    }
+    // The address itself is still plain text, whole, inside its link.
+    expect(links[0]!.textContent).toBe(site.email);
+  });
+
+  it("draws the icons in the text's own colour, never a brand's", () => {
+    const { container } = render(<SiteFooter locale="fr" dict={fr} />);
+    for (const svg of container.querySelectorAll("footer svg")) {
+      const paint = [svg.getAttribute("fill"), svg.getAttribute("stroke")].filter((v) => v && v !== "none");
+      expect(paint).toEqual(["currentColor"]);
+      expect(svg.outerHTML).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    }
+    expect(container.querySelectorAll("footer svg")).toHaveLength(3);
+  });
+
+  it("uses the real brand glyphs, unaltered (Simple Icons)", async () => {
+    const { siGithub, siInstagram } = await import("simple-icons");
+    const { container } = render(<SiteFooter locale="fr" dict={fr} />);
+    const paths = [...container.querySelectorAll("footer svg[fill='currentColor'] path")].map((p) => p.getAttribute("d"));
+    expect(paths).toEqual([siInstagram.path, siGithub.path]);
   });
 
   it("links the legal notice in the page's language", () => {
