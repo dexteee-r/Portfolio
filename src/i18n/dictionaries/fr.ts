@@ -51,6 +51,7 @@ export const fr = {
     escapeHint: "Échap",
     pullHint: "ou tirer vers le bas, en haut de page",
     stationsLabel: "Projets",
+    drawerLabel: "Sommaire du dossier",
     empty: "Ce dossier est encore vide.",
     open: "Ouvrir le dossier",
     draft: "Brouillon",

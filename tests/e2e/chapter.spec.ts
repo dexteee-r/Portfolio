@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { horizontalOverflow } from "./helpers";
 
 /** Fixture content: dev = alpha (cover) + beta (no cover, FR only) + a hidden draft. */
@@ -15,6 +15,25 @@ test.describe("chapter page, loaded directly", () => {
     await expect(stations).toHaveCount(2);
     await expect(stations.nth(0).getByRole("link", { name: "Alpha" })).toHaveAttribute("href", "/fr/dev/alpha-app");
     await expect(stations.nth(1).getByRole("link", { name: "Bêta" })).toHaveAttribute("href", "/fr/dev/beta-tool");
+  });
+
+  test("opens on the drawer: one tabbed folder per project, above the stations", async ({ page }) => {
+    await page.goto("/fr/dev");
+    const drawer = page.getByRole("navigation", { name: "Sommaire du dossier" });
+    const folders = drawer.getByRole("link");
+    await expect(folders).toHaveCount(2);
+    await expect(folders.nth(0)).toHaveAttribute("href", "/fr/dev/alpha-app");
+    await expect(folders.nth(1)).toHaveAttribute("href", "/fr/dev/beta-tool");
+    await expect(drawer.getByText("01", { exact: true })).toBeVisible();
+    // The drawer's contents come before the stroll through them.
+    const drawerTop = (await drawer.boundingBox())!.y;
+    const stationsTop = (await page.getByRole("list", { name: "Projets" }).boundingBox())!.y;
+    expect(drawerTop).toBeLessThan(stationsTop);
+  });
+
+  test("a chapter with a single project has no drawer: its station says it all", async ({ page }) => {
+    await page.goto("/fr/creatif");
+    await expect(page.getByRole("navigation", { name: "Sommaire du dossier" })).toHaveCount(0);
   });
 
   test("never shows drafts in production", async ({ page }) => {
@@ -98,6 +117,55 @@ test.describe("chapter page, loaded directly", () => {
     );
     expect(overflow).toBe(0);
     expect(await horizontalOverflow(page)).toEqual([]);
+  });
+});
+
+test.describe("the drawer, open", () => {
+  const folder = (page: Page, n: number) => page.locator("[data-folder]").nth(n);
+  const width = async (page: Page, n: number) => (await folder(page, n).boundingBox())!.width;
+
+  test("on a wide screen, a folder widens under the pointer, the others make room", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "hover needs a pointer");
+    await page.goto("/fr/dev");
+    const [first, second] = [await width(page, 0), await width(page, 1)];
+    expect(Math.abs(first - second)).toBeLessThan(2); // equal at rest
+
+    await folder(page, 1).hover();
+    await expect.poll(() => width(page, 1)).toBeGreaterThan(second * 1.3);
+    expect(await width(page, 0)).toBeLessThan(first);
+  });
+
+  test("the keyboard gets the same: a focused folder widens too", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "a wide-screen layout");
+    await page.goto("/fr/dev");
+    const rest = await width(page, 0);
+    await folder(page, 0).getByRole("link").focus();
+    await expect.poll(() => width(page, 0)).toBeGreaterThan(rest * 1.3);
+  });
+
+  test("taking a folder out opens its project, quietly, inside the chapter", async ({ page }) => {
+    await page.goto("/fr/dev");
+    await expect(page.getByRole("banner").locator("time")).toBeVisible();
+    await folder(page, 0).getByRole("link").click();
+    await expect(page).toHaveURL(/\/fr\/dev\/alpha-app$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Alpha");
+    await expect(page.locator("[data-stage-leaving]")).toHaveCount(0);
+  });
+
+  test("on a phone, the drawer scrolls sideways, edge to edge, folders snapping to the margin", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile", "a phone layout");
+    await page.goto("/fr/dev");
+    const list = page.getByRole("navigation", { name: "Sommaire du dossier" }).getByRole("list");
+    const style = await list.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { overflowX: s.overflowX, snap: s.scrollSnapType, padding: s.scrollPaddingLeft };
+    });
+    expect(style.overflowX).toBe("auto");
+    expect(style.snap).toContain("x");
+    expect(parseFloat(style.padding)).toBeGreaterThan(0);
+    const box = (await list.boundingBox())!;
+    expect(box.x).toBe(0); // edge to edge
+    expect((await folder(page, 0).boundingBox())!.x).toBeGreaterThan(0); // the first folder keeps the page's margin
   });
 });
 

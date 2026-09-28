@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ChapterView } from "@/components/ChapterView";
+import { DRAWER_MIN_PROJECTS, DrawerIndex, tabPlacement } from "@/components/DrawerIndex";
 import { Station } from "@/components/Station";
 import type { LocalizedProject } from "@/content/projects";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -90,6 +91,76 @@ describe("ChapterView", () => {
     expect(hint).toHaveTextContent(fr.chapterPage.pullHint);
     expect(hint).toHaveClass("hidden", "pointer-coarse:block"); // its own line, never inside the link's sentence
     expect(hint).toHaveAttribute("aria-hidden", "true");
+  });
+});
+
+describe("DrawerIndex (the drawer, open)", () => {
+  const three = [
+    project(),
+    project({ slug: "beta-tool", title: "Bêta", cover: undefined, coverAlt: "" }),
+    project({ slug: "gamma-thing", title: "Gamma", lang: "fr" }),
+  ];
+
+  it("sits in a chapter, above the stations, as a labelled navigation", () => {
+    render(<ChapterView locale="fr" dict={fr} chapter="dev" stations={three} publishedCount={3} />);
+    const drawer = screen.getByRole("navigation", { name: fr.chapterPage.drawerLabel });
+    const stations = screen.getByRole("list", { name: fr.chapterPage.stationsLabel });
+    expect(drawer.compareDocumentPosition(stations) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("holds one folder per project, in station order, each opening its project", () => {
+    render(<DrawerIndex locale="fr" dict={fr} projects={three} />);
+    const links = within(screen.getByRole("navigation")).getAllByRole("link");
+    expect(links.map((l) => l.getAttribute("href"))).toEqual([
+      "/fr/dev/alpha-app",
+      "/fr/dev/beta-tool",
+      "/fr/dev/gamma-thing",
+    ]);
+    // Named by the project's title alone: the tab's number and the cover are decoration.
+    expect(links.map((l) => l.textContent?.replace(/^\d{2}/, ""))).toEqual(["Alpha", "Bêta", "Gamma"]);
+    expect(screen.getByRole("link", { name: "Alpha" })).toBeInTheDocument();
+  });
+
+  it("numbers the tabs from 01 and steps them across, like dividers", () => {
+    const { container } = render(<DrawerIndex locale="fr" dict={fr} projects={three} />);
+    const tabs = [...container.querySelectorAll("[data-folder] a > span:first-child")];
+    expect(tabs.map((t) => t.textContent)).toEqual(["01", "02", "03"]);
+    for (const tab of tabs) expect(tab).toHaveAttribute("aria-hidden", "true");
+    expect(tabs.map((t) => ["self-start", "self-center", "self-end"].find((c) => t.classList.contains(c)))).toEqual([
+      "self-start",
+      "self-center",
+      "self-end",
+    ]);
+    expect(tabPlacement(3)).toEqual(tabPlacement(0));
+  });
+
+  it("shows a strip of the cover, as decoration, or the project's folder when there is none", () => {
+    const { container } = render(<DrawerIndex locale="fr" dict={fr} projects={three} />);
+    const [alpha, beta] = [...container.querySelectorAll("[data-folder]")];
+    expect(alpha!.querySelector("img")).toHaveAttribute("alt", "");
+    expect(beta!.querySelector("img")).toBeNull();
+    expect(beta!.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("marks a title written in another language", () => {
+    render(<DrawerIndex locale="en" dict={en} projects={[project({ lang: "fr" }), project({ slug: "b", lang: "en" })]} />);
+    const [first, second] = within(screen.getByRole("navigation")).getAllByRole("link");
+    expect(first).toHaveAttribute("lang", "fr");
+    expect(second).not.toHaveAttribute("lang");
+  });
+
+  it("widens a folder under the pointer or the keyboard, on wide screens only, at the shared pace", () => {
+    const { container } = render(<DrawerIndex locale="fr" dict={fr} projects={three} />);
+    const folder = container.querySelector("[data-folder]")!;
+    expect(folder).toHaveClass("md:hover:grow-[3]", "md:focus-within:grow-[3]", "md:duration-(--duration-base)");
+  });
+
+  it("is left out when a chapter has fewer than two projects: the station says it all", () => {
+    expect(DRAWER_MIN_PROJECTS).toBe(2);
+    const { container, rerender } = render(<DrawerIndex locale="fr" dict={fr} projects={[project()]} />);
+    expect(container).toBeEmptyDOMElement();
+    rerender(<DrawerIndex locale="fr" dict={fr} projects={[]} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });
 

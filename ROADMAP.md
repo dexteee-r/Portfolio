@@ -27,6 +27,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   webhook signé, vérification que le site sert bien la nouvelle version.
 - Geste de balayage : un chapitre tiré vers le bas au doigt, depuis le haut de
   sa page, retourne au bureau ; le tiroir reprend là où le doigt l'a lâché.
+- Le tiroir ouvert : sommaire de chaque chapitre en dossiers suspendus à
+  onglets (inspi : folder type › intercalaires).
 
 ## À faire — V1
 
@@ -50,6 +52,21 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 
 ## À faire — plus tard
 
+- **Objets et effets par chapitre** (proposés le 2026-09-29 d'après `../inspi/`,
+  un seul effet par chapitre, dans sa seule couleur, au service du contenu) :
+  - dev : chaque projet en disquette étiquetée ; fiche technique en tête de
+    page projet (DA 2) ; schémas d'architecture sur grille de plan (RON) ;
+  - infra : le schéma réseau du homelab qui se dessine (animation › Hyperspace
+    tracking), puis en V3 le relief de points des vraies métriques et les
+    chiffres entre crochets (DA 4) ;
+  - repair : un scan de diagnostic qui nomme les pièces réparées sur la photo
+    (animation › scan thermique), ramené aux tons brique ; fiche
+    d'intervention en ticket (DA 2 › ticket) ;
+  - création : l'étagère de cassettes VHS (folder type › Kurosawa), le suivi
+    de mouvement sur l'aperçu vidéo (animation › nickjaykdesign), le globe en
+    points des lieux de tournage (animation › Planet by Pixels).
+  Pas de police pixel (deux familles seulement) : le rendu pixel passe par
+  DM Mono, l'ASCII et la trame.
 - **Animation en pixel art sur le côté droit du bureau, desktop uniquement**
   (demandée le 2026-09-25). Points à trancher avant de la dessiner :
   - le cadre est achromatique (règle 1) : en noir et blanc, ou seulement dans
@@ -59,6 +76,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   - desktop uniquement (≥ 768 px et pointeur fin), aucun mouvement sous
     `prefers-reduced-motion`, rien de chargé sur mobile ;
   - rendu : sprite CSS (`steps()`) ou `<canvas>` ; `image-rendering: pixelated`.
+  - piste (inspi, 2026-09-29) : trame 1 bit ou ASCII à l'encre sur fond clair
+    (animation › chrome skull, DA 4 › portrait ASCII) — le dossier du
+    démarrage en 3D tramée qui tourne lentement, ou un portrait en ASCII.
 - V2 : curseur vidéo sur les stations (avec son équivalent au doigt), schéma
   réseau du homelab qui se dessine, globe pour le chapitre créatif.
 - V3 : données réelles du homelab, référencement local de la réparation

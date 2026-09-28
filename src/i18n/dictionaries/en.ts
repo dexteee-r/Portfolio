@@ -48,6 +48,7 @@ export const en: Dictionary = {
     escapeHint: "Esc",
     pullHint: "or pull down from the top of the page",
     stationsLabel: "Projects",
+    drawerLabel: "Folder contents",
     empty: "This folder is still empty.",
     open: "Open the folder",
     draft: "Draft",

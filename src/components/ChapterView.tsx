@@ -4,6 +4,7 @@ import type { LocalizedProject } from "@/content/projects";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
+import { DrawerIndex } from "./DrawerIndex";
 import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { Station } from "./Station";
@@ -49,6 +50,8 @@ export function ChapterView({ locale, dict, chapter, stations, publishedCount }:
           </h1>
           <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">{copy.description}</p>
         </header>
+
+        <DrawerIndex locale={locale} dict={dict} projects={stations} />
 
         {stations.length > 0 ? (
           <ol aria-label={dict.chapterPage.stationsLabel} className="mt-16 flex flex-col gap-20 md:mt-24 md:gap-32">

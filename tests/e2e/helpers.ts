@@ -11,9 +11,20 @@ export function horizontalOverflow(page: Page): Promise<string[]> {
     const offenders: string[] = [];
     const describe = (el: Element, detail: string) =>
       `${el.tagName.toLowerCase()} ${detail} "${(el.textContent ?? "").trim().slice(0, 40)}"`;
+    // Content inside a deliberate sideways scroller (the drawer on a phone, a
+    // wide table) is meant to extend past the screen; the scroller itself is
+    // still checked like any other box.
+    const insideScroller = (el: Element) => {
+      for (let parent = el.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
+        const overflowX = getComputedStyle(parent).overflowX;
+        if (overflowX === "auto" || overflowX === "scroll") return true;
+      }
+      return false;
+    };
 
     for (const el of document.querySelectorAll<HTMLElement>("body *")) {
       if (el.closest("[data-stage-leaving], .sr-only, svg")) continue;
+      if (insideScroller(el)) continue;
       const style = getComputedStyle(el);
       if (style.display === "none" || style.visibility === "hidden" || style.position === "fixed") continue;
 

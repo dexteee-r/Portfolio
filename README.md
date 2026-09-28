@@ -113,6 +113,15 @@ Garde-fous : un seul tiroir à la fois ; navigation abandonnée au bout de 8 s ;
 animation terminée de force si elle n'avance pas (onglet masqué) ; aucun
 mouvement sous `prefers-reduced-motion`.
 
+**Le tiroir ouvert** (`DrawerIndex`) : en haut de chaque chapitre, sous son
+titre, les projets en dossiers suspendus côte à côte — un onglet numéroté par
+dossier, décalé de gauche à droite comme des intercalaires, une bande de la
+couverture, le titre sur la tranche. Sur grand écran, le dossier survolé ou
+atteint au clavier s'élargit (`--duration-base`, donc instantané sous
+`prefers-reduced-motion`) ; sur téléphone, le tiroir défile de côté. Le
+prendre ouvre le projet (fondu sobre, même chapitre). Absent sous deux
+projets : la station suffit.
+
 **Le tiroir à la main** (écrans tactiles) : en haut d'un chapitre, on le tire
 vers le bas au doigt. Il suit le doigt, le fond clair du cadre apparaît
 au-dessus ; lâché après un quart de l'écran, ou d'un coup sec, le tiroir
