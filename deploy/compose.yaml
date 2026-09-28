@@ -1,0 +1,32 @@
+# The site on the homelab. Copy this folder's compose.yaml and deploy.sh to
+# /opt/elmzn/ on the server, next to a .env holding the CMS settings (see
+# .env.example); the README ("Hébergement") has the full setup.
+name: elmzn
+
+services:
+  web:
+    # Published by CI after every check has passed; deploy.sh pulls it.
+    image: ghcr.io/dexteee-r/portfolio:latest
+    restart: unless-stopped
+    # CMS_GITHUB_* — the OAuth secret lives here, on the server, never in the image.
+    env_file: .env
+    ports:
+      # Nginx Proxy Manager forwards elmzn.be here, with HTTPS in front.
+      - "3000:3000"
+    # Nothing in the container can change the site's files: the whole
+    # filesystem is read-only but for two scratch areas in memory.
+    read_only: true
+    tmpfs:
+      # Optimised images, owned by the `node` user (uid 1000) the server runs as.
+      - /app/.next/cache:uid=1000,gid=1000
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Unknown URLs are logged by Next (NoFallbackError): cap the logs' size.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

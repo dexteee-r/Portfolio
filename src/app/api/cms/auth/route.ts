@@ -10,12 +10,14 @@ import {
   STATE_COOKIE,
   STATE_MAX_AGE_SECONDS,
 } from "@/cms/oauth";
+import { publicOrigin } from "@/lib/public-origin";
 
 export const dynamic = "force-dynamic";
 
 /** Step 1 of the CMS sign-in: off to GitHub, with a state cookie to check on the way back. */
 export function GET(request: NextRequest) {
-  const origin = request.nextUrl.origin;
+  // The visitor's own origin, not the server's listening address (behind the proxy).
+  const origin = publicOrigin(request);
   const settings = oauthSettings();
   if (!settings) {
     return callbackResponse(
@@ -45,7 +47,7 @@ export function GET(request: NextRequest) {
   );
   response.cookies.set(STATE_COOKIE, state, {
     httpOnly: true,
-    secure: request.nextUrl.protocol === "https:",
+    secure: origin.startsWith("https:"),
     sameSite: "lax",
     path: "/api/cms",
     maxAge: STATE_MAX_AGE_SECONDS,

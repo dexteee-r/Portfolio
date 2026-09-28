@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { chapterPath } from "@/i18n/paths";
 import { ProjectBody } from "./ProjectBody";
+import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { TopBar } from "./TopBar";
 
@@ -144,16 +145,22 @@ export function ProjectView({ locale, dict, project, images, previous, next }: P
         )}
       </main>
 
-      <footer className="border-t border-chapter-line px-gutter py-6 font-mono text-2xs uppercase tracking-label text-chapter-muted">
-        <Link href={chapterHref} className="text-chapter-ink hover:underline">
-          <span aria-hidden="true">← </span>
-          {copy.backToChapter}
-        </Link>
-        <span aria-hidden="true" className="hidden pointer-fine:inline">
-          {" · "}
-          <kbd className="font-mono">{dict.chapterPage.escapeHint}</kbd>
-        </span>
-      </footer>
+      <SiteFooter
+        locale={locale}
+        dict={dict}
+        back={
+          <>
+            <Link href={chapterHref} className="text-chapter-ink hover:underline">
+              <span aria-hidden="true">← </span>
+              {copy.backToChapter}
+            </Link>
+            <span aria-hidden="true" className="hidden pointer-fine:inline">
+              {" · "}
+              <kbd className="font-mono">{dict.chapterPage.escapeHint}</kbd>
+            </span>
+          </>
+        }
+      />
     </div>
   );
 }

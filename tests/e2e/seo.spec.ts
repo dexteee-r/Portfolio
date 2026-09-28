@@ -55,12 +55,22 @@ test.describe("for crawlers", () => {
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toContain("xml");
     const xml = await response.text();
-    for (const path of ["/fr", "/en", "/fr/creatif", "/en/creative", "/fr/dev/alpha-app", "/en/infra/homelab-fixture"]) {
+    for (const path of [
+      "/fr",
+      "/en",
+      "/fr/mentions-legales",
+      "/en/legal-notice",
+      "/fr/creatif",
+      "/en/creative",
+      "/fr/dev/alpha-app",
+      "/en/infra/homelab-fixture",
+    ]) {
       expect(xml).toContain(`<loc>https://elmzn.be${path}</loc>`);
     }
     expect(xml).toContain('hreflang="en" href="https://elmzn.be/en/dev/alpha-app"');
     expect(xml).not.toContain("gamma-draft");
-    expect(xml.match(/<url>/g)).toHaveLength(18);
+    // (desk + legal notice + 4 chapters + 4 published fixture projects) × 2 languages
+    expect(xml.match(/<url>/g)).toHaveLength(20);
   });
 
   test("every listed URL answers 200", async ({ request }) => {
@@ -106,6 +116,8 @@ test.describe("link previews", () => {
     { path: "/fr/repair", title: "Réparation — ELMZN", locale: "fr_BE", type: "website" },
     { path: "/en/creative/film-test", title: "Test film — ELMZN", locale: "en_GB", type: "article" },
     { path: "/fr/dev/alpha-app", title: "Alpha — ELMZN", locale: "fr_BE", type: "article" },
+    { path: "/fr/mentions-legales", title: "Mentions légales — ELMZN", locale: "fr_BE", type: "website" },
+    { path: "/en/legal-notice", title: "Legal notice — ELMZN", locale: "en_GB", type: "website" },
   ];
 
   for (const expected of pages) {

@@ -76,4 +76,62 @@ export const fr = {
     body: "Il a peut-être été renommé, déplacé, ou il n'a jamais été créé. Les quatre dossiers ci-dessous, eux, existent bien.",
     back: "Retour au bureau",
   },
+  footer: {
+    contact: "Contact",
+    legal: "Mentions légales",
+  },
+  /**
+   * The legal notice and privacy note. `{name}`-style placeholders are filled
+   * by the page, most of them with links; see `interpolate`.
+   */
+  legal: {
+    title: "Mentions légales",
+    description: "Qui publie ce site, qui l'héberge, et ce qu'il fait de vos données.",
+    updated: "Mis à jour le {date}",
+    publisherHeading: "Éditeur",
+    publisherLabel: "Éditeur",
+    publisherValue: "{name}, à titre personnel",
+    contactLabel: "Contact",
+    countryLabel: "Pays",
+    businessLabel: "Entreprise",
+    addressLabel: "Adresse",
+    enterpriseNumberLabel: "Numéro d'entreprise",
+    vatLabel: "TVA",
+    personal:
+      "Ce site est un portfolio personnel. Les réparations qui y sont présentées sont faites à titre privé, pour des proches et sans rémunération : aucune activité commerciale n'est exercée par son intermédiaire.",
+    hostingHeading: "Hébergement",
+    hosting:
+      "Le site est auto-hébergé par son éditeur, sur un serveur situé en {country}. Aucun hébergeur tiers ne voit passer les visites.",
+    privacyHeading: "Vos données",
+    controller: "Le responsable du traitement est {name}, joignable à {email}.",
+    noTrackingHeading: "Aucun cookie, aucune mesure d'audience",
+    noTracking:
+      "Ce site ne dépose aucun cookie chez ses visiteurs et n'utilise ni outil de mesure d'audience, ni traceur, ni publicité.",
+    storageHeading: "Ce que garde votre navigateur",
+    storage:
+      "Une seule information est enregistrée dans votre navigateur : le fait d'avoir déjà vu l'animation d'ouverture, pour ne pas la rejouer à chaque visite. Elle ne quitte jamais votre appareil ; effacer les données du site dans votre navigateur la supprime.",
+    logsHeading: "Journaux du serveur",
+    logs:
+      "Pour servir les pages et protéger le site, le serveur enregistre chaque requête dans ses journaux : adresse IP, page demandée, navigateur. C'est nécessaire à son fonctionnement et à sa sécurité (intérêt légitime). Ces journaux restent sur le serveur, ne sont transmis à personne et sont effacés automatiquement, au plus tard après {retention}.",
+    logRetention: {
+      one: "{count} semaine",
+      other: "{count} semaines",
+    },
+    mailHeading: "Si vous m'écrivez",
+    mail:
+      "Ce que vous envoyez à {email} — votre adresse, votre nom, votre message — sert uniquement à vous répondre et, pour une réparation, à en assurer le suivi, à votre demande. Les messages sont reçus par la messagerie de {mailHost} ({mailCountry}), ne sont transmis à personne d'autre et sont supprimés {retention} après le dernier échange.",
+    mailRetention: {
+      one: "{count} mois",
+      other: "{count} mois",
+    },
+    rightsHeading: "Vos droits",
+    rights:
+      "Vous pouvez demander à consulter, corriger ou effacer les données qui vous concernent, ou vous opposer à leur traitement, en écrivant à {email}. Si la réponse ne vous satisfait pas, vous pouvez introduire une réclamation auprès de l'{authority}, rue de la Presse 35, 1000 Bruxelles.",
+    authority: "Autorité de protection des données",
+    authorityUrl: "https://www.autoriteprotectiondonnees.be",
+    contentHeading: "Contenus",
+    content:
+      "Sauf mention contraire, les textes, photos et vidéos de ce site sont l'œuvre de {name} ; les reproduire demande son accord. Le code du site, lui, est public : {source}.",
+    sourceLink: "voir sur GitHub",
+  },
 };

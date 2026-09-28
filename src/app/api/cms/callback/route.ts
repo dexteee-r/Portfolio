@@ -8,12 +8,14 @@ import {
   STATE_COOKIE,
   statesMatch,
 } from "@/cms/oauth";
+import { publicOrigin } from "@/lib/public-origin";
 
 export const dynamic = "force-dynamic";
 
 /** Step 2 of the CMS sign-in: check the state, trade the code for a token, hand it to the CMS. */
 export async function GET(request: NextRequest) {
-  const origin = request.nextUrl.origin;
+  // The panel's origin, where the token is handed over (behind the proxy, not the server's own address).
+  const origin = publicOrigin(request);
   const settings = oauthSettings();
   if (!settings) {
     return callbackResponse(origin, { error: "CMS sign-in is not configured.", errorCode: SIGN_IN_ERRORS.notConfigured }, 503);

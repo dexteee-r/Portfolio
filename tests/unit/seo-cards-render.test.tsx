@@ -128,6 +128,23 @@ describe("share cards, drawn", () => {
     expect(accent, "accent dot").toBe(true);
   });
 
+  it.each(locales)("legal notice (%s): the light frame, no colour at all, all inside the square", async (locale) => {
+    const palette = framePalette();
+    const copy = getDictionary(locale).legal;
+    const image = await draw(<PageCard palette={palette} eyebrow={site.brand} title={copy.title} subtitle={copy.description} />);
+    expect(pixel(image, 10, 10)).toEqual(rgb(palette.bg));
+    expectInsideSafeSquare(image, palette.bg);
+    // The frame has no colour of its own: every pixel is a grey, give or take the ground's warmth.
+    let chroma = 0;
+    for (let y = 0; y < image.height; y += 2) {
+      for (let x = 0; x < image.width; x += 2) {
+        const [r, g, b] = pixel(image, x, y);
+        chroma = Math.max(chroma, Math.max(r, g, b) - Math.min(r, g, b));
+      }
+    }
+    expect(chroma).toBeLessThanOrEqual(8);
+  });
+
   it.each(locales.flatMap((locale) => chapterIds.map((id) => getDictionary(locale).chapters[id].name)))(
     "keeps the word whole: “%s” is drawn at its full measured width",
     async (title) => {

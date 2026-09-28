@@ -307,6 +307,63 @@ describe("inside a chapter: the quiet transition", () => {
   });
 });
 
+describe("pages of the frame (the legal notice)", () => {
+  const Legal = () => (
+    <div data-view="frame">
+      <h1 data-view-title="" tabIndex={-1}>
+        Mentions légales
+      </h1>
+      <a href="/fr">back</a>
+    </div>
+  );
+
+  const ChapterWithFooter = () => (
+    <div data-view="chapter" data-chapter="dev">
+      <h1 data-view-title="" tabIndex={-1}>
+        dev
+      </h1>
+      <footer>
+        <a href="/fr/mentions-legales" id="legal-link">
+          Mentions légales
+        </a>
+      </footer>
+    </div>
+  );
+
+  it("from a chapter: the drawer closes onto the page, and focus lands on its title", async () => {
+    nav.pathname = "/fr/dev";
+    const { rerender } = render(stage(<ChapterWithFooter />));
+    const notPrevented = fireEvent.click(document.getElementById("legal-link")!);
+    expect(notPrevented).toBe(false);
+    expect(push).toHaveBeenCalledExactlyOnceWith("/fr/mentions-legales", { scroll: false });
+
+    nav.pathname = "/fr/mentions-legales";
+    rerender(stage(<Legal />));
+    expect(motion.calls[0]!.ctx.direction).toBe("out");
+
+    await flush();
+    expect(layer()).toBeNull();
+    expect(document.activeElement).toBe(document.querySelector("[data-view-title]"));
+  });
+
+  it("from the desk: same ground, no motion, but focus still moves to its title", () => {
+    const { rerender } = render(stage(<Desk />));
+    nav.pathname = "/fr/mentions-legales";
+    rerender(stage(<Legal />));
+    expect(motion.calls).toHaveLength(0);
+    expect(motion.quiet).toHaveLength(0);
+    expect(document.activeElement).toBe(document.querySelector("[data-view-title]"));
+  });
+
+  it("Escape goes back to the desk, without the drawer", () => {
+    nav.pathname = "/fr/mentions-legales";
+    render(stage(<Legal />));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(push).toHaveBeenCalledExactlyOnceWith("/fr");
+    expect(layer()).toBeNull();
+  });
+});
+
 describe("reduced motion", () => {
   it("swaps instantly — no frozen copy, no animation — but still moves focus", () => {
     motion.duration = 0;

@@ -10,12 +10,12 @@ export const OG_LOCALE: Record<Locale, string> = {
 };
 
 /**
- * Whether search engines may index this build. Vercel preview and development
- * deployments must never compete with the real site in results; builds
- * outside Vercel (local, CI) behave like production.
+ * Whether search engines may index this build. A staging copy of the site
+ * must never compete with the real one in results: build it with
+ * SITE_NOINDEX=1. Read at build time — robots.txt and the pages are static.
  */
 export function isIndexable(env: Record<string, string | undefined> = process.env): boolean {
-  return env.VERCEL_ENV === undefined || env.VERCEL_ENV === "production";
+  return env.SITE_NOINDEX !== "1";
 }
 
 /** `Alpha` → `Alpha — ELMZN`; the brand alone stays alone. */

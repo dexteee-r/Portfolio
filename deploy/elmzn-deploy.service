@@ -1,0 +1,9 @@
+[Unit]
+Description=ELMZN: bring the site up to the newest published image
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/elmzn/deploy.sh

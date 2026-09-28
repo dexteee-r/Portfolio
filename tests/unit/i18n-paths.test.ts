@@ -5,6 +5,7 @@ import {
   chapterPath,
   homePath,
   languageAlternates,
+  pagePath,
   projectPath,
   switchLocalePath,
 } from "@/i18n/paths";
@@ -69,6 +70,13 @@ describe("switchLocalePath", () => {
   it("falls back to the target desk when the path has no locale", () => {
     expect(switchLocalePath("/", "en")).toBe("/en");
     expect(switchLocalePath("/dev", "en")).toBe("/en");
+  });
+
+  it("translates the slugs of the frame's pages", () => {
+    expect(switchLocalePath("/fr/mentions-legales", "en")).toBe("/en/legal-notice");
+    expect(switchLocalePath("/en/legal-notice", "fr")).toBe("/fr/mentions-legales");
+    expect(switchLocalePath("/fr/mentions-legales", "fr")).toBe("/fr/mentions-legales");
+    expect(switchLocalePath(switchLocalePath(pagePath("fr", "legal"), "en"), "fr")).toBe(pagePath("fr", "legal"));
   });
 
   it("is reversible for every chapter", () => {

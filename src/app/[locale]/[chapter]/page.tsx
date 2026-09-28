@@ -28,8 +28,8 @@ export function generateStaticParams({ params }: { params: { locale: string } })
 /**
  * A slug from the wrong language, or a made-up one, is never rendered: it
  * falls through to app/global-not-found.tsx, a complete server-rendered 404.
- * (Self-hosted `next start` logs a NoFallbackError for each such request;
- * on Vercel the CDN answers unknown static paths without invoking a function.)
+ * (The Node server logs a NoFallbackError for each such request — noise, not
+ * a failure; the container's logs are size-capped, see deploy/compose.yaml.)
  */
 export const dynamicParams = false;
 

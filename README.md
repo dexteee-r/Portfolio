@@ -1,7 +1,9 @@
 # ELMZN
 
 Portfolio personnel — `elmzn.be`. Les décisions de conception sont dans
-`../PROJECT_CONTEXT.md` ; ce fichier ne couvre que le code.
+`../PROJECT_CONTEXT.md` ; ce fichier ne couvre que le code. Une décision a
+changé depuis : le site est **auto-hébergé sur le homelab** (Docker), et non
+sur Vercel (§10 du brief) — voir « Hébergement ».
 
 ## Commandes
 
@@ -25,8 +27,9 @@ toute la suite à chaque push.
 ```
 content/projects/*.yaml     un fichier par projet, champs traduits (édité par le CMS)
 public/media/               images des projets (AVIF, WebP ou PNG — jamais de JPEG)
-public/media/fixtures/      images des tests uniquement, exclues du déploiement (.vercelignore)
+public/media/fixtures/      images des tests uniquement, exclues de l'image Docker (.dockerignore)
 src/app/[locale]/           bureau, chapitres, pages projet — toutes les routes sont statiques
+src/app/[locale]/mentions-legales, legal-notice  la même page légale, un dossier par langue
 src/app/global-not-found.tsx  l'unique 404 du site, rendue en entier côté serveur
 src/proxy.ts                redirection vers /fr sans détection de langue ; transmet la langue à la 404
 src/i18n/                   langues, dictionnaires, chemins localisés
@@ -39,6 +42,8 @@ src/lib/transitions.ts      les techniques de basculement, remplaçables en une 
 src/components/ViewStage.tsx  orchestre le tiroir, le focus et la touche Échap
 tests/unit/                 Vitest
 tests/e2e/                  Playwright, contre tests/fixtures/content
+Dockerfile                  l'image du site (serveur Next autonome), construite par la CI
+deploy/                     ce qui tourne sur le serveur : compose, déploiement, webhook, tests de l'image
 ```
 
 ## La séquence de démarrage
@@ -71,9 +76,9 @@ Les tests E2E partent d'un visiteur qui l'a déjà vue (`storageState` dans
 ## Référencement et partage
 
 - `src/seo/metadata.ts` : titre, description, canonical, hreflang, Open Graph
-  et Twitter de chaque page, par `pageMetadata()`. Les déploiements d'aperçu
-  Vercel (`VERCEL_ENV` ≠ `production`) sont en `noindex` et leur robots.txt
-  ferme tout.
+  et Twitter de chaque page, par `pageMetadata()`. Une copie de test du site,
+  construite avec `SITE_NOINDEX=1`, est en `noindex` et son robots.txt ferme
+  tout.
 - `src/app/sitemap.ts`, `robots.ts`, `manifest.ts` : générés depuis le
   contenu ; seuls les projets publiés entrent dans le sitemap.
 - `src/seo/structured-data.ts` : JSON-LD (`WebSite`, `Person`, fil d'Ariane,
@@ -158,12 +163,40 @@ pointe vers un fichier absent fait aussi échouer le build. Sans couverture, la
 station affiche le dossier du projet. Les compteurs du bureau ne comptent que
 les projets publiés.
 
+## Contact et mentions légales
+
+- **Contact** : le pied de page de chaque vue (`SiteFooter`) donne l'adresse
+  `site.email` en clair et cliquable, dans le HTML du serveur (ni formulaire,
+  ni script qui la masque), les profils de `site.social` et le lien vers les
+  mentions légales. On peut y renvoyer directement : `elmzn.be/fr#contact`.
+- **Mentions légales et confidentialité** : `/fr/mentions-legales`,
+  `/en/legal-notice` (`LegalView`), une page du cadre comme le bureau. Tout
+  vient de `src/site.ts` : l'éditeur (`publisher`, personne privée pour
+  l'instant), l'hébergeur (`hosting`), la messagerie (`mailHost`), la durée de
+  conservation des e-mails (`emailRetentionMonths`) et la date de révision
+  (`legalUpdated`, à changer à chaque modification du texte). Le jour où la
+  réparation est enregistrée, remplir `site.repairBusiness` (avec son numéro
+  BCE) : l'entreprise apparaît dans les mentions et dans les données
+  structurées de `/repair`, et la phrase « à titre privé » disparaît.
+- **Adresses par langue** : chaque page du cadre a un dossier de route par
+  slug (`src/content/pages.ts`). Next ne sait pas limiter un dossier statique
+  à une langue : `/en/mentions-legales` redirige donc (308) vers
+  `/en/legal-notice`, par les redirections de `next.config.ts` générées depuis
+  la même liste.
+- **Promesses tenues par des tests** : `tests/unit/privacy-claims.test.ts`
+  échoue si le code se met à stocker autre chose que `elmzn.boot` dans le
+  navigateur, pose un cookie ailleurs que dans la connexion du CMS, ou charge
+  un outil de mesure d'audience. Ajouter Umami ou Plausible demandera donc de
+  réécrire la note de confidentialité en même temps.
+
+Ces textes sont une orientation, pas un avis juridique : à faire relire.
+
 ## Le CMS
 
 `/admin` ouvre [Sveltia CMS](https://github.com/sveltia/sveltia-cms). Chaque
-enregistrement est un commit sur la branche de production : Vercel redéploie,
-et le build revalide tout le contenu — un fichier cassé fait échouer le
-déploiement (et la CI), le site en ligne reste sur la version précédente.
+enregistrement est un commit sur `main` : la CI revalide tout le contenu, puis
+construit et déploie le site (voir « Hébergement ») — un fichier cassé fait
+échouer la CI, et le site en ligne reste sur la version précédente.
 
 - **Configuration** : `src/cms/config.ts`, générée depuis le schéma du contenu
   (chapitres, statuts, types de liens, limite du résumé). Des tests vérifient
@@ -191,11 +224,11 @@ public, branche `main`.
 
 1. GitHub → Settings → Developer settings → OAuth Apps → **New OAuth App** :
    Homepage `https://elmzn.be`, callback `https://elmzn.be/api/cms/callback`.
-2. Vercel → Settings → Environment Variables (Production) — valeurs dans
-   `.env.example` : `CMS_GITHUB_REPO=dexteee-r/Portfolio`,
+2. Sur le serveur, dans `/opt/elmzn/.env` (voir « Hébergement ») — valeurs
+   dans `.env.example` : `CMS_GITHUB_REPO=dexteee-r/Portfolio`,
    `CMS_GITHUB_BRANCH=main`, `CMS_GITHUB_SCOPE=public_repo` (suffisant pour un
    dépôt public ; `repo` s'il devient privé), puis `CMS_GITHUB_CLIENT_ID` et
-   `CMS_GITHUB_CLIENT_SECRET` de l'OAuth App.
+   `CMS_GITHUB_CLIENT_SECRET` de l'OAuth App. Puis `docker compose up -d`.
 3. Ouvrir `https://elmzn.be/admin` → **Sign In with GitHub**.
 
 Le dépôt étant public, tout ce qui est commité se lit sur GitHub, brouillons
@@ -208,8 +241,73 @@ marche que sur `elmzn.be`. Ailleurs :
   `http://localhost:3000/admin` → **Work with Local Repository** (Chrome ou
   Edge) et choisir le dossier du dépôt. Les modifications sont écrites sur le
   disque, sans commit : on relit avec `npm run dev`, on commite soi-même.
-- **Sur un aperçu Vercel** : **Sign In Using Access Token**, avec un jeton
+- **Sur une copie de test** : **Sign In Using Access Token**, avec un jeton
   GitHub à granularité fine limité à ce dépôt (Contents : lecture/écriture).
+
+Derrière Nginx Proxy Manager, le serveur ne voit que sa propre adresse
+(`0.0.0.0:3000`) : l'adresse publique vient des en-têtes `Host` et
+`X-Forwarded-Proto` que NPM transmet (`src/lib/public-origin.ts`). Sans eux,
+GitHub refuserait la connexion — le test de l'image le vérifie.
+
+## Hébergement
+
+Le site tourne sur le homelab, dans Docker, derrière Nginx Proxy Manager :
+
+```
+push sur main (ou enregistrement dans le CMS)
+  → CI : typecheck, lint, unitaires, E2E
+  → CI : construit l'image, la teste comme le serveur la lance (deploy/smoke-test.sh)
+  → CI : la publie sur ghcr.io/dexteee-r/portfolio (:latest et :<commit>)
+  → CI : appelle le webhook du serveur, signé (deploy/notify.sh)
+  → serveur : deploy.sh tire l'image et relance le site s'il a changé, attend qu'il soit sain
+  → CI : attend que elmzn.be serve ce commit (en-tête X-Elmzn-Version) — sinon, rouge
+```
+
+Tant que le serveur n'est pas en place (pas de secrets `DEPLOY_WEBHOOK_*`),
+l'étape de déploiement est simplement sautée : l'image est publiée, rien
+n'est déployé. Un minuteur horaire sur le serveur rattrape un webhook manqué.
+
+### Mise en place du serveur
+
+Sur srv1, un conteneur LXC Debian 12 dédié (Proxmox : cocher *nesting* et
+*keyctl* pour Docker).
+
+1. **Docker** : installer Docker Engine et le plugin Compose (dépôt officiel
+   Docker pour Debian), puis `apt install webhook` (adnanh/webhook).
+2. **Le site** : créer `/opt/elmzn/`, y copier `deploy/compose.yaml` et
+   `deploy/deploy.sh` (`chmod +x deploy.sh`), et un `.env` (`chmod 600`) avec
+   les variables `CMS_GITHUB_*` (voir « Le CMS »).
+3. **L'image** : après le premier passage de la CI, rendre le paquet public
+   (GitHub → Packages → portfolio → Package settings → Change visibility →
+   Public) — le dépôt l'est déjà. Puis `cd /opt/elmzn && ./deploy.sh`.
+4. **Le webhook** : générer un secret (`openssl rand -hex 32`), copier
+   `deploy/hooks.json` dans `/etc/webhook.conf` en remplaçant
+   `REPLACE_WITH_DEPLOY_WEBHOOK_SECRET` (`chmod 600`), puis
+   `systemctl enable --now webhook` (écoute sur le port 9000).
+5. **Le rattrapage** : copier `deploy/elmzn-deploy.service` et `.timer` dans
+   `/etc/systemd/system/`, puis `systemctl enable --now elmzn-deploy.timer`.
+6. **Nginx Proxy Manager** :
+   - `elmzn.be` (et `www.elmzn.be`) → `http://<ip du LXC>:3000`, certificat
+     Let's Encrypt, *Force SSL*, *HTTP/2*, *HSTS*. NPM transmet `Host` et
+     `X-Forwarded-Proto` par défaut : ne pas les retirer.
+   - `deploy.elmzn.be` → `http://<ip du LXC>:9000`, avec son certificat (un
+     enregistrement DNS `deploy` vers la même IP que `elmzn.be`).
+7. **GitHub** → Settings → Secrets and variables → Actions :
+   `DEPLOY_WEBHOOK_URL` = `https://deploy.elmzn.be/hooks/elmzn`,
+   `DEPLOY_WEBHOOK_SECRET` = le secret de l'étape 4.
+
+Pour vérifier l'image sans GitHub, avec Docker en local :
+`docker build --build-arg ELMZN_VERSION=local -t elmzn:local .` puis
+`sh deploy/smoke-test.sh elmzn:local local`.
+
+Le webhook ne transmet rien au script : quiconque le déclencherait ne pourrait
+que faire vérifier au serveur s'il existe une nouvelle image officielle. La
+signature évite seulement de le faire travailler pour rien.
+
+Les journaux d'accès de NPM gardent l'adresse IP des visiteurs : la note de
+confidentialité promet qu'ils disparaissent au plus tard après 11 semaines
+(rotation par défaut de NPM). Changer la rotation, c'est changer
+`site.serverLogRetentionWeeks` en même temps.
 
 ## Garde-fous automatiques
 
@@ -226,10 +324,19 @@ marche que sur `elmzn.be`. Ailleurs :
   connexion avec un GitHub simulé (annulation, rappel falsifié).
 - `tests/e2e/helpers.ts` détecte tout texte qui dépasse, même masqué par un
   conteneur ; bureau, 404 et chapitres sont vérifiés jusqu'à 320 px.
+- `tests/unit/deploy.test.ts` vérifie l'image (utilisateur non root, aucun
+  secret, contrôle de santé), le verrouillage du conteneur, le webhook signé
+  et l'enchaînement de la CI, et exécute réellement `deploy.sh`, `notify.sh`
+  et `wait-for-version.sh` contre de faux `docker` et `curl`.
+- `deploy/smoke-test.sh` lance l'image en lecture seule, sans privilèges,
+  derrière un faux proxy HTTPS, et contrôle pages, 404, redirections, images,
+  CMS et connexion GitHub avant toute publication.
 
 ## À savoir
 
-- `next start` (auto-hébergement) journalise un `NoFallbackError` pour chaque
-  adresse inconnue : c'est le prix de routes 100 % statiques, qui garantissent
-  une 404 complète côté serveur. Sur Vercel, ces adresses sont servies par la
-  plateforme sans invoquer de fonction.
+- Le serveur journalise un `NoFallbackError` pour chaque adresse inconnue :
+  c'est le prix de routes 100 % statiques, qui garantissent une 404 complète
+  côté serveur. Du bruit, pas une panne ; les journaux du conteneur sont
+  plafonnés à 30 Mo (`deploy/compose.yaml`).
+- Les E2E tournent sur `next start` (sortie Next classique) ; l'image, elle,
+  embarque la sortie *standalone*, vérifiée par `deploy/smoke-test.sh`.

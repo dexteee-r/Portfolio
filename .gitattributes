@@ -1,0 +1,4 @@
+# Scripts and server files run on Linux: LF line endings, even from Windows.
+*.sh text eol=lf
+deploy/** text eol=lf
+Dockerfile text eol=lf

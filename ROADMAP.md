@@ -9,27 +9,41 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Bureau, chapitres et stations, pages projet, 404 globale.
 - Le tiroir bureau ↔ chapitre, fondu sobre à l'intérieur d'un chapitre.
 - Séquence de démarrage (3,95 s, avec la fin où les dossiers se posent).
-- Référencement : métadonnées par page, hreflang, sitemap, robots (aperçus
-  Vercel fermés), données structurées, emplacement `LocalBusiness` prévu.
+- Référencement : métadonnées par page, hreflang, sitemap, robots (copie de
+  test fermée avec `SITE_NOINDEX=1`), données structurées, emplacement
+  `LocalBusiness` prévu.
 - Cartes de partage générées (une par page et par langue), favicon, icône
   d'écran d'accueil, manifeste, couleur de barre du navigateur par chapitre.
 - CMS Sveltia sur `/admin` : configuration générée depuis le schéma, connexion
   GitHub servie par le site, images en WebP par projet ; branché sur
   `dexteee-r/Portfolio`.
 - Profil GitHub (`github.com/dexteee-r`) dans les données structurées.
+- Premier push sur `dexteee-r/Portfolio` (`main`), CI verte.
+- Contact en pied de chaque page (`contact@elmzn.be` en clair, Instagram,
+  GitHub) ; mentions légales et note de confidentialité (`/fr/mentions-legales`,
+  `/en/legal-notice`), éditeur à titre personnel (2026-09-28).
+- Auto-hébergement sur le homelab au lieu de Vercel (décision du 2026-09-28) :
+  image Docker construite, testée et publiée par la CI, déploiement par
+  webhook signé, vérification que le site sert bien la nouvelle version.
 
 ## À faire — V1
 
-- **Mise en ligne** : premier push sur `dexteee-r/Portfolio` (`main`), projet
-  Vercel relié au dépôt, domaine `elmzn.be`.
+- **Serveur** : conteneur LXC sur srv1 (machine à choisir), Docker, webhook,
+  minuteur de rattrapage, NPM pour `elmzn.be` et `deploy.elmzn.be`, secrets
+  GitHub `DEPLOY_WEBHOOK_*` — pas à pas dans le README, « Hébergement ».
+- **Domaine** : l'apex `elmzn.be` vers NPM ; la page d'accueil actuelle du
+  homelab déménage sur `home.elmzn.be` (brief, §16).
 - **Mise en service du CMS** : créer l'OAuth App GitHub et renseigner les
-  variables sur Vercel (README, « Le CMS »).
-- **Contact** : `contact@elmzn.be` en clair, Instagram, GitHub. Pas de
-  formulaire en V1.
-- **Mentions légales** et note de confidentialité — à faire valider avant la
-  mise en ligne (statut de l'activité de réparation). Une fois l'activité
-  enregistrée, remplir `site.repairBusiness` dans `src/site.ts` : les données
-  `LocalBusiness` de `/repair` s'activent d'elles-mêmes.
+  variables dans `/opt/elmzn/.env` (README, « Le CMS »).
+- **Boîte `contact@elmzn.be`** : le domaine reçoit bien le courrier (OVH),
+  mais l'adresse n'a jamais servi — envoyer un message de test avant la mise
+  en ligne. Si elle est redirigée ailleurs (Gmail…), le dire dans la note de
+  confidentialité (`site.mailHost`). Supprimer les messages de plus de
+  12 mois, comme la note le promet.
+- **Relire les mentions légales** avant la mise en ligne (orientation, pas
+  avis juridique). Le jour où la réparation devient une activité rémunérée :
+  l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
+  mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Geste de balayage** : fermer un chapitre en le tirant vers le bas au doigt.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
 

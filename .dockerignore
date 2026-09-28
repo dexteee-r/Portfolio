@@ -1,0 +1,16 @@
+# Only what the build needs enters the image — never a secret, never a test.
+.git
+.github
+.next
+.next-e2e
+node_modules
+test-results
+playwright-report
+tests
+public/media/fixtures
+deploy
+*.md
+.env
+.env.*
+Dockerfile
+.dockerignore

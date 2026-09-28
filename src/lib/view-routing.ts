@@ -1,16 +1,18 @@
 import { chapterFromSlug, type ChapterId } from "@/content/chapters";
+import { pageFromSlug, type PageId } from "@/content/pages";
 import { SLUG_PATTERN } from "@/content/slug";
 import { isLocale, type Locale } from "@/i18n/config";
 
 /**
- * What a rendered view is: the light frame (desk, 404), a chapter, or a
- * project page — the last two in their chapter's grade.
+ * What a rendered view is: the light frame (desk, its pages, 404), a chapter,
+ * or a project page — the last two in their chapter's grade.
  */
 export type ViewKind = "frame" | "chapter" | "project";
 export type Direction = "in" | "out";
 
 export type PathTarget =
   | { kind: "desk"; locale: Locale }
+  | { kind: "page"; locale: Locale; page: PageId }
   | { kind: "chapter"; locale: Locale; chapter: ChapterId }
   | { kind: "project"; locale: Locale; chapter: ChapterId; project: string }
   | { kind: "other" };
@@ -18,27 +20,34 @@ export type PathTarget =
 /** Classifies a pathname by the level of the site it points at. */
 export function classifyPath(pathname: string): PathTarget {
   const segments = pathname.split("/").filter(Boolean);
-  const [locale, chapterSlug, project, ...rest] = segments;
+  const [locale, slug, project, ...rest] = segments;
   if (locale === undefined || !isLocale(locale)) return { kind: "other" };
-  if (chapterSlug === undefined) return { kind: "desk", locale };
+  if (slug === undefined) return { kind: "desk", locale };
 
-  const chapter = chapterFromSlug(locale, chapterSlug);
+  const page = pageFromSlug(locale, slug);
+  if (page) return project === undefined ? { kind: "page", locale, page } : { kind: "other" };
+
+  const chapter = chapterFromSlug(locale, slug);
   if (!chapter || rest.length > 0) return { kind: "other" };
   if (project === undefined) return { kind: "chapter", locale, chapter };
   return SLUG_PATTERN.test(project) ? { kind: "project", locale, chapter, project } : { kind: "other" };
 }
 
 /**
- * The drawer runs between the frame and a chapter's grade, both ways.
- * Everything else — a language switch, an anchor, one chapter to another,
- * a station to its project — is not the signature transition, because a rare
- * effect stays an effect.
+ * The drawer runs between the frame and a chapter's grade, both ways: into a
+ * chapter or project from the frame, and back out of one onto the frame —
+ * the desk or one of its pages. Everything else — a language switch, an
+ * anchor, one chapter to another, a station to its project, the desk to its
+ * pages — is not the signature transition, because a rare effect stays an
+ * effect. (Leaving a chapter for a frame page still needs it: a cut from the
+ * dark grade to the light frame is a flash.)
  */
 export function transitionFor(current: ViewKind | null, targetPath: string): Direction | null {
   const target = classifyPath(targetPath).kind;
   const graded = target === "chapter" || target === "project";
+  const frame = target === "desk" || target === "page";
   if (current === "frame" && graded) return "in";
-  if ((current === "chapter" || current === "project") && target === "desk") return "out";
+  if ((current === "chapter" || current === "project") && frame) return "out";
   return null;
 }
 
@@ -51,7 +60,8 @@ export function isQuietMove(fromPath: string, toPath: string): boolean {
   if (fromPath === toPath) return false;
   const from = classifyPath(fromPath);
   const to = classifyPath(toPath);
-  if (from.kind === "desk" || from.kind === "other" || to.kind === "desk" || to.kind === "other") return false;
+  if (from.kind !== "chapter" && from.kind !== "project") return false;
+  if (to.kind !== "chapter" && to.kind !== "project") return false;
   return from.locale === to.locale && from.chapter === to.chapter;
 }
 

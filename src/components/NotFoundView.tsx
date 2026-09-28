@@ -3,6 +3,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
 import { ChapterMarks } from "./ChapterMarks";
+import { SiteFooter } from "./SiteFooter";
 import { SiteLink } from "./SiteLink";
 import { SkipLink } from "./SkipLink";
 import { TopBar } from "./TopBar";
@@ -51,6 +52,7 @@ export function NotFoundView({ locale, dict, counts }: NotFoundViewProps) {
         </div>
         <ChapterMarks locale={locale} dict={dict} counts={counts} plain />
       </main>
+      <SiteFooter locale={locale} dict={dict} plain />
     </div>
   );
 }

@@ -312,6 +312,42 @@ describe("/api/cms/callback", () => {
   });
 });
 
+describe("behind Nginx Proxy Manager", () => {
+  /** What the standalone server receives: its own address in the URL, the visitor's in the headers. */
+  const proxied = (path: string, extra: Record<string, string> = {}) =>
+    new NextRequest(`http://0.0.0.0:3000${path}`, {
+      headers: { host: "elmzn.be", "x-forwarded-proto": "https", ...extra },
+    });
+
+  it("sign-in sends GitHub back to the public address, with a Secure cookie", async () => {
+    configure();
+    const response = await auth(proxied("/api/cms/auth?provider=github"));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.searchParams.get("redirect_uri")).toBe("https://elmzn.be/api/cms/callback");
+    expect(response.headers.get("set-cookie")).toMatch(/Secure/i);
+  });
+
+  it("the callback hands the token over to the public origin, and asks GitHub with the public address", async () => {
+    configure();
+    const state = createState();
+    const fetchSpy = vi.fn(async () => Response.json({ access_token: "gho_token" }));
+    vi.stubGlobal("fetch", fetchSpy);
+    const response = await callback(
+      proxied(`/api/cms/callback?code=k&state=${state}`, { cookie: `${STATE_COOKIE}=${state}` }),
+    );
+    expect(scriptValue(await response.text(), "origin")).toBe("https://elmzn.be");
+    const [, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body)).redirect_uri).toBe("https://elmzn.be/api/cms/callback");
+  });
+
+  it("the panel signs in through the public address", async () => {
+    configure();
+    const html = await admin(proxied("/admin")).text();
+    expect(html).toContain('"base_url":"https://elmzn.be"');
+    expect(html).not.toContain("0.0.0.0");
+  });
+});
+
 describe("/admin", () => {
   it("explains itself when the repository is not set", async () => {
     const response = admin(request("https://elmzn.be/admin"));

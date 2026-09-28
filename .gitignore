@@ -11,3 +11,6 @@ next-env.d.ts
 Thumbs.db
 .next-e2e/
 .env
+
+# deploy/smoke-test.sh leaves the server log of its last run here.
+smoke-server.log

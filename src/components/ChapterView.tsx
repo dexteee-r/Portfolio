@@ -4,6 +4,7 @@ import type { LocalizedProject } from "@/content/projects";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
+import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { Station } from "./Station";
 import { TopBar } from "./TopBar";
@@ -62,16 +63,22 @@ export function ChapterView({ locale, dict, chapter, stations, publishedCount }:
         )}
       </main>
 
-      <footer className="border-t border-chapter-line px-gutter py-6 font-mono text-2xs uppercase tracking-label text-chapter-muted">
-        <Link href={homePath(locale)} className="text-chapter-ink hover:underline">
-          <span aria-hidden="true">← </span>
-          {dict.chapterPage.backToDesk}
-        </Link>
-        <span aria-hidden="true" className="hidden pointer-fine:inline">
-          {" · "}
-          <kbd className="font-mono">{dict.chapterPage.escapeHint}</kbd>
-        </span>
-      </footer>
+      <SiteFooter
+        locale={locale}
+        dict={dict}
+        back={
+          <>
+            <Link href={homePath(locale)} className="text-chapter-ink hover:underline">
+              <span aria-hidden="true">← </span>
+              {dict.chapterPage.backToDesk}
+            </Link>
+            <span aria-hidden="true" className="hidden pointer-fine:inline">
+              {" · "}
+              <kbd className="font-mono">{dict.chapterPage.escapeHint}</kbd>
+            </span>
+          </>
+        }
+      />
     </div>
   );
 }

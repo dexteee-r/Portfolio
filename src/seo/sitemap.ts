@@ -1,18 +1,20 @@
 import type { MetadataRoute } from "next";
 import { chapterIds } from "@/content/chapters";
+import { pageIds } from "@/content/pages";
 import type { Project } from "@/content/schema";
 import { locales, type Locale } from "@/i18n/config";
-import { chapterPath, homePath, projectPath } from "@/i18n/paths";
+import { chapterPath, homePath, pagePath, projectPath } from "@/i18n/paths";
 import { absoluteUrl } from "./structured-data";
 
 /**
  * Every public page, once per language, each naming all its language versions
  * (hreflang), as search engines expect. Only published projects: a draft has
- * no business in a sitemap even when a preview build shows it.
+ * no business in a sitemap even when a development build shows it.
  */
 export function sitemapEntries(projects: Project[]): MetadataRoute.Sitemap {
   const pages: Array<(locale: Locale) => string> = [
     homePath,
+    ...pageIds.map((page) => (locale: Locale) => pagePath(locale, page)),
     ...chapterIds.map((chapter) => (locale: Locale) => chapterPath(locale, chapter)),
     ...projects
       .filter((project) => project.status === "published")
@@ -28,7 +30,7 @@ export function sitemapEntries(projects: Project[]): MetadataRoute.Sitemap {
   });
 }
 
-/** Everything may be crawled on the real site — except the CMS panel; nothing on a preview. */
+/** Everything may be crawled on the real site — except the CMS panel; nothing on a staging copy. */
 export function robotsRules(indexable: boolean): MetadataRoute.Robots {
   return indexable
     ? {

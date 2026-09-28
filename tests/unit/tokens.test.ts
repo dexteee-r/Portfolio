@@ -4,7 +4,7 @@
  * build goes red instead of the site quietly drifting.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import { chapterIds } from "@/content/chapters";
 import { contrastRatio } from "@/lib/color";
@@ -179,7 +179,10 @@ describe("components respect the token contract", () => {
   });
 
   it("hard-codes no colour: every colour comes from tokens.css", () => {
-    const offenders = outsideTokens.filter((f) => {
+    // src/site.ts holds facts, not styles — and a street address may well
+    // contain a "#4133" that reads like a colour.
+    const styled = outsideTokens.filter((f) => relative(ROOT, f).split(sep).join("/") !== "src/site.ts");
+    const offenders = styled.filter((f) => {
       const text = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
       return /#[0-9a-f]{3,8}\b(?![\w-])/i.test(text) || /\brgba?\(/.test(text) || /\bhsla?\(/.test(text);
     });

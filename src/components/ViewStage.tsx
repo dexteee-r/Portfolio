@@ -117,9 +117,12 @@ function focusTitle(view: HTMLElement) {
   view.querySelector<HTMLElement>("[data-view-title]")?.focus({ preventScroll: true });
 }
 
-function focusFolder(view: HTMLElement, chapter: string | null) {
-  if (!chapter || !isChapterId(chapter)) return;
-  view.querySelector<HTMLElement>(`[data-chapter-mark="${chapter}"]`)?.focus({ preventScroll: true });
+/** Back on the desk: focus returns to the folder of the chapter just left. False when there is none. */
+function focusFolder(view: HTMLElement, chapter: string | null): boolean {
+  if (!chapter || !isChapterId(chapter)) return false;
+  const folder = view.querySelector<HTMLElement>(`[data-chapter-mark="${chapter}"]`);
+  folder?.focus({ preventScroll: true });
+  return folder !== null;
 }
 
 /** Back in a chapter from one of its projects: bring that station back into view. */
@@ -140,7 +143,8 @@ function focusStation(view: HTMLElement, project: string) {
  * Links stay ordinary links — clicks are read on the way down (capture
  * phase), so no component needs to know a transition exists and the site
  * works identically without JavaScript. Also owns focus across views and the
- * Escape key, which climbs one level: project → chapter → desk.
+ * Escape key, which climbs one level: project → chapter → desk, and from a
+ * page of the frame (the legal notice) back to the desk.
  */
 export function ViewStage({ children }: { children: ReactNode }) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -208,7 +212,8 @@ export function ViewStage({ children }: { children: ReactNode }) {
     return () => stage.removeEventListener("click", onClick, { capture: true });
   }, []);
 
-  // Escape climbs one level: a project closes onto its chapter, a chapter onto the desk.
+  // Escape climbs one level: a project closes onto its chapter, a chapter (or
+  // a page of the frame) onto the desk.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape" || event.defaultPrevented || busy.current) return;
@@ -223,6 +228,9 @@ export function ViewStage({ children }: { children: ReactNode }) {
       } else if (kind === "project" && here.kind === "project") {
         event.preventDefault();
         routerRef.current.push(chapterPath(here.locale, here.chapter));
+      } else if (kind === "frame" && here.kind === "page") {
+        event.preventDefault();
+        routerRef.current.push(homePath(here.locale));
       }
     }
 
@@ -241,7 +249,11 @@ export function ViewStage({ children }: { children: ReactNode }) {
     const job = pending.current;
 
     if (!job) {
-      if (stage && arriving && isQuietMove(previous, pathname)) settleQuietly(arriving, previous);
+      if (!stage || !arriving) return;
+      if (isQuietMove(previous, pathname)) settleQuietly(arriving, previous);
+      // A frame page reached from the frame: same ground, no motion, but focus
+      // moves to its title so a keyboard user starts reading there.
+      else if (classifyPath(pathname).kind === "page") focusTitle(arriving);
       return;
     }
 
@@ -258,8 +270,8 @@ export function ViewStage({ children }: { children: ReactNode }) {
 
     const land = () => {
       busy.current = false;
-      if (job.direction === "in") focusTitle(arriving);
-      else focusFolder(arriving, job.fromChapter);
+      // Out onto the desk: back to the folder left. Out onto a frame page: its title.
+      if (job.direction === "in" || !focusFolder(arriving, job.fromChapter)) focusTitle(arriving);
     };
 
     if (!job.layer) {

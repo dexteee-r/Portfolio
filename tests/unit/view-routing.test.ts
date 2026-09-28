@@ -18,6 +18,10 @@ describe("classifyPath", () => {
     ["/fr/creatif", { kind: "chapter", locale: "fr", chapter: "creative" }],
     ["/en/creative/some-project", { kind: "project", locale: "en", chapter: "creative", project: "some-project" }],
     ["/fr/dev/mytgc/", { kind: "project", locale: "fr", chapter: "dev", project: "mytgc" }],
+    ["/fr/mentions-legales", { kind: "page", locale: "fr", page: "legal" }],
+    ["/en/legal-notice/", { kind: "page", locale: "en", page: "legal" }],
+    ["/en/mentions-legales", { kind: "other" }], // the French slug under /en
+    ["/fr/mentions-legales/deeper", { kind: "other" }],
     ["/fr/dev/Not_A_Slug", { kind: "other" }],
     ["/fr/dev/mytgc/deeper", { kind: "other" }],
     ["/en/creatif", { kind: "other" }],
@@ -40,6 +44,16 @@ describe("transitionFor", () => {
   it("closes a chapter or a project back onto the desk with the drawer", () => {
     expect(transitionFor("chapter", "/fr")).toBe("out");
     expect(transitionFor("project", "/en")).toBe("out");
+  });
+
+  it("closes a chapter or a project onto a page of the frame with the drawer too — never a cut to light", () => {
+    expect(transitionFor("chapter", "/fr/mentions-legales")).toBe("out");
+    expect(transitionFor("project", "/en/legal-notice")).toBe("out");
+  });
+
+  it("goes from the desk to its pages, and back, without the drawer", () => {
+    expect(transitionFor("frame", "/fr/mentions-legales")).toBeNull();
+    expect(transitionFor("frame", "/fr")).toBeNull();
   });
 
   it("leaves every other navigation ordinary", () => {
@@ -67,6 +81,8 @@ describe("isQuietMove", () => {
     expect(isQuietMove("/fr", "/fr/dev")).toBe(false); // the drawer's job
     expect(isQuietMove("/fr/dev", "/fr")).toBe(false);
     expect(isQuietMove("/fr/dev", "/fr/nope")).toBe(false);
+    expect(isQuietMove("/fr/dev", "/fr/mentions-legales")).toBe(false); // out to the frame
+    expect(isQuietMove("/fr/mentions-legales", "/fr")).toBe(false);
   });
 });
 

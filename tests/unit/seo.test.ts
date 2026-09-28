@@ -70,11 +70,10 @@ describe("tokens for images", () => {
 });
 
 describe("metadata", () => {
-  it("indexes production and non-Vercel builds, never previews", () => {
+  it("indexes every build, except a staging copy built with SITE_NOINDEX=1", () => {
     expect(isIndexable({})).toBe(true);
-    expect(isIndexable({ VERCEL_ENV: "production" })).toBe(true);
-    expect(isIndexable({ VERCEL_ENV: "preview" })).toBe(false);
-    expect(isIndexable({ VERCEL_ENV: "development" })).toBe(false);
+    expect(isIndexable({ SITE_NOINDEX: "0" })).toBe(true);
+    expect(isIndexable({ SITE_NOINDEX: "1" })).toBe(false);
   });
 
   it("adds the brand to share titles once", () => {
@@ -208,6 +207,7 @@ describe("structured data", () => {
         locality: "Bruxelles",
         country: "BE",
         areaServed: ["Bruxelles"],
+        enterpriseNumber: "0123.456.789",
       },
       "Réparation de téléphones et de PC.",
       "/fr/repair",
@@ -244,13 +244,16 @@ describe("sitemap and robots", () => {
   const entries = sitemapEntries(loadProjects(FIXTURES));
   const urls = entries.map((e) => e.url);
 
-  it("lists every page in every language: desk, chapters, published projects", () => {
-    // 1 desk + 4 chapters + 4 published fixture projects, × 2 languages
-    expect(entries).toHaveLength((1 + chapterIds.length + 4) * locales.length);
+  it("lists every page in every language: desk, legal notice, chapters, published projects", () => {
+    // 1 desk + 1 legal notice + 4 chapters + 4 published fixture projects, × 2 languages
+    expect(entries).toHaveLength((1 + 1 + chapterIds.length + 4) * locales.length);
     expect(urls).toContain("https://elmzn.be/fr");
     expect(urls).toContain("https://elmzn.be/en/creative");
     expect(urls).toContain("https://elmzn.be/fr/creatif");
     expect(urls).toContain("https://elmzn.be/en/dev/alpha-app");
+    expect(urls).toContain("https://elmzn.be/fr/mentions-legales");
+    expect(urls).toContain("https://elmzn.be/en/legal-notice");
+    expect(urls).not.toContain("https://elmzn.be/en/mentions-legales");
   });
 
   it("never lists a draft", () => {

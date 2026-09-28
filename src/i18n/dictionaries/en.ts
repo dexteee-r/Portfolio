@@ -73,4 +73,57 @@ export const en: Dictionary = {
     body: "It may have been renamed, moved, or never created. The four folders below do exist.",
     back: "Back to the desk",
   },
+  footer: {
+    contact: "Contact",
+    legal: "Legal notice",
+  },
+  legal: {
+    title: "Legal notice",
+    description: "Who publishes this site, who hosts it, and what it does with your data.",
+    updated: "Last updated {date}",
+    publisherHeading: "Publisher",
+    publisherLabel: "Publisher",
+    publisherValue: "{name}, as a private individual",
+    contactLabel: "Contact",
+    countryLabel: "Country",
+    businessLabel: "Business",
+    addressLabel: "Address",
+    enterpriseNumberLabel: "Enterprise number",
+    vatLabel: "VAT",
+    personal:
+      "This is a personal portfolio. The repairs shown here are done privately, for people I know and free of charge: no commercial activity is carried out through this site.",
+    hostingHeading: "Hosting",
+    hosting:
+      "The site is self-hosted by its publisher, on a server in {country}. No third-party host sees the visits.",
+    privacyHeading: "Your data",
+    controller: "The data controller is {name}, reachable at {email}.",
+    noTrackingHeading: "No cookies, no analytics",
+    noTracking: "This site sets no cookies on its visitors and uses no analytics, no trackers and no advertising.",
+    storageHeading: "What your browser keeps",
+    storage:
+      "Your browser stores a single piece of information: that you have already seen the opening animation, so it does not play on every visit. It never leaves your device; clearing the site's data in your browser removes it.",
+    logsHeading: "Server logs",
+    logs:
+      "To serve the pages and protect the site, the server records every request in its logs: IP address, page requested, browser. This is necessary for the site to work and stay secure (legitimate interest). These logs stay on the server, are shared with no one, and are deleted automatically after {retention} at most.",
+    logRetention: {
+      one: "{count} week",
+      other: "{count} weeks",
+    },
+    mailHeading: "If you write to me",
+    mail:
+      "What you send to {email} — your address, your name, your message — is used only to reply and, for a repair, to follow it up, at your request. Messages are received by {mailHost}'s mail service ({mailCountry}), shared with no one else, and deleted {retention} after the last exchange.",
+    mailRetention: {
+      one: "{count} month",
+      other: "{count} months",
+    },
+    rightsHeading: "Your rights",
+    rights:
+      "You can ask to see, correct or erase the data about you, or object to its use, by writing to {email}. If the answer does not satisfy you, you can lodge a complaint with the Belgian {authority}, Rue de la Presse 35, 1000 Brussels.",
+    authority: "Data Protection Authority",
+    authorityUrl: "https://www.dataprotectionauthority.be",
+    contentHeading: "Content",
+    content:
+      "Unless stated otherwise, the texts, photos and videos on this site are the work of {name}; reproducing them requires the author's permission. The site's code, on the other hand, is public: {source}.",
+    sourceLink: "see it on GitHub",
+  },
 };

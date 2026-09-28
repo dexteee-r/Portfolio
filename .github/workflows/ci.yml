@@ -4,9 +4,14 @@ on:
   push:
   pull_request:
 
+# A newer push to the same branch replaces the run in progress: on main, the
+# latest commit is the one that gets deployed.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -45,3 +50,67 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  # Only a commit on main that passed every check becomes an image.
+  image:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/dexteee-r/portfolio
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: >
+          docker build
+          --build-arg ELMZN_VERSION=${{ github.sha }}
+          --tag "$IMAGE:${{ github.sha }}"
+          --tag "$IMAGE:latest"
+          .
+
+      - name: Smoke-test it, run as the homelab runs it
+        run: sh deploy/smoke-test.sh "$IMAGE:${{ github.sha }}" "${{ github.sha }}"
+
+      - name: Publish it to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-server-log
+          path: smoke-server.log
+          retention-days: 7
+
+  # The homelab pulls the new image when told to (a signed webhook), and CI
+  # waits until the site really serves it. Skipped, not failed, until the
+  # server is set up (repository secrets DEPLOY_WEBHOOK_URL and _SECRET).
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+      DEPLOY_WEBHOOK_SECRET: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://elmzn.be' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Not set up yet
+        if: env.DEPLOY_WEBHOOK_URL == '' || env.DEPLOY_WEBHOOK_SECRET == ''
+        run: echo "::notice::Image published; no deployment webhook configured yet, so nothing was deployed."
+
+      - name: Tell the homelab a new image is out
+        if: env.DEPLOY_WEBHOOK_URL != '' && env.DEPLOY_WEBHOOK_SECRET != ''
+        run: sh deploy/notify.sh "$DEPLOY_WEBHOOK_URL" "${{ github.sha }}"
+
+      - name: Wait until the site serves this commit
+        if: env.DEPLOY_WEBHOOK_URL != '' && env.DEPLOY_WEBHOOK_SECRET != ''
+        run: sh deploy/wait-for-version.sh "$SITE_URL/fr" "${{ github.sha }}" 300

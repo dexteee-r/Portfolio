@@ -4,6 +4,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import { site } from "@/site";
 import { BootSequence } from "./BootSequence";
 import { ChapterMarks } from "./ChapterMarks";
+import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { TopBar } from "./TopBar";
 
@@ -38,6 +39,7 @@ export function Desk({ locale, dict, counts }: DeskProps) {
         </div>
         <ChapterMarks locale={locale} dict={dict} counts={counts} />
       </main>
+      <SiteFooter locale={locale} dict={dict} />
     </div>
   );
 }
