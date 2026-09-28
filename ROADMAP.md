@@ -25,6 +25,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Auto-hébergement sur le homelab au lieu de Vercel (décision du 2026-09-28) :
   image Docker construite, testée et publiée par la CI, déploiement par
   webhook signé, vérification que le site sert bien la nouvelle version.
+- Geste de balayage : un chapitre tiré vers le bas au doigt, depuis le haut de
+  sa page, retourne au bureau ; le tiroir reprend là où le doigt l'a lâché.
 
 ## À faire — V1
 
@@ -44,7 +46,6 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   avis juridique). Le jour où la réparation devient une activité rémunérée :
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
-- **Geste de balayage** : fermer un chapitre en le tirant vers le bas au doigt.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
 
 ## À faire — plus tard

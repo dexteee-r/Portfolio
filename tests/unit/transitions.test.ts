@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   pageTransitionDuration,
   pickTechnique,
+  returnSheet,
   runPageTransition,
   runTransition,
   techniques,
@@ -187,6 +188,71 @@ describe("drawer", () => {
       expect(call.options.easing).toBe(easeFlood);
       expect(call.options.fill).toBe("forwards");
     }
+  });
+});
+
+describe("drawer, taken over from a finger (a pull let go)", () => {
+  /** The frozen chapter is a viewport-sized layer: 800 px tall here. */
+  function pulled(offset: number) {
+    const ctx = { ...context("out"), offset };
+    ctx.leaving.getBoundingClientRect = () => rect(0, 0, 400, 800);
+    return ctx;
+  }
+
+  it("carries on from where the chapter was let go, the desk already that much forward", async () => {
+    const ctx = pulled(200);
+    await techniques.drawer(ctx);
+    const chapter = calls.find((c) => c.el === ctx.leaving);
+    const desk = calls.find((c) => c.el === ctx.arriving);
+    expect(transforms(chapter)).toEqual(["translateY(200px)", "translateY(100%)"]);
+    expect(transforms(desk)).toEqual([`scale(${0.965 + (1 - 0.965) * 0.25})`, "scale(1)"]);
+  });
+
+  it("takes only the time left for the way left, at the drawer's own pace", async () => {
+    const ctx = pulled(200); // a quarter done
+    await techniques.drawer(ctx);
+    for (const call of calls) {
+      expect(call.options.duration).toBe(420);
+      expect(call.options.easing).toBe(easeFlood);
+      expect(call.options.fill).toBe("forwards");
+    }
+  });
+
+  it("never snaps, even let go near the bottom", async () => {
+    await techniques.drawer(pulled(780));
+    for (const call of calls) expect(call.options.duration).toBe(180);
+  });
+
+  it("with no offset, is the ordinary drawer", async () => {
+    const ctx = pulled(0);
+    await techniques.drawer(ctx);
+    expect(transforms(calls.find((c) => c.el === ctx.leaving))).toEqual(["translateY(0)", "translateY(100%)"]);
+    expect(calls[0]!.options.duration).toBe(560);
+  });
+
+  it("is ignored going in: only a chapter can be pulled", async () => {
+    const ctx = { ...context("in"), offset: 200 };
+    await techniques.drawer(ctx);
+    expect(transforms(calls.find((c) => c.el === ctx.arriving))).toEqual(["translateY(100%)", "translateY(0)"]);
+  });
+});
+
+describe("returnSheet (a pull let go too early)", () => {
+  it("slides the chapter back to the top with the quiet transition's pace", async () => {
+    const view = document.createElement("div");
+    await returnSheet(view, 120);
+    expect(calls).toHaveLength(1);
+    expect(transforms(calls[0])).toEqual(["translateY(120px)", "translateY(0)"]);
+    expect(calls[0]!.options.duration).toBe(durationBase);
+    expect(calls[0]!.options.fill).toBeUndefined(); // ends on the view's own style: no transform
+  });
+
+  it("does nothing under reduced motion, or with nothing to undo", async () => {
+    media[REDUCED] = true;
+    await returnSheet(document.createElement("div"), 120);
+    media[REDUCED] = false;
+    await returnSheet(document.createElement("div"), 0);
+    expect(calls).toEqual([]);
   });
 });
 

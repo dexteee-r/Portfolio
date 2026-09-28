@@ -113,6 +113,24 @@ Garde-fous : un seul tiroir à la fois ; navigation abandonnée au bout de 8 s ;
 animation terminée de force si elle n'avance pas (onglet masqué) ; aucun
 mouvement sous `prefers-reduced-motion`.
 
+**Le tiroir à la main** (écrans tactiles) : en haut d'un chapitre, on le tire
+vers le bas au doigt. Il suit le doigt, le fond clair du cadre apparaît
+au-dessus ; lâché après un quart de l'écran, ou d'un coup sec, le tiroir
+reprend de là jusqu'au bureau (dans le temps qui reste), sinon le chapitre
+remonte. Les règles sont dans `src/lib/pull.ts` (logique pure) et le
+branchement dans `ViewStage` :
+
+- il ne démarre qu'en haut de page — plus bas, tirer vers le bas, c'est
+  remonter la page ; rien n'est décidé avant 10 px — un tap reste un tap ;
+- un geste vers le haut ou de côté est laissé au navigateur jusqu'au bout ;
+- sur un chapitre, `overscroll-behavior-y: none` coupe le « tirer pour
+  rafraîchir » du navigateur ;
+- les pages projet et le bureau ne se tirent pas ; l'indice « ou tirer vers le
+  bas » remplace « Échap » dans le pied de page sur écran tactile.
+
+`tests/e2e/pull.spec.ts` rejoue le geste avec de vrais événements tactiles
+(protocole DevTools), défilement natif compris.
+
 À l'intérieur d'un chapitre (station ↔ page projet, projet ↔ projet), pas de
 tiroir : un fondu sobre de 260 ms. Échap remonte d'un niveau — du projet au
 chapitre (le focus revient sur la station d'origine), du chapitre au bureau.

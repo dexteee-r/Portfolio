@@ -395,3 +395,21 @@
     text-transform: uppercase;
   }
 }
+
+/*
+ * The drawer, by hand (ViewStage, lib/pull.ts). Unlayered, like the grounds in
+ * tokens.css, and more specific than them.
+ *
+ * - A chapter pulled down reveals the light frame above it — the desk's
+ *   ground — never its own dark ground.
+ * - On a chapter, pulling down at the top of the page is the gesture that
+ *   closes it: the browser's pull-to-refresh and bounce stay out of the way.
+ */
+:root[data-pulling],
+:root[data-pulling] body {
+  background-color: var(--color-ground);
+}
+
+html:has([data-view="chapter"]) {
+  overscroll-behavior-y: none;
+}

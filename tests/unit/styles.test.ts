@@ -35,6 +35,18 @@ describe("globals.css", () => {
     }
   });
 
+  it("shows the light frame above a chapter pulled down — beating the chapter's own ground", () => {
+    const rule = /:root\[data-pulling\],\s*:root\[data-pulling\] body\s*\{\s*background-color:\s*var\(--color-ground\);\s*\}/;
+    expect(globals).toMatch(rule);
+    // Unlayered, like the grounds it overrides in tokens.css: after the last layer closes.
+    const lastLayer = globals.lastIndexOf("@layer");
+    expect(globals.search(rule)).toBeGreaterThan(globals.indexOf("\n}", lastLayer));
+  });
+
+  it("keeps the browser's pull-to-refresh out of a chapter, where pulling down closes it", () => {
+    expect(globals).toMatch(/html:has\(\[data-view="chapter"\]\)\s*\{\s*overscroll-behavior-y:\s*none;\s*\}/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

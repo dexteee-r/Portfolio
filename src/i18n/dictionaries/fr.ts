@@ -49,6 +49,7 @@ export const fr = {
   chapterPage: {
     backToDesk: "Retour au bureau",
     escapeHint: "Échap",
+    pullHint: "ou tirer vers le bas, en haut de page",
     stationsLabel: "Projets",
     empty: "Ce dossier est encore vide.",
     open: "Ouvrir le dossier",

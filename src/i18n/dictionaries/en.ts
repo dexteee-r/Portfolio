@@ -46,6 +46,7 @@ export const en: Dictionary = {
   chapterPage: {
     backToDesk: "Back to the desk",
     escapeHint: "Esc",
+    pullHint: "or pull down from the top of the page",
     stationsLabel: "Projects",
     empty: "This folder is still empty.",
     open: "Open the folder",

@@ -76,6 +76,12 @@ export function ChapterView({ locale, dict, chapter, stations, publishedCount }:
               {" · "}
               <kbd className="font-mono">{dict.chapterPage.escapeHint}</kbd>
             </span>
+            {/* The touch counterpart of Escape: the drawer, by hand. On its own
+                line: beside the link, it would turn the link into a link in a
+                sentence, told apart by colour alone. */}
+            <span data-pull-hint="" aria-hidden="true" className="mt-2 hidden pointer-coarse:block">
+              {dict.chapterPage.pullHint}
+            </span>
           </>
         }
       />

@@ -81,6 +81,16 @@ describe("ChapterView", () => {
     const back = within(screen.getByRole("contentinfo")).getByRole("link", { name: "Retour au bureau" });
     expect(back).toHaveAttribute("href", "/fr");
   });
+
+  it("hints at the pull on touch screens, as it hints at Escape with a keyboard", () => {
+    const { container } = render(
+      <ChapterView locale="fr" dict={fr} chapter="dev" stations={stations} publishedCount={2} />,
+    );
+    const hint = container.querySelector("[data-pull-hint]")!;
+    expect(hint).toHaveTextContent(fr.chapterPage.pullHint);
+    expect(hint).toHaveClass("hidden", "pointer-coarse:block"); // its own line, never inside the link's sentence
+    expect(hint).toHaveAttribute("aria-hidden", "true");
+  });
 });
 
 describe("Station", () => {

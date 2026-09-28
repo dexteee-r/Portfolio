@@ -47,6 +47,12 @@ export interface TransitionContext {
   color: string;
   /** "in" = desk → chapter, "out" = chapter → desk. */
   direction: "in" | "out";
+  /**
+   * How far the chapter is already lowered, in pixels, when the transition
+   * takes over from a finger (a pull let go, "out" only). The drawer carries
+   * on from there instead of starting again from the top.
+   */
+  offset?: number;
 }
 
 function prefersReducedMotion(): boolean {
@@ -91,6 +97,9 @@ function measure(stage: HTMLElement, origin?: HTMLElement | null): Point {
 /** How far the desk recedes while a chapter covers it. */
 const DESK_RECEDE = 0.965;
 
+/** Shortest end of a drawer taken over from a finger: never a snap. */
+const DRAWER_MIN_REST = 180;
+
 /**
  * The chapter is always the moving sheet and the desk always the one that
  * recedes: "out" plays "in" backwards — the chapter slides back down and the
@@ -111,10 +120,20 @@ async function drawer(ctx: TransitionContext): Promise<void> {
   if (ctx.direction === "in") {
     ctx.leaving.animate([upright, receded], options);
     await ctx.arriving.animate([lowered, covered], options).finished;
-  } else {
-    ctx.arriving.animate([receded, upright], options);
-    await ctx.leaving.animate([covered, lowered], options).finished;
+    return;
   }
+
+  // Out, possibly from where a finger let go: the rest of the way only, in
+  // the rest of the time, the desk already that much forward.
+  const height = ctx.leaving.getBoundingClientRect().height || window.innerHeight;
+  const offset = Math.max(0, ctx.offset ?? 0);
+  const done = height > 0 ? Math.min(offset / height, 1) : 0;
+  const rest: KeyframeAnimationOptions =
+    done > 0 ? { ...options, duration: Math.max(DRAWER_MIN_REST, Math.round(DURATION.drawer * (1 - done))) } : options;
+  const from = done > 0 ? { transform: `translateY(${offset}px)` } : covered;
+  const deskFrom = done > 0 ? { transform: `scale(${DESK_RECEDE + (1 - DESK_RECEDE) * done})` } : receded;
+  ctx.arriving.animate([deskFrom, upright], rest);
+  await ctx.leaving.animate([from, lowered], rest).finished;
 }
 
 async function disc(ctx: TransitionContext): Promise<void> {
@@ -204,6 +223,20 @@ const EASE_PAGE = "cubic-bezier(0.2, 0, 0, 1)";
 
 export function pageTransitionDuration(): number {
   return prefersReducedMotion() ? 0 : PAGE_DURATION;
+}
+
+/**
+ * A chapter pulled down but let go too early slides back to the top — the
+ * same small, settling move as the quiet transition. The caller clears the
+ * sheet's inline offset in the same frame: this animation covers the way back.
+ * Instant under reduced motion.
+ */
+export async function returnSheet(view: HTMLElement, offset: number): Promise<void> {
+  if (prefersReducedMotion() || offset <= 0) return;
+  await view.animate([{ transform: `translateY(${offset}px)` }, { transform: "translateY(0)" }], {
+    duration: PAGE_DURATION,
+    easing: EASE_PAGE,
+  }).finished;
 }
 
 /** Fades the arriving page in from slightly below. Instant under reduced motion. */

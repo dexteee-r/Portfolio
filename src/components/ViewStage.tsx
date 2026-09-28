@@ -5,8 +5,10 @@ import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { isChapterId } from "@/content/chapters";
 import { SLUG_PATTERN } from "@/content/slug";
 import { chapterPath, homePath } from "@/i18n/paths";
+import { movePull, releasePull, startPull, type Pull } from "@/lib/pull";
 import {
   pageTransitionDuration,
+  returnSheet,
   runPageTransition,
   runTransition,
   transitionDuration,
@@ -44,7 +46,20 @@ interface Pending {
   /** Frozen copy of the view being left; null when motion is reduced. */
   layer: HTMLElement | null;
   origin: HTMLElement | null;
+  /** How far a finger had already lowered the chapter (a pull), in pixels. */
+  offset: number;
   timer: ReturnType<typeof setTimeout>;
+}
+
+/**
+ * Set on <html> while a chapter is pulled down: the ground revealed above it
+ * is the light frame's — the desk's — not the chapter's own (globals.css).
+ */
+const PULLING = "data-pulling";
+
+function endPull(view: HTMLElement | null) {
+  view?.style.removeProperty("transform");
+  document.documentElement.removeAttribute(PULLING);
 }
 
 function currentView(stage: HTMLElement | null): HTMLElement | null {
@@ -58,12 +73,14 @@ function viewKind(view: HTMLElement | null): ViewKind | null {
 
 /**
  * A frozen copy of the view being left, pinned to the viewport exactly where
- * it was on screen. It stays put while React swaps the real view underneath.
+ * it was on screen — `offset` pixels lower if a finger had pulled it down. It
+ * stays put while React swaps the real view underneath.
  */
-function freeze(view: HTMLElement, onTop: boolean): HTMLElement {
+function freeze(view: HTMLElement, onTop: boolean, offset = 0): HTMLElement {
   const copy = view.cloneNode(true) as HTMLElement;
   copy.removeAttribute("data-view");
   for (const el of [copy, ...copy.querySelectorAll("[id]")]) el.removeAttribute("id");
+  copy.style.removeProperty("transform"); // the layer carries the offset, not the copy
   copy.style.marginTop = `${-window.scrollY}px`;
 
   const layer = document.createElement("div");
@@ -76,6 +93,7 @@ function freeze(view: HTMLElement, onTop: boolean): HTMLElement {
     overflow: "hidden",
     pointerEvents: "none",
     zIndex: onTop ? Z_ABOVE : Z_BELOW,
+    ...(offset > 0 ? { transform: `translateY(${offset}px)` } : {}),
   });
   layer.append(copy);
   return layer;
@@ -144,7 +162,9 @@ function focusStation(view: HTMLElement, project: string) {
  * phase), so no component needs to know a transition exists and the site
  * works identically without JavaScript. Also owns focus across views and the
  * Escape key, which climbs one level: project → chapter → desk, and from a
- * page of the frame (the legal notice) back to the desk.
+ * page of the frame (the legal notice) back to the desk. On touch screens, a
+ * chapter pulled down from the top of its page closes the same way (the
+ * drawer, by hand — see lib/pull.ts).
  */
 export function ViewStage({ children }: { children: ReactNode }) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -160,7 +180,7 @@ export function ViewStage({ children }: { children: ReactNode }) {
     routerRef.current = router;
   }, [router]);
 
-  const begin = useRef((href: string, direction: Direction, origin: HTMLElement | null) => {
+  const begin = useRef((href: string, direction: Direction, origin: HTMLElement | null, offset = 0) => {
     const stage = stageRef.current;
     const leaving = currentView(stage);
     if (!stage || !leaving) {
@@ -169,11 +189,12 @@ export function ViewStage({ children }: { children: ReactNode }) {
     }
     busy.current = true;
 
-    const layer = transitionDuration() > 0 ? freeze(leaving, direction === "out") : null;
+    const layer = transitionDuration() > 0 ? freeze(leaving, direction === "out", offset) : null;
     if (layer) stage.append(layer);
 
     const abandon = () => {
       layer?.remove();
+      endPull(leaving); // a pull that never landed: the chapter is back in place
       pending.current = null;
       busy.current = false;
     };
@@ -184,6 +205,7 @@ export function ViewStage({ children }: { children: ReactNode }) {
       fromChapter: leaving.dataset.chapter ?? null,
       layer,
       origin,
+      offset,
       timer: setTimeout(abandon, NAVIGATION_TIMEOUT_MS),
     };
     routerRef.current.push(href, { scroll: false });
@@ -238,6 +260,85 @@ export function ViewStage({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // Touch: a chapter pulled down from the top of its page follows the finger,
+  // the light frame showing above it; let go far enough (or flicked) and the
+  // drawer takes over from there to the desk — otherwise it slides back up.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    let pull: Pull | null = null;
+    let sheet: HTMLElement | null = null;
+
+    function forget() {
+      pull = null;
+      sheet = null;
+    }
+
+    function putBack(view: HTMLElement, offset: number) {
+      endPull(view);
+      returnSheet(view, offset).catch(() => {
+        // Interrupted: the chapter is already back in place.
+      });
+    }
+
+    function onStart(event: TouchEvent) {
+      forget();
+      if (busy.current || event.touches.length !== 1) return;
+      const view = currentView(stage);
+      // Only at the very top: lower down, pulling down is scrolling back up.
+      if (viewKind(view) !== "chapter" || window.scrollY > 0 || isEditableTarget(event.target)) return;
+      const touch = event.touches[0]!;
+      pull = startPull(touch.clientX, touch.clientY, event.timeStamp);
+      sheet = view;
+    }
+
+    function onMove(event: TouchEvent) {
+      if (!pull || !sheet) return;
+      if (event.touches.length !== 1) {
+        if (pull.phase === "pulling") putBack(sheet, pull.offset);
+        forget();
+        return;
+      }
+      const touch = event.touches[0]!;
+      pull = movePull(pull, touch.clientX, touch.clientY, event.timeStamp);
+      if (pull.phase === "ignored") {
+        forget(); // a scroll or a sideways swipe: the browser's, untouched
+        return;
+      }
+      if (pull.phase !== "pulling") return;
+      event.preventDefault(); // no scroll, no pull-to-refresh: the finger holds the chapter
+      document.documentElement.setAttribute(PULLING, "");
+      sheet.style.transform = `translateY(${pull.offset}px)`;
+    }
+
+    function onEnd(event: TouchEvent) {
+      if (!pull || !sheet) return;
+      const view = sheet;
+      const offset = pull.phase === "pulling" ? pull.offset : 0;
+      const decision = releasePull(pull, window.innerHeight, event.timeStamp);
+      forget();
+      const here = classifyPath(pathnameRef.current);
+      if (decision === "close" && here.kind === "chapter") begin.current(homePath(here.locale), "out", null, offset);
+      else if (offset > 0) putBack(view, offset);
+    }
+
+    function onCancel() {
+      if (pull?.phase === "pulling" && sheet) putBack(sheet, pull.offset);
+      forget();
+    }
+
+    stage.addEventListener("touchstart", onStart, { passive: true });
+    stage.addEventListener("touchmove", onMove, { passive: false });
+    stage.addEventListener("touchend", onEnd);
+    stage.addEventListener("touchcancel", onCancel);
+    return () => {
+      stage.removeEventListener("touchstart", onStart);
+      stage.removeEventListener("touchmove", onMove);
+      stage.removeEventListener("touchend", onEnd);
+      stage.removeEventListener("touchcancel", onCancel);
+    };
+  }, []);
+
   // A new view is in the DOM: animate it before the browser paints it.
   useLayoutEffect(() => {
     const previous = pathnameRef.current;
@@ -262,6 +363,7 @@ export function ViewStage({ children }: { children: ReactNode }) {
 
     if (!stage || !arriving) {
       job.layer?.remove();
+      endPull(null);
       busy.current = false;
       return;
     }
@@ -269,6 +371,7 @@ export function ViewStage({ children }: { children: ReactNode }) {
     window.scrollTo(0, 0);
 
     const land = () => {
+      endPull(null);
       busy.current = false;
       // Out onto the desk: back to the folder left. Out onto a frame page: its title.
       if (job.direction === "in" || !focusFolder(arriving, job.fromChapter)) focusTitle(arriving);
@@ -292,6 +395,7 @@ export function ViewStage({ children }: { children: ReactNode }) {
       origin: job.origin,
       color: getComputedStyle(arriving).backgroundColor,
       direction: job.direction,
+      offset: job.offset,
     })
       .catch(() => {
         // An interrupted animation still ends in a clean, usable page.

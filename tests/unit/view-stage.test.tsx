@@ -21,6 +21,8 @@ const motion = vi.hoisted(() => ({
   calls: [] as Array<{ ctx: TransitionContext; pinned: string; release: () => void }>,
   /** Views the quiet page transition was run on. */
   quiet: [] as HTMLElement[],
+  /** Chapters slid back up after a pull let go too early. */
+  returned: [] as Array<{ view: HTMLElement; offset: number; transformAtStart: string }>,
   /** When false, the transition only ends when a test releases it. */
   autoResolve: true,
 }));
@@ -36,6 +38,10 @@ vi.mock("@/lib/transitions", () => ({
     motion.quiet.push(view);
     return Promise.resolve();
   },
+  returnSheet: (view: HTMLElement, offset: number) => {
+    motion.returned.push({ view, offset, transformAtStart: view.style.transform });
+    return Promise.resolve();
+  },
 }));
 
 const push = vi.fn();
@@ -47,6 +53,7 @@ beforeEach(() => {
   motion.duration = 560;
   motion.calls = [];
   motion.quiet = [];
+  motion.returned = [];
   motion.autoResolve = true;
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
   Element.prototype.scrollIntoView = vi.fn();
@@ -361,6 +368,187 @@ describe("pages of the frame (the legal notice)", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(push).toHaveBeenCalledExactlyOnceWith("/fr");
     expect(layer()).toBeNull();
+  });
+});
+
+describe("pulling a chapter down (touch)", () => {
+  /** Dispatches a touch event with the given fingers, at time `t` (ms). Returns false if prevented. */
+  function touch(type: string, points: Array<[number, number]>, t: number, target: Element = liveView()): boolean {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    const touches = points.map(([clientX, clientY]) => ({ clientX, clientY }));
+    Object.defineProperty(event, "touches", { value: touches });
+    Object.defineProperty(event, "timeStamp", { value: t });
+    return target.dispatchEvent(event);
+  }
+
+  /** A steady pull straight down by `distance` px, 4 px every 16 ms. Returns whether every move was prevented. */
+  function pullDown(distance: number, from = 100): boolean {
+    let prevented = true;
+    touch("touchstart", [[200, from]], 0);
+    let t = 0;
+    for (let d = 4; d <= distance; d += 4) {
+      t += 16;
+      const notPrevented = touch("touchmove", [[200, from + d]], t);
+      if (d > 12) prevented &&= !notPrevented;
+    }
+    touch("touchend", [], t + 5);
+    return prevented;
+  }
+
+  const html = document.documentElement;
+
+  beforeEach(() => {
+    nav.pathname = "/fr/dev";
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+  });
+
+  afterEach(() => {
+    html.removeAttribute("data-pulling");
+  });
+
+  it("follows the finger, the light frame showing above, and keeps the page from scrolling", () => {
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 100]], 0);
+    touch("touchmove", [[200, 140]], 100);
+    const notPrevented = touch("touchmove", [[200, 250]], 300);
+    expect(notPrevented).toBe(false);
+    expect(liveView().style.transform).toBe("translateY(140px)"); // 150 pulled, minus the slop
+    expect(html).toHaveAttribute("data-pulling");
+  });
+
+  it("let go far enough: the drawer takes over from there, onto the desk", async () => {
+    const { rerender } = render(stage(<Chapter />));
+    expect(pullDown(320)).toBe(true);
+
+    expect(push).toHaveBeenCalledExactlyOnceWith("/fr", { scroll: false });
+    const frozen = layer()!;
+    expect(frozen.style.transform).toBe("translateY(310px)"); // exactly where the finger left it
+    expect(frozen.firstElementChild!.getAttribute("style")).not.toContain("translateY"); // the offset is the layer's alone
+    expect(html).toHaveAttribute("data-pulling");
+
+    nav.pathname = "/fr";
+    rerender(stage(<Desk />));
+    expect(motion.calls[0]!.ctx).toMatchObject({ direction: "out", offset: 310, leaving: frozen });
+
+    await flush();
+    expect(layer()).toBeNull();
+    expect(html).not.toHaveAttribute("data-pulling");
+    expect(document.activeElement).toBe(document.getElementById("mark-dev"));
+  });
+
+  it("a short flick closes it too", () => {
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 100]], 0);
+    touch("touchmove", [[200, 130]], 20);
+    touch("touchmove", [[200, 180]], 40);
+    touch("touchmove", [[200, 240]], 60);
+    touch("touchend", [], 62);
+    expect(push).toHaveBeenCalledWith("/fr", { scroll: false });
+  });
+
+  it("let go too early: the chapter slides back up and the frame is hidden again", () => {
+    render(stage(<Chapter />));
+    pullDown(60);
+    expect(push).not.toHaveBeenCalled();
+    expect(motion.returned).toHaveLength(1);
+    expect(motion.returned[0]).toMatchObject({ offset: 50, transformAtStart: "" });
+    expect(liveView().style.transform).toBe("");
+    expect(html).not.toHaveAttribute("data-pulling");
+  });
+
+  it("a tap is not a pull", () => {
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 100]], 0);
+    touch("touchmove", [[202, 103]], 16);
+    touch("touchend", [], 30);
+    expect(push).not.toHaveBeenCalled();
+    expect(motion.returned).toEqual([]);
+    expect(liveView().style.transform).toBe("");
+  });
+
+  it("below the top of the page, pulling down is scrolling: left to the browser", () => {
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 300 });
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 100]], 0);
+    expect(touch("touchmove", [[200, 300]], 200)).toBe(true);
+    touch("touchend", [], 400);
+    expect(liveView().style.transform).toBe("");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("upward and sideways moves are left to the browser", () => {
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 300]], 0);
+    expect(touch("touchmove", [[200, 200]], 100)).toBe(true);
+    expect(touch("touchmove", [[200, 600]], 300)).toBe(true); // the gesture was a scroll: it stays one
+    touch("touchend", [], 400);
+    touch("touchstart", [[100, 100]], 1000);
+    expect(touch("touchmove", [[300, 140]], 1100)).toBe(true);
+    expect(liveView().style.transform).toBe("");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("only a chapter can be pulled: not the desk, not a project page", () => {
+    nav.pathname = "/fr";
+    const { unmount } = render(stage(<Desk />));
+    pullDown(400);
+    expect(push).not.toHaveBeenCalled();
+    unmount();
+    nav.pathname = "/fr/dev/some-project";
+    render(stage(<ProjectPage />));
+    pullDown(400);
+    expect(push).not.toHaveBeenCalled();
+    expect(liveView().style.transform).toBe("");
+  });
+
+  it("a second finger, or a cancelled touch, puts the chapter back", () => {
+    render(stage(<Chapter />));
+    touch("touchstart", [[200, 100]], 0);
+    touch("touchmove", [[200, 200]], 100);
+    touch("touchmove", [[200, 210], [300, 210]], 120);
+    expect(motion.returned).toHaveLength(1);
+    expect(liveView().style.transform).toBe("");
+
+    touch("touchstart", [[200, 100]], 1000);
+    touch("touchmove", [[200, 200]], 1100);
+    touch("touchcancel", [], 1150);
+    expect(motion.returned).toHaveLength(2);
+    expect(html).not.toHaveAttribute("data-pulling");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("while the drawer is already moving, the finger does nothing", () => {
+    render(stage(<Chapter />));
+    fireEvent.keyDown(document, { key: "Escape" }); // the drawer starts
+    push.mockClear();
+    pullDown(400);
+    expect(push).not.toHaveBeenCalled();
+    expect(liveView().style.transform).toBe("");
+  });
+
+  it("reduced motion: the finger still moves the chapter, the rest is instant", async () => {
+    motion.duration = 0;
+    const { rerender } = render(stage(<Chapter />));
+    pullDown(320);
+    expect(push).toHaveBeenCalledWith("/fr", { scroll: false });
+    expect(layer()).toBeNull();
+
+    nav.pathname = "/fr";
+    rerender(stage(<Desk />));
+    expect(motion.calls).toHaveLength(0);
+    expect(html).not.toHaveAttribute("data-pulling");
+    expect(document.activeElement).toBe(document.getElementById("mark-dev"));
+  });
+
+  it("a navigation that never lands hands the chapter back, in place", () => {
+    vi.useFakeTimers();
+    render(stage(<Chapter />));
+    pullDown(320);
+    vi.advanceTimersByTime(NAVIGATION_TIMEOUT_MS + 1);
+    expect(layer()).toBeNull();
+    expect(liveView().style.transform).toBe("");
+    expect(html).not.toHaveAttribute("data-pulling");
   });
 });
 
