@@ -1,0 +1,26 @@
+# Fixture: a small published homelab, two levels under the host.
+status: published
+nodes:
+  - id: internet
+    label: Internet
+    kind: internet
+  - id: box
+    label: Box
+    kind: router
+    parent: internet
+  - id: host
+    label: host-fixture
+    kind: hypervisor
+    parent: box
+  - id: proxy
+    label: Proxy fixture
+    kind: proxy
+    parent: host
+  - id: site
+    label: site-fixture
+    kind: container
+    parent: host
+  - id: app
+    label: app-fixture
+    kind: service
+    parent: site

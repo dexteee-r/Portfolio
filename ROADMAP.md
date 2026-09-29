@@ -32,6 +32,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Le globe du bureau (2026-09-29) : la Terre en trame 1 bit, éclairée, à
   droite du nom, sur grand écran avec souris ; choisi sur banc d'essai parmi
   cinq pistes (globe en points, constellation, dossier 3D, portrait ASCII).
+- Le schéma du homelab en tête du chapitre infra (2026-09-29) : il se dessine
+  à l'écran, niveau par niveau ; édité dans le CMS, adresses IP et ports
+  refusés par le build.
 
 ## À faire — V1
 
@@ -52,6 +55,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
+- **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
+  (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
+  puis passer `status` à `published`.
 
 ## À faire — plus tard
 
@@ -59,19 +65,19 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   un seul effet par chapitre, dans sa seule couleur, au service du contenu) :
   - dev : chaque projet en disquette étiquetée ; fiche technique en tête de
     page projet (DA 2) ; schémas d'architecture sur grille de plan (RON) ;
-  - infra : le schéma réseau du homelab qui se dessine (animation › Hyperspace
-    tracking), puis en V3 le relief de points des vraies métriques et les
-    chiffres entre crochets (DA 4) ;
+  - infra : ~~le schéma réseau qui se dessine~~ (fait), puis en V3 le relief
+    de points des vraies métriques et les chiffres entre crochets (DA 4) ;
   - repair : un scan de diagnostic qui nomme les pièces réparées sur la photo
     (animation › scan thermique), ramené aux tons brique ; fiche
     d'intervention en ticket (DA 2 › ticket) ;
   - création : l'étagère de cassettes VHS (folder type › Kurosawa), le suivi
     de mouvement sur l'aperçu vidéo (animation › nickjaykdesign) ; le globe
     des lieux de tournage est à repenser — le bureau a déjà le sien.
+  Les objets (disquette, ticket, jaquette VHS) vont en tête des pages projet
+  (choix du 2026-09-29).
   Pas de police pixel (deux familles seulement) : le rendu pixel passe par
   DM Mono, l'ASCII et la trame.
-- V2 : curseur vidéo sur les stations (avec son équivalent au doigt), schéma
-  réseau du homelab qui se dessine.
+- V2 : curseur vidéo sur les stations (avec son équivalent au doigt).
 - V3 : données réelles du homelab, référencement local de la réparation
   (fiche Google Business, pages par ville, avis).
 - Néerlandais, quand quelqu'un peut le relire.

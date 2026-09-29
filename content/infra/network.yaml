@@ -1,0 +1,36 @@
+# The homelab, as the infra chapter draws it — edited in the CMS (Homelab).
+# A first draft from what is known: correct it, then set status to published.
+# Names only, never an address or a port: the build refuses them.
+status: draft
+nodes:
+  - id: internet
+    label: Internet
+    kind: internet
+  - id: box
+    label: Box
+    kind: router
+    parent: internet
+  - id: srv1
+    label: srv1
+    kind: hypervisor
+    parent: box
+  - id: npm
+    label: Nginx Proxy Manager
+    kind: proxy
+    parent: srv1
+  - id: elmzn
+    label: elmzn.be
+    kind: container
+    parent: srv1
+  - id: lxc-web
+    label: lxc-web
+    kind: container
+    parent: srv1
+  - id: vm-intranet
+    label: vm-intranet
+    kind: vm
+    parent: srv1
+  - id: grafana
+    label: Grafana
+    kind: service
+    parent: srv1

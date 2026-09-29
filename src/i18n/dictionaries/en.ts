@@ -53,6 +53,18 @@ export const en: Dictionary = {
     open: "Open the folder",
     draft: "Draft",
   },
+  network: {
+    caption: "The homelab, as it runs",
+    kinds: {
+      internet: "Internet",
+      router: "Router",
+      proxy: "Reverse proxy",
+      hypervisor: "Hypervisor",
+      vm: "Virtual machine",
+      container: "Container",
+      service: "Service",
+    },
+  },
   projectPage: {
     backToChapter: "Back to the chapter",
     linksLabel: "Project links",

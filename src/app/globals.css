@@ -425,3 +425,88 @@ html:has([data-view="chapter"]) {
 html[data-boot="play"] [data-desk-art] {
   opacity: 0;
 }
+
+/*
+ * The infra chapter's network map (components/NetworkMap). Drawn by default:
+ * only once the script has armed it does it wait, hidden, to be seen — then
+ * the lines trace themselves and each node locks on, at the site's own pace.
+ */
+[data-network] .net-line {
+  stroke-dasharray: 1;
+}
+
+[data-network] .net-node,
+[data-network] .net-brackets {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-network][data-armed]:not([data-drawn]) .net-line {
+  stroke-dashoffset: 1;
+}
+
+[data-network][data-armed]:not([data-drawn]) .net-node {
+  opacity: 0;
+}
+
+[data-network][data-drawn] .net-line {
+  animation: net-draw var(--duration-slow) var(--ease-standard) var(--delay, 0ms) both;
+}
+
+/* Each node appears; its brackets close in on it — the tracker locks on. */
+[data-network][data-drawn] .net-node {
+  animation: net-appear var(--duration-base) var(--ease-standard) var(--delay, 0ms) both;
+}
+
+/* Afterwards, the tracker visits one node at a time. */
+[data-network][data-drawn] .net-brackets {
+  animation:
+    net-lock var(--duration-slow) var(--ease-standard) var(--delay, 0ms) both,
+    net-track 10s var(--ease-standard) calc(var(--delay, 0ms) + var(--track-delay, 0s)) infinite;
+}
+
+@keyframes net-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes net-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes net-lock {
+  from {
+    transform: scale(2.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes net-track {
+  0%,
+  88%,
+  100% {
+    transform: scale(1);
+  }
+  93% {
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-network] .net-line,
+  [data-network] .net-node,
+  [data-network] .net-brackets {
+    animation: none !important;
+  }
+}

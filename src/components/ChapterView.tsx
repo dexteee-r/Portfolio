@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { chapterSlugs, type ChapterId } from "@/content/chapters";
+import type { NetworkNode } from "@/content/network-layout";
 import type { LocalizedProject } from "@/content/projects";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
 import { DrawerIndex } from "./DrawerIndex";
+import { NetworkMap } from "./NetworkMap";
 import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { Station } from "./Station";
@@ -17,6 +19,8 @@ interface ChapterViewProps {
   stations: LocalizedProject[];
   /** Published projects only — the same number the desk shows. */
   publishedCount: number;
+  /** The homelab, drawn under the infra chapter's title (its one effect). */
+  network?: NetworkNode[] | null;
 }
 
 /**
@@ -24,7 +28,7 @@ interface ChapterViewProps {
  * everything else. A page to stroll through, one station per project. Works
  * on its own when reached from an outside link.
  */
-export function ChapterView({ locale, dict, chapter, stations, publishedCount }: ChapterViewProps) {
+export function ChapterView({ locale, dict, chapter, stations, publishedCount, network = null }: ChapterViewProps) {
   const copy = dict.chapters[chapter];
 
   return (
@@ -50,6 +54,8 @@ export function ChapterView({ locale, dict, chapter, stations, publishedCount }:
           </h1>
           <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">{copy.description}</p>
         </header>
+
+        {chapter === "infra" && network && <NetworkMap dict={dict} nodes={network} />}
 
         <DrawerIndex locale={locale} dict={dict} projects={stations} />
 

@@ -5,6 +5,7 @@ import { parse, stringify } from "yaml";
 import { adminPage, BUNDLE_PATH, notConfiguredPage, sveltiaVersion } from "@/cms/admin-page";
 import { CMS_AUTH_ENDPOINT, cmsConfig, PROJECT_PUBLIC_FOLDER } from "@/cms/config";
 import { chapterIds } from "@/content/chapters";
+import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
 import { loadProjects, parseProject } from "@/content/projects";
 import {
   COVER_PATTERN,
@@ -104,6 +105,34 @@ describe("CMS configuration, generated from the content schema", () => {
       auth_scope: "repo",
     });
     expect(config.load_config_file).toBe(false);
+  });
+});
+
+describe("the homelab, edited in the CMS", () => {
+  const homelab = config.collections!.find((c) => c.name === "homelab") as unknown as {
+    files: Array<{ file: string; format: string; fields: Array<Record<string, unknown>> }>;
+  };
+  const file = homelab.files[0]!;
+  const nodes = file.fields.find((f) => f.name === "nodes")! as { fields: Array<Record<string, unknown>>; max: number };
+  const nodeField = (name: string) => nodes.fields.find((f) => f.name === name)!;
+
+  it("writes the very file the infra chapter reads", () => {
+    expect(file.file).toBe(`content/${NETWORK_FILE.split(/[\\/]/).join("/")}`);
+    expect(file.format).toBe("yaml");
+  });
+
+  it("offers exactly the fields and kinds the build validates", () => {
+    expect(file.fields.map((f) => f.name)).toEqual(["status", "nodes"]);
+    expect(nodes.fields.map((f) => f.name)).toEqual(["id", "label", "kind", "parent"]);
+    expect((nodeField("kind").options as Array<{ value: string }>).map((o) => o.value)).toEqual([...networkKinds]);
+    expect(nodeField("label").maxlength).toBe(LABEL_MAX_LENGTH);
+    expect(nodes.max).toBe(NETWORK_MAX_NODES);
+    expect(nodeField("parent").required).toBe(false);
+  });
+
+  it("starts as a draft, and warns against addresses right where they would be typed", () => {
+    expect(file.fields.find((f) => f.name === "status")!.default).toBe("draft");
+    expect(String(nodeField("label").hint)).toMatch(/IP/);
   });
 });
 

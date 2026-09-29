@@ -47,6 +47,17 @@ describe("globals.css", () => {
     expect(globals).toMatch(/html:has\(\[data-view="chapter"\]\)\s*\{\s*overscroll-behavior-y:\s*none;\s*\}/);
   });
 
+  it("draws the network map by default: it only hides once armed by the script, until seen", () => {
+    expect(globals).toMatch(/\[data-network\]\[data-armed\]:not\(\[data-drawn\]\) \.net-line\s*\{\s*stroke-dashoffset: 1;/);
+    expect(globals).not.toMatch(/\[data-network\] \.net-line\s*\{[^}]*stroke-dashoffset: 1/);
+  });
+
+  it("paces the network map with the shared durations, and stills it under reduced motion", () => {
+    expect(globals).toMatch(/net-draw var\(--duration-slow\) var\(--ease-standard\)/);
+    const reduced = globals.slice(globals.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(reduced).toMatch(/\[data-network\] \.net-brackets[\s\S]*animation: none !important/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

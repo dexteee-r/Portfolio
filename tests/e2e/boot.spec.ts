@@ -13,25 +13,48 @@ const MARK_COLORS: Record<string, string> = {
 const overlay = (page: Page) => page.locator("[data-boot-overlay]");
 const bootState = (page: Page) => page.evaluate(() => document.documentElement.getAttribute("data-boot"));
 
+interface BootRecord {
+  /** The inline script sets the attribute, before the first paint. */
+  set?: number;
+  /** The sequence's first frame on screen. */
+  start?: number;
+  end?: number;
+}
+
 /**
  * Records, from before any page script runs, when the sequence starts and
  * ends — so its real duration is measured by the page's own clock.
+ *
+ * It starts on the first frame actually played, not when the attribute is
+ * set: between the two, the page is still loading — up to a second when the
+ * machine is busy — and that is not the sequence's length.
  */
 async function recordBoot(page: Page) {
   await page.addInitScript(() => {
-    const w = window as unknown as { __boot: { start?: number; end?: number } };
+    const w = window as unknown as { __boot: BootRecord };
     w.__boot = {};
     // Observe the whole document: <html> may not exist yet when this runs.
     new MutationObserver(() => {
       const playing = document.documentElement?.getAttribute("data-boot") === "play";
-      if (playing && w.__boot.start === undefined) w.__boot.start = performance.now();
-      if (!playing && w.__boot.start !== undefined && w.__boot.end === undefined) w.__boot.end = performance.now();
+      if (playing && w.__boot.set === undefined) w.__boot.set = performance.now();
+      if (!playing && w.__boot.set !== undefined && w.__boot.end === undefined) w.__boot.end = performance.now();
     }).observe(document, { attributes: true, subtree: true, childList: true, attributeFilter: ["data-boot"] });
+    addEventListener(
+      "animationstart",
+      (event) => {
+        if (w.__boot.start !== undefined || !(event.target as Element).closest("[data-boot-overlay]")) return;
+        // The animation's own start time: when its first frame played, on the same clock.
+        const animation = (event.target as Element)
+          .getAnimations()
+          .find((a) => (a as CSSAnimation).animationName === event.animationName);
+        w.__boot.start = Number(animation?.startTime);
+      },
+      true,
+    );
   });
 }
 
-const recorded = (page: Page) =>
-  page.evaluate(() => (window as unknown as { __boot: { start?: number; end?: number } }).__boot);
+const recorded = (page: Page) => page.evaluate(() => (window as unknown as { __boot: BootRecord }).__boot);
 
 /** Freezes the CSS part of the sequence (steps 1–3) at one moment of its timeline. */
 async function scrubTo(page: Page, ms: number) {
@@ -99,10 +122,11 @@ test.describe("first visit to the desk", () => {
 
     await expect.poll(() => bootState(page), { timeout: 8000 }).toBeNull();
     await expect(overlay(page)).toBeHidden();
-    const { start, end } = await recorded(page);
-    expect(start).toBeDefined();
+    const { set, start, end } = await recorded(page);
+    expect(set).toBeDefined();
+    expect(start).toBeGreaterThanOrEqual(set!); // set before anything is painted
     expect(end! - start!).toBeGreaterThan(3800);
-    expect(end! - start!).toBeLessThan(5000);
+    expect(end! - start!).toBeLessThan(4500);
 
     // Remembered: the next load goes straight to the desk.
     await page.reload();

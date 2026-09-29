@@ -95,6 +95,30 @@ describe("DeskArt", () => {
     expect(art).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("turns frame by frame — but leaves the boot sequence the whole main thread", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => frames.push(callback));
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+    const put = vi.fn();
+    const getContext = vi
+      .spyOn(HTMLCanvasElement.prototype, "getContext")
+      .mockReturnValue({ createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4) }), putImageData: put } as never);
+    const tick = (at: number) => act(() => frames.shift()!(at));
+
+    document.documentElement.setAttribute("data-boot", "play");
+    render(<DeskArt />);
+    expect(put).toHaveBeenCalledTimes(1); // the first, still frame
+    tick(performance.now() + 1000);
+    expect(put).toHaveBeenCalledTimes(1); // the sequence plays: no frame drawn
+
+    document.documentElement.removeAttribute("data-boot");
+    tick(performance.now() + 2000);
+    expect(put).toHaveBeenCalledTimes(2); // the desk is shown: the globe turns
+
+    getContext.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
   it("is drawn on a small canvas in the frame's ink, scaled up without blur", () => {
     const { container } = render(<DeskArt />);
     const canvas = container.querySelector("canvas")!;

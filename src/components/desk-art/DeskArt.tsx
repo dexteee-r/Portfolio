@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BOOT_ATTRIBUTE } from "@/lib/boot";
 import { renderDitheredGlobe } from "@/lib/desk-art/pixels";
 
 /** Frames a second: plenty for a slow, stepped turn, easy on the battery. */
@@ -48,11 +49,15 @@ export default function DeskArt() {
           });
     observer?.observe(element);
 
+    // While the boot sequence plays, the globe is hidden: it leaves the
+    // sequence the whole main thread, and starts turning once the desk is shown.
+    const booting = () => document.documentElement.getAttribute(BOOT_ATTRIBUTE) === "play";
+
     const start = performance.now();
     let last = start;
     let frame = requestAnimationFrame(function tick(now) {
       frame = requestAnimationFrame(tick);
-      if (!onScreen || document.hidden || now - last < 1000 / DESK_ART_FPS) return;
+      if (!onScreen || document.hidden || booting() || now - last < 1000 / DESK_ART_FPS) return;
       last = now;
       draw((now - start) / 1000);
     });

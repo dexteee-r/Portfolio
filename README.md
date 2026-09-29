@@ -26,6 +26,7 @@ toute la suite à chaque push.
 
 ```
 content/projects/*.yaml     un fichier par projet, champs traduits (édité par le CMS)
+content/infra/network.yaml  le schéma du homelab, dessiné en tête du chapitre infra (édité par le CMS)
 public/media/               images des projets (AVIF, WebP ou PNG — jamais de JPEG)
 public/media/fixtures/      images des tests uniquement, exclues de l'image Docker (.dockerignore)
 src/app/[locale]/           bureau, chapitres, pages projet — toutes les routes sont statiques
@@ -204,6 +205,36 @@ pointe vers un fichier absent fait aussi échouer le build. Sans couverture, la
 station affiche le dossier du projet. Les compteurs du bureau ne comptent que
 les projets publiés.
 
+## Le schéma du homelab
+
+En tête du chapitre infra, le homelab se dessine quand il entre à l'écran :
+les liaisons se tracent niveau par niveau, depuis Internet, et chaque machine
+s'allume avec ses repères (inspi : animation › Hyperspace tracking). Un arbre
+sur grand écran, une arborescence de fichiers sur téléphone ; pour un lecteur
+d'écran, une liste imbriquée. Sans JavaScript ou avec les animations réduites,
+il est dessiné d'emblée.
+
+Tout vient de `content/infra/network.yaml`, éditable dans le CMS
+(**Homelab › Schéma réseau (chapitre infra)**) :
+
+```yaml
+status: draft           # draft : le schéma ne s'affiche qu'en développement
+nodes:                  # dans l'ordre de lecture, 24 au maximum
+  - id: internet        # minuscules et tirets, unique
+    label: Internet     # 32 caractères au maximum
+    kind: internet      # internet | router | proxy | hypervisor | vm | container | service
+  - id: box
+    label: Box
+    kind: router
+    parent: internet    # un seul nœud sans parent : la racine
+```
+
+Le schéma est **public** : le build refuse toute adresse IP (v4 ou v6) et tout
+port (`:8080`) dans un libellé ou un identifiant. Il refuse aussi un arbre
+cassé : plusieurs racines, un parent inconnu, une boucle, un identifiant en
+double. Le fichier actuel est un brouillon à corriger d'après le vrai homelab
+avant de le publier.
+
 ## Contact et mentions légales
 
 - **Contact** : le pied de page de chaque vue (`SiteFooter`) donne l'adresse
@@ -243,7 +274,8 @@ construit et déploie le site (voir « Hébergement ») — un fichier cassé fa
   (chapitres, statuts, types de liens, limite du résumé). Des tests vérifient
   que le CMS propose exactement les champs que le build valide : un champ
   ajouté d'un côté sans l'autre fait échouer la suite.
-- **Ce qu'il écrit** : `content/projects/<slug>.yaml` (la forme ci-dessus) et
+- **Ce qu'il écrit** : `content/projects/<slug>.yaml` (la forme ci-dessus),
+  `content/infra/network.yaml` (le schéma du homelab) et
   les images dans `public/media/projects/<slug>/`, noms de fichiers en
   minuscules, photos converties en WebP (2400 px max, qualité 85).
 - **Sveltia** est épinglé (`package.json`, version exacte) et servi par le site

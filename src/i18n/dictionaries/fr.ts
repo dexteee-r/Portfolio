@@ -56,6 +56,18 @@ export const fr = {
     open: "Ouvrir le dossier",
     draft: "Brouillon",
   },
+  network: {
+    caption: "Le homelab, tel qu'il tourne",
+    kinds: {
+      internet: "Internet",
+      router: "Routeur",
+      proxy: "Proxy inverse",
+      hypervisor: "Hyperviseur",
+      vm: "Machine virtuelle",
+      container: "Conteneur",
+      service: "Service",
+    },
+  },
   projectPage: {
     backToChapter: "Retour au chapitre",
     linksLabel: "Liens du projet",

@@ -1,6 +1,8 @@
 import type { CmsConfig } from "@sveltia/cms";
 import { chapterIds } from "@/content/chapters";
+import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
 import { linkKinds, projectStatuses, SUMMARY_MAX_LENGTH } from "@/content/schema";
+import { SLUG_PATTERN } from "@/content/slug";
 import { defaultLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { site } from "@/site";
@@ -219,6 +221,67 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             ],
             editor_components: ["image", "code-block"],
             hint: "La page projet : le contexte, les choix, ce qui a coincé. Chaque image doit avoir une description.",
+          },
+        ],
+      },
+      {
+        name: "homelab",
+        label: "Homelab",
+        description: "Le schéma réseau dessiné en tête du chapitre infra.",
+        files: [
+          {
+            name: "network",
+            label: "Schéma réseau (chapitre infra)",
+            file: `content/${NETWORK_FILE.split(/[\\/]/).join("/")}`,
+            format: "yaml",
+            fields: [
+              {
+                name: "status",
+                label: "Statut",
+                widget: "select",
+                options: projectStatuses.map((status) => ({ label: STATUS_LABELS[status], value: status })),
+                default: "draft",
+                hint: "Un brouillon n'apparaît que sur l'aperçu : publie le schéma une fois qu'il est juste.",
+              },
+              {
+                name: "nodes",
+                label: "Machines et services",
+                label_singular: "Machine ou service",
+                widget: "list",
+                min: 1,
+                max: NETWORK_MAX_NODES,
+                summary: "{{fields.label}} — {{fields.kind}}",
+                fields: [
+                  {
+                    name: "id",
+                    label: "Identifiant",
+                    widget: "string",
+                    pattern: [SLUG_PATTERN.source, "Minuscules, chiffres et tirets simples"],
+                    hint: "Un nom court et unique, repris dans « Hébergé par » des machines qui en dépendent.",
+                  },
+                  {
+                    name: "label",
+                    label: "Nom affiché",
+                    widget: "string",
+                    maxlength: LABEL_MAX_LENGTH,
+                    hint: "Jamais d'adresse IP ni de port : le site est public, le build les refuse.",
+                  },
+                  {
+                    name: "kind",
+                    label: "Type",
+                    widget: "select",
+                    options: networkKinds.map((kind) => ({ label: fr.network.kinds[kind], value: kind })),
+                  },
+                  {
+                    name: "parent",
+                    label: "Hébergé par",
+                    widget: "string",
+                    required: false,
+                    hint: "L'identifiant de la machine qui l'héberge ou le sert. Vide pour la seule racine, tout en haut (Internet).",
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

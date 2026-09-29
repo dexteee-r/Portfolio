@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ChapterView } from "@/components/ChapterView";
 import { JsonLd } from "@/components/JsonLd";
 import { chapterFromSlug, chapterIds, chapterSlugs } from "@/content/chapters";
+import { loadNetwork } from "@/content/network";
 import {
   countByChapter,
   loadProjects,
@@ -87,6 +88,7 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
         chapter={chapter}
         stations={stations}
         publishedCount={countByChapter(all)[chapter]}
+        network={chapter === "infra" ? loadNetwork() : null}
       />
     </>
   );
