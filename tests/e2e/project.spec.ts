@@ -115,6 +115,85 @@ test.describe("project page without JavaScript", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Alpha");
     await expect(page.getByRole("heading", { level: 2, name: "Contexte" })).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
+    await expect(page.locator("[data-floppy]")).toBeVisible();
+    await expect(page.getByRole("region", { name: "Fiche technique" })).toBeVisible();
+  });
+});
+
+test.describe("the dev chapter's floppy disk", () => {
+  const shutter = (page: Page) => page.locator("[data-floppy] .floppy-shutter");
+  const transform = (page: Page) => shutter(page).evaluate((el) => getComputedStyle(el).transform);
+  /** At rest, the shutter is open: slid 14 units to the right. */
+  const OPEN = "matrix(1, 0, 0, 1, 14, 0)";
+
+  test("heads a dev project: the disk, labelled, then its spec sheet", async ({ page }) => {
+    await page.goto("/fr/dev/alpha-app");
+    const floppy = page.locator("[data-floppy]");
+    await expect(floppy).toBeVisible();
+    await expect(floppy).toHaveAttribute("aria-hidden", "true");
+    await expect(floppy.locator("[data-floppy-disk]")).toHaveText("01/02");
+
+    const sheet = page.getByRole("region", { name: "Fiche technique" });
+    await expect(sheet.getByRole("term")).toHaveText(["Année", "Rôle", "Stack"]);
+    await expect(sheet.getByRole("definition").first()).toHaveText("2025");
+    await expect(sheet.getByRole("definition").nth(1)).toHaveText("Conception et développement");
+    await expect(sheet.getByRole("listitem")).toHaveText(["Next.js", "PostgreSQL", "Docker"]);
+  });
+
+  test("sits under the title: beside its sheet on a phone, on the right on a wide screen", async ({ page }) => {
+    await page.goto("/fr/dev/alpha-app");
+    const title = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    const disk = (await page.locator("[data-floppy]").boundingBox())!;
+    const sheet = (await page.locator("[data-specs]").boundingBox())!;
+    expect(sheet.y).toBeGreaterThan(title.y + title.height);
+    if (page.viewportSize()!.width >= 1024) {
+      expect(disk.x).toBeGreaterThan(sheet.x + sheet.width);
+      expect(disk.y).toBeLessThan(sheet.y);
+    } else {
+      expect(disk.y).toBeGreaterThan(title.y + title.height);
+      expect(Math.abs(disk.y - sheet.y)).toBeLessThan(2);
+      expect(disk.x + disk.width).toBeLessThan(sheet.x);
+    }
+  });
+
+  test("slides its shutter open once — from closed — then rests open", async ({ page }) => {
+    await page.goto("/fr/dev/alpha-app");
+    await shutter(page).evaluate((el) =>
+      el.getAnimations().forEach((a) => {
+        a.pause();
+        a.currentTime = 0;
+      }),
+    );
+    expect(await transform(page)).toBe("matrix(1, 0, 0, 1, 0, 0)"); // closed while the page fades in
+    await shutter(page).evaluate((el) => el.getAnimations().forEach((a) => a.play()));
+    await expect.poll(() => transform(page)).toBe(OPEN);
+    await expect
+      .poll(() => shutter(page).evaluate((el) => el.getAnimations().every((a) => a.playState === "finished")))
+      .toBe(true);
+  });
+
+  test("reduced motion: the disk is simply open", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/fr/dev/alpha-app");
+    expect(await shutter(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await transform(page)).toBe(OPEN);
+  });
+
+  test("the English page names the sheet in English, and marks the French role", async ({ page }) => {
+    await page.goto("/en/dev/beta-tool");
+    await expect(page.locator("[data-floppy-disk]")).toHaveText("02/02");
+    const sheet = page.getByRole("region", { name: "Spec sheet" });
+    await expect(sheet.getByRole("term")).toHaveText(["Role"]);
+    await expect(sheet.getByText("Outil interne, en solo")).toHaveAttribute("lang", "fr");
+  });
+
+  test("is the dev chapter's object only", async ({ page }) => {
+    for (const path of ["/fr/creatif/film-test", "/fr/infra/homelab-fixture"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.locator("[data-floppy]"), path).toHaveCount(0);
+      await expect(page.locator("[data-specs]"), path).toHaveCount(0);
+    }
   });
 });
 

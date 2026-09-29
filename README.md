@@ -181,16 +181,32 @@ fr:
   links:                # facultatif ; libellés traduits par l'interface
     - kind: site        # site | repo | video | download
       url: https://…
+  stack:                # facultatif ; 8 noms au plus, jamais traduits
+    - Next.js
+    - PostgreSQL
+  role: Conception et développement   # facultatif ; une ligne (80 caractères)
   body: |
     Texte long de la page projet, en Markdown.
 en:                     # facultatif : sans traduction complète, la version
   title: MyTGC          # française s'affiche, marquée lang="fr"
   summary: …
+  role: Design and development   # sans elle, le rôle français, marqué lang="fr"
 ```
 
-Les champs communs (`chapter`, `status`, `order`, `year`, `cover`, `links`)
-sont aussi acceptés au premier niveau du fichier ; un champ facultatif vide
-(`""` ou `null`) compte comme absent.
+Les champs communs (`chapter`, `status`, `order`, `year`, `cover`, `links`,
+`stack`) sont aussi acceptés au premier niveau du fichier ; un champ facultatif
+vide (`""` ou `null`) compte comme absent.
+
+**La disquette du chapitre dev.** En tête de chaque page projet dev, le projet
+est une disquette 3,5" étiquetée (inspi : folder type › floppy disk mockups) :
+son titre, son rang dans le chapitre (`01/04`), son année et un code-barres
+tiré de son slug. Son volet s'ouvre une fois, quand la page apparaît — la
+disquette est lue ; sans animation, il est simplement ouvert. Elle est
+décorative (tout ce qu'elle porte est déjà sur la page), donc cachée aux
+lecteurs d'écran. À côté, la **fiche technique** (inspi : DA 2) : année, rôle
+et stack, en vrai texte, seulement les lignes remplies — rien à dire, pas de
+fiche. La stack sert aussi de mots-clés dans les données structurées. Les
+autres chapitres attendent leur propre objet (ticket, jaquette VHS).
 
 Le texte long (`body`) est du Markdown avec tableaux (GFM). Les images s'y
 insèrent avec `![description](/media/projects/<slug>/capture.webp "légende")` :

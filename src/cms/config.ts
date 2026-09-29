@@ -1,7 +1,14 @@
 import type { CmsConfig } from "@sveltia/cms";
 import { chapterIds } from "@/content/chapters";
 import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
-import { linkKinds, projectStatuses, SUMMARY_MAX_LENGTH } from "@/content/schema";
+import {
+  linkKinds,
+  projectStatuses,
+  ROLE_MAX_LENGTH,
+  STACK_ITEM_MAX_LENGTH,
+  STACK_MAX_ITEMS,
+  SUMMARY_MAX_LENGTH,
+} from "@/content/schema";
 import { SLUG_PATTERN } from "@/content/slug";
 import { defaultLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -152,6 +159,31 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             value_type: "int",
             min: 2000,
             max: 2100,
+          },
+          {
+            name: "role",
+            label: "Rôle",
+            widget: "string",
+            i18n: true,
+            required: false,
+            maxlength: ROLE_MAX_LENGTH,
+            hint: "Ce qui a été fait sur le projet, en quelques mots : « Conception et développement ». Dans la fiche technique.",
+          },
+          {
+            name: "stack",
+            label: "Stack et outils",
+            label_singular: "Technologie",
+            widget: "list",
+            i18n: false,
+            required: false,
+            max: STACK_MAX_ITEMS,
+            field: {
+              name: "name",
+              label: "Nom",
+              widget: "string",
+              maxlength: STACK_ITEM_MAX_LENGTH,
+            },
+            hint: "Chaque technologie par son nom, jamais traduit : Next.js, PostgreSQL, Docker. Dans la fiche technique.",
           },
           {
             name: "summary",

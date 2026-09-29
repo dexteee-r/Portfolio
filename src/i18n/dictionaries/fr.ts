@@ -80,6 +80,12 @@ export const fr = {
     siblingsLabel: "Autres projets du chapitre",
     previous: "Projet précédent",
     next: "Projet suivant",
+    specs: {
+      heading: "Fiche technique",
+      year: "Année",
+      role: "Rôle",
+      stack: "Stack",
+    },
   },
   projectCount: {
     one: "{count} projet",

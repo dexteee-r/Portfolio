@@ -206,6 +206,11 @@ export interface LocalizedProject {
   coverAlt: string;
   year?: number;
   links: Project["links"];
+  stack: string[];
+  /** Empty when neither language has one. */
+  role: string;
+  /** Language the role is actually written in. */
+  roleLang: Locale;
 }
 
 /**
@@ -220,6 +225,7 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
   const translated = Boolean(own?.title && own?.summary);
   const card = translated ? own : fallback;
   const ownBody = own?.body.trim() ? own.body : "";
+  const ownRole = own?.role ?? "";
 
   return {
     slug: project.slug,
@@ -234,5 +240,8 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
     coverAlt: card?.coverAlt || fallback?.coverAlt || "",
     year: project.year,
     links: project.links,
+    stack: project.stack,
+    role: ownRole || fallback?.role || "",
+    roleLang: ownRole ? locale : defaultLocale,
   };
 }

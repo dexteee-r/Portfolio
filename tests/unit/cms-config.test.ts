@@ -12,8 +12,11 @@ import {
   LOCALIZED_KEYS,
   linkKinds,
   projectStatuses,
+  ROLE_MAX_LENGTH,
   SHARED_KEYS,
   SLUG_PATTERN,
+  STACK_ITEM_MAX_LENGTH,
+  STACK_MAX_ITEMS,
   SUMMARY_MAX_LENGTH,
 } from "@/content/schema";
 import { defaultLocale, locales } from "@/i18n/config";
@@ -48,6 +51,13 @@ describe("CMS configuration, generated from the content schema", () => {
     expect(field("title").required).toEqual([defaultLocale]);
     expect(field("summary").required).toEqual([defaultLocale]);
     expect(field("summary").maxlength).toBe(SUMMARY_MAX_LENGTH);
+  });
+
+  it("asks for the stack as a short list of names, shared by every language, and a role per language", () => {
+    const stack = field("stack") as Record<string, unknown> & { field: Record<string, unknown> };
+    expect(stack).toMatchObject({ widget: "list", i18n: false, required: false, max: STACK_MAX_ITEMS });
+    expect(stack.field).toMatchObject({ widget: "string", maxlength: STACK_ITEM_MAX_LENGTH });
+    expect(field("role")).toMatchObject({ widget: "string", i18n: true, required: false, maxlength: ROLE_MAX_LENGTH });
   });
 
   it("stores whole numbers for order and year", () => {

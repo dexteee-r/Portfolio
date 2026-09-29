@@ -9,10 +9,15 @@ links:
     url: https://example.com/alpha
   - kind: repo
     url: https://github.com/example/alpha
+stack:
+  - Next.js
+  - PostgreSQL
+  - Docker
 fr:
   title: Alpha
   summary: Une application de test, entièrement traduite.
   coverAlt: Dégradé indigo, image de test.
+  role: Conception et développement
   body: |
     ## Contexte
 
@@ -37,6 +42,7 @@ en:
   title: Alpha
   summary: A test application, fully translated.
   coverAlt: Indigo gradient, test image.
+  role: Design and development
   body: |
     ## Context
 

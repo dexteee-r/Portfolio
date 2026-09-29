@@ -5,6 +5,14 @@ import { describe, expect, it } from "vitest";
 const globals = readFileSync(join(__dirname, "..", "..", "src", "app", "globals.css"), "utf8");
 const theme = /@theme inline\s*\{([\s\S]*?)\n\}/.exec(globals)?.[1] ?? "";
 
+/** The reduced-motion block that mentions `selector`, wherever it sits in the file. */
+const reducedMotionFor = (selector: string) =>
+  globals
+    .split("@media (prefers-reduced-motion: reduce)")
+    .slice(1)
+    .map((block) => block.slice(0, block.search(/\n\}/) + 2))
+    .find((block) => block.includes(selector)) ?? "";
+
 describe("globals.css", () => {
   it("imports tokens.css unlayered, so tokens win over Tailwind's layered defaults", () => {
     const line = globals.split("\n").find((l) => l.includes("tokens.css") && l.startsWith("@import"));
@@ -54,8 +62,17 @@ describe("globals.css", () => {
 
   it("paces the network map with the shared durations, and stills it under reduced motion", () => {
     expect(globals).toMatch(/net-draw var\(--duration-slow\) var\(--ease-standard\)/);
-    const reduced = globals.slice(globals.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
-    expect(reduced).toMatch(/\[data-network\] \.net-brackets[\s\S]*animation: none !important/);
+    expect(reducedMotionFor("[data-network]")).toMatch(/\[data-network\] \.net-brackets[\s\S]*animation: none !important/);
+  });
+
+  it("rests the floppy's shutter open: it only slides from closed when animations run", () => {
+    expect(globals).toMatch(/\[data-floppy\] \.floppy-shutter\s*\{\s*transform: translateX\(14px\);/);
+    expect(globals).toMatch(/@keyframes floppy-read\s*\{\s*from\s*\{\s*transform: translateX\(0\);\s*\}\s*\}/);
+  });
+
+  it("paces the floppy with the shared durations, and stills it under reduced motion", () => {
+    expect(globals).toMatch(/floppy-read var\(--duration-slow\) var\(--ease-standard\) var\(--duration-slow\) both/);
+    expect(reducedMotionFor("[data-floppy]")).toMatch(/\[data-floppy\] \.floppy-shutter\s*\{\s*animation: none !important/);
   });
 
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {

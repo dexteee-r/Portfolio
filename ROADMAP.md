@@ -35,6 +35,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Le schéma du homelab en tête du chapitre infra (2026-09-29) : il se dessine
   à l'écran, niveau par niveau ; édité dans le CMS, adresses IP et ports
   refusés par le build.
+- La disquette du chapitre dev (2026-09-30) : en tête de page projet, le
+  projet en disquette étiquetée dont le volet s'ouvre, et sa fiche technique
+  (année, rôle, stack — deux nouveaux champs dans le CMS).
 
 ## À faire — V1
 
@@ -55,6 +58,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
+  Pour les projets dev, remplir aussi **Rôle** et **Stack et outils** : c'est
+  la fiche technique sous le titre.
 - **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
   (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
   puis passer `status` à `published`.
@@ -63,8 +68,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 
 - **Objets et effets par chapitre** (proposés le 2026-09-29 d'après `../inspi/`,
   un seul effet par chapitre, dans sa seule couleur, au service du contenu) :
-  - dev : chaque projet en disquette étiquetée ; fiche technique en tête de
-    page projet (DA 2) ; schémas d'architecture sur grille de plan (RON) ;
+  - dev : ~~la disquette étiquetée et la fiche technique en tête de page
+    projet~~ (fait), puis les schémas d'architecture sur grille de plan (RON) ;
   - infra : ~~le schéma réseau qui se dessine~~ (fait), puis en V3 le relief
     de points des vraies métriques et les chiffres entre crochets (DA 4) ;
   - repair : un scan de diagnostic qui nomme les pièces réparées sur la photo

@@ -131,6 +131,9 @@ describe("structured data", () => {
     coverAlt: "x",
     year: 2025,
     links: [],
+    stack: ["Next.js", "PostgreSQL"],
+    role: "",
+    roleLang: "fr",
     ...overrides,
   });
 
@@ -181,11 +184,13 @@ describe("structured data", () => {
       inLanguage: "fr",
       image: "https://elmzn.be/media/fixtures/alpha-cover.webp",
       dateCreated: "2025",
+      keywords: "Next.js, PostgreSQL",
     });
-    const bare = projectLd(project({ cover: undefined, year: undefined, summary: "" }), "/fr/dev/x");
+    const bare = projectLd(project({ cover: undefined, year: undefined, summary: "", stack: [] }), "/fr/dev/x");
     expect(bare).not.toHaveProperty("image");
     expect(bare).not.toHaveProperty("dateCreated");
     expect(bare).not.toHaveProperty("description");
+    expect(bare).not.toHaveProperty("keywords");
   });
 
   it("states the language a project is actually written in", () => {

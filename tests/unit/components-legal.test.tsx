@@ -248,6 +248,9 @@ describe("every view ends with the contact footer", () => {
     bodyLang: "fr",
     coverAlt: "",
     links: [],
+    stack: [],
+    role: "",
+    roleLang: "fr",
   };
   const counts = { dev: 1, infra: 0, repair: 0, creative: 0 };
 

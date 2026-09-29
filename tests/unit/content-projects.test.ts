@@ -13,7 +13,12 @@ import {
   showDrafts,
   visibleProjects,
 } from "@/content/projects";
-import { SUMMARY_MAX_LENGTH } from "@/content/schema";
+import {
+  ROLE_MAX_LENGTH,
+  STACK_ITEM_MAX_LENGTH,
+  STACK_MAX_ITEMS,
+  SUMMARY_MAX_LENGTH,
+} from "@/content/schema";
 
 const ROOT = join(__dirname, "..", "..");
 const FIXTURES = join(ROOT, "tests", "fixtures", "content");
@@ -30,7 +35,8 @@ describe("parseProject — valid files", () => {
       status: "draft",
       order: 100,
       links: [],
-      translations: { fr: { title: "T", summary: "S", body: "", coverAlt: "" } },
+      stack: [],
+      translations: { fr: { title: "T", summary: "S", body: "", coverAlt: "", role: "" } },
     });
   });
 
@@ -42,7 +48,7 @@ describe("parseProject — valid files", () => {
     expect(project.chapter).toBe("infra");
     expect(project.status).toBe("published");
     expect(project.order).toBe(2);
-    expect(project.translations.fr).toEqual({ title: "T", summary: "S", body: "", coverAlt: "" });
+    expect(project.translations.fr).toEqual({ title: "T", summary: "S", body: "", coverAlt: "", role: "" });
   });
 
   it("lets top-level shared fields win over duplicated ones", () => {
@@ -64,6 +70,23 @@ describe("parseProject — valid files", () => {
   it("accepts typed links", () => {
     const project = parseProject("x", minimal("links:\n  - kind: site\n    url: https://example.com\n"));
     expect(project.links).toEqual([{ kind: "site", url: "https://example.com" }]);
+  });
+
+  it("reads the stack as names, trimmed, in order — and an empty one as none", () => {
+    const project = parseProject("x", minimal("stack:\n  - ' Next.js '\n  - PostgreSQL\n"));
+    expect(project.stack).toEqual(["Next.js", "PostgreSQL"]);
+    expect(parseProject("x", minimal("stack:\n")).stack).toEqual([]);
+  });
+
+  it("reads the stack from the default locale block too, where Sveltia writes it", () => {
+    const project = parseProject("x", "chapter: dev\nfr:\n  title: T\n  summary: S\n  stack: [Rust]\n");
+    expect(project.stack).toEqual(["Rust"]);
+  });
+
+  it("reads a role in each language", () => {
+    const project = parseProject("x", `${minimal()}  role: Développement\nen:\n  title: T\n  summary: S\n  role: Development\n`);
+    expect(project.translations.fr?.role).toBe("Développement");
+    expect(project.translations.en?.role).toBe("Development");
   });
 });
 
@@ -107,6 +130,17 @@ describe("parseProject — rejected files", () => {
   it("rejects a summary that no longer fits a station", () => {
     const long = "a".repeat(SUMMARY_MAX_LENGTH + 1);
     rejects("x", `chapter: dev\nfr:\n  title: T\n  summary: ${long}\n`, /summary/);
+  });
+  it("rejects a role that is a paragraph rather than a line", () => {
+    rejects("x", `${minimal()}  role: ${"a".repeat(ROLE_MAX_LENGTH + 1)}\n`, /role/);
+  });
+  it("rejects a stack that lists everything, a name too long, an empty one, or the same twice", () => {
+    const list = (names: string[]) => minimal(`stack:\n${names.map((n) => `  - "${n}"\n`).join("")}`);
+    rejects("x", list(Array.from({ length: STACK_MAX_ITEMS + 1 }, (_, i) => `T${i}`)), /stack/);
+    rejects("x", list(["a".repeat(STACK_ITEM_MAX_LENGTH + 1)]), /stack/);
+    rejects("x", list(["Next.js", " "]), /stack/);
+    rejects("x", list(["Docker", "docker"]), /twice/);
+    rejects("x", minimal("stack: Next.js\n"), /stack/);
   });
 
   it("refuses to publish a project without a French title and summary", () => {
@@ -208,6 +242,20 @@ describe("localizeProject", () => {
     const project = parseProject("x", "chapter: dev\nfr:\n  title: T\n  summary: S\nen:\n  title: English only\n");
     const card = localizeProject(project, "en");
     expect(card).toMatchObject({ title: "T", summary: "S", lang: "fr" });
+  });
+
+  it("carries the stack, the same in every language", () => {
+    expect(localizeProject(bySlug("alpha-app"), "fr").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
+    expect(localizeProject(bySlug("alpha-app"), "en").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
+  });
+
+  it("uses the role of the requested language, else the French one, and says which", () => {
+    expect(localizeProject(bySlug("alpha-app"), "en")).toMatchObject({ role: "Design and development", roleLang: "en" });
+    expect(localizeProject(bySlug("beta-tool"), "en")).toMatchObject({ role: "Outil interne, en solo", roleLang: "fr" });
+    // A translated card without its own role still borrows the French one.
+    const project = parseProject("x", `${minimal()}  role: Rôle\nen:\n  title: T\n  summary: S\n`);
+    expect(localizeProject(project, "en")).toMatchObject({ lang: "en", role: "Rôle", roleLang: "fr" });
+    expect(localizeProject(parseProject("y", minimal()), "en")).toMatchObject({ role: "" });
   });
 
   it("uses the slug as a last-resort title for an untitled draft", () => {

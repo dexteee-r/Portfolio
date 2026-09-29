@@ -77,6 +77,12 @@ export const en: Dictionary = {
     siblingsLabel: "More projects in this chapter",
     previous: "Previous project",
     next: "Next project",
+    specs: {
+      heading: "Spec sheet",
+      year: "Year",
+      role: "Role",
+      stack: "Stack",
+    },
   },
   projectCount: {
     one: "{count} project",

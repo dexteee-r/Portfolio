@@ -13,6 +13,12 @@ export const COVER_PATTERN = /^\/media\/[a-z0-9][a-z0-9/_-]*\.(?:avif|webp|png)$
 /** A station shows two or three lines. Past this, it is no longer a teaser. */
 export const SUMMARY_MAX_LENGTH = 280;
 
+/** The role is one line of a spec sheet, not a paragraph. */
+export const ROLE_MAX_LENGTH = 80;
+/** A stack is a handful of names; past this, it is a list of everything touched. */
+export const STACK_MAX_ITEMS = 8;
+export const STACK_ITEM_MAX_LENGTH = 24;
+
 export const projectStatuses = ["draft", "published"] as const;
 export type ProjectStatus = (typeof projectStatuses)[number];
 
@@ -28,6 +34,8 @@ export const localizedFieldsSchema = z
     body: z.string().default(""),
     /** Describes the cover for people who cannot see it. */
     coverAlt: z.string().trim().default(""),
+    /** What was done on the project, in a few words — the spec sheet's "Role". */
+    role: z.string().trim().max(ROLE_MAX_LENGTH).default(""),
   })
   .strict();
 export type LocalizedFields = z.infer<typeof localizedFieldsSchema>;
@@ -46,6 +54,12 @@ export const sharedFieldsSchema = z
       .optional(),
     links: z
       .array(z.object({ kind: z.enum(linkKinds), url: z.url({ protocol: /^https?$/ }) }).strict())
+      .default([]),
+    /** Technologies, tools or gear, by their own names: never translated. */
+    stack: z
+      .array(z.string().trim().min(1).max(STACK_ITEM_MAX_LENGTH))
+      .max(STACK_MAX_ITEMS)
+      .refine((items) => new Set(items.map((item) => item.toLowerCase())).size === items.length, "lists a name twice")
       .default([]),
   })
   .strict();
@@ -77,6 +91,7 @@ export interface Project {
   year?: number;
   cover?: string;
   links: Array<{ kind: LinkKind; url: string }>;
+  stack: string[];
   translations: Partial<Record<Locale, LocalizedFields>>;
 }
 

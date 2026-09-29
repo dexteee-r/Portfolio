@@ -36,7 +36,13 @@ async function resolve(params: PageProps<"/[locale]/[chapter]/[project]">["param
   const siblings = visibleProjects(projectsOf(loadProjects(), chapter));
   const index = siblings.findIndex((p) => p.slug === slug);
   if (index === -1) return null;
-  return { locale, project: siblings[index]!, previous: siblings[index - 1], next: siblings[index + 1] };
+  return {
+    locale,
+    project: siblings[index]!,
+    previous: siblings[index - 1],
+    next: siblings[index + 1],
+    disk: { number: index + 1, total: siblings.length },
+  };
 }
 
 function sibling(project: Project | undefined, locale: Locale): SiblingLink | undefined {
@@ -69,7 +75,7 @@ export async function generateViewport({ params }: PageProps<"/[locale]/[chapter
 export default async function ProjectPage({ params }: PageProps<"/[locale]/[chapter]/[project]">) {
   const resolved = await resolve(params);
   if (!resolved) notFound();
-  const { locale, project, previous, next } = resolved;
+  const { locale, project, previous, next, disk } = resolved;
   const dict = getDictionary(locale);
   const path = projectPath(locale, project.chapter, project.slug);
 
@@ -95,6 +101,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/[chap
         images={images}
         previous={sibling(previous, locale)}
         next={sibling(next, locale)}
+        disk={disk}
       />
     </>
   );

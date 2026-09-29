@@ -510,3 +510,25 @@ html[data-boot="play"] [data-desk-art] {
     animation: none !important;
   }
 }
+
+/*
+ * The dev chapter's floppy disk (components/Floppy). Its shutter rests open;
+ * once the page has faded in, it slides open from closed — the disk is read.
+ * Without animation, it is simply open.
+ */
+[data-floppy] .floppy-shutter {
+  transform: translateX(14px);
+  animation: floppy-read var(--duration-slow) var(--ease-standard) var(--duration-slow) both;
+}
+
+@keyframes floppy-read {
+  from {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-floppy] .floppy-shutter {
+    animation: none !important;
+  }
+}

@@ -24,6 +24,9 @@ function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
     cover: "/media/fixtures/alpha-cover.webp",
     coverAlt: "Dégradé indigo.",
     links: [],
+    stack: [],
+    role: "",
+    roleLang: "fr",
     ...overrides,
   };
 }

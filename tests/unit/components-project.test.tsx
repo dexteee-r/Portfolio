@@ -1,7 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { barcode, Floppy } from "@/components/Floppy";
 import { ProjectBody } from "@/components/ProjectBody";
 import { ProjectView } from "@/components/ProjectView";
+import { SpecSheet } from "@/components/SpecSheet";
 import type { LocalizedProject } from "@/content/projects";
 import { getDictionary } from "@/i18n/dictionaries";
 
@@ -29,6 +31,9 @@ function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
       { kind: "site", url: "https://example.com/alpha" },
       { kind: "repo", url: "https://github.com/example/alpha" },
     ],
+    stack: ["Next.js", "PostgreSQL"],
+    role: "Conception et développement",
+    roleLang: "fr",
     ...overrides,
   };
 }
@@ -188,5 +193,133 @@ describe("ProjectView", () => {
     render(<ProjectView locale="fr" dict={fr} project={project()} images={sizes} />);
     const back = within(screen.getByRole("contentinfo")).getByRole("link", { name: "Retour au chapitre" });
     expect(back).toHaveAttribute("href", "/fr/dev");
+  });
+});
+
+describe("Floppy", () => {
+  const renderFloppy = (props: Partial<Parameters<typeof Floppy>[0]> = {}) =>
+    render(<Floppy brand="ELMZN" title="Alpha" slug="alpha-app" year={2025} disk={{ number: 1, total: 4 }} {...props} />)
+      .container.querySelector<HTMLElement>("[data-floppy]")!;
+
+  it("is decorative: all of it is already on the page, so screen readers skip it", () => {
+    const floppy = renderFloppy();
+    expect(floppy).toHaveAttribute("aria-hidden", "true");
+    expect(floppy.querySelectorAll("a, button, [tabindex]")).toHaveLength(0);
+  });
+
+  it("labels the disk: brand, title, place in the chapter, year", () => {
+    const floppy = renderFloppy();
+    expect(floppy).toHaveTextContent("ELMZN");
+    expect(floppy).toHaveTextContent("Alpha");
+    expect(floppy.querySelector("[data-floppy-disk]")).toHaveTextContent("01/04");
+    expect(floppy).toHaveTextContent("2025");
+  });
+
+  it("leaves out what it does not know", () => {
+    const floppy = renderFloppy({ disk: undefined, year: undefined });
+    expect(floppy.querySelector("[data-floppy-disk]")).toBeNull();
+    expect(floppy).not.toHaveTextContent(/\d{4}/);
+  });
+
+  it("marks a title in the other language", () => {
+    const floppy = renderFloppy({ lang: "fr" });
+    expect(within(floppy).getByText("Alpha")).toHaveAttribute("lang", "fr");
+  });
+
+  it("is drawn in the chapter's colours only, its shutter ready to slide", () => {
+    const floppy = renderFloppy();
+    const classes = [...floppy.querySelectorAll("svg [class]")].flatMap((el) => [...el.classList]);
+    for (const name of classes.filter((c) => /^(fill|stroke)-/.test(c))) {
+      expect(name, name).toMatch(/^(fill|stroke)-(chapter-[a-z-]+|current)$/);
+    }
+    expect(floppy.querySelector("svg .fill-chapter-accent")).not.toBeNull(); // the case, in the chapter's one colour
+    expect(floppy.querySelector(".floppy-shutter rect")).toHaveAttribute("mask", "url(#floppy-shutter-window)");
+  });
+});
+
+describe("barcode", () => {
+  it("prints the same code for the same project, a different one for another", () => {
+    expect(barcode("alpha-app")).toEqual(barcode("alpha-app"));
+    expect(barcode("alpha-app")).not.toEqual(barcode("beta-tool"));
+  });
+
+  it("alternates thin bars and gaps, never a block", () => {
+    const widths = barcode("mytgc");
+    expect(widths).toHaveLength(28);
+    widths.forEach((width, index) => {
+      expect(width).toBeGreaterThanOrEqual(1);
+      expect(width).toBeLessThanOrEqual(index % 2 === 0 ? 3 : 2);
+    });
+  });
+});
+
+describe("SpecSheet", () => {
+  const copy = fr.projectPage.specs;
+
+  it("is a titled section of terms and values, readable as text", () => {
+    render(<SpecSheet copy={copy} year={2025} role="Conception" stack={["Next.js", "Docker"]} />);
+    const sheet = screen.getByRole("region", { name: "Fiche technique" });
+    expect(within(sheet).getByRole("heading", { level: 2, name: "Fiche technique" })).toBeInTheDocument();
+    const terms = within(sheet).getAllByRole("term").map((t) => t.textContent);
+    expect(terms).toEqual(["Année", "Rôle", "Stack"]);
+    expect(within(sheet).getByText("2025")).toBeInTheDocument();
+    expect(within(sheet).getByText("Conception")).toBeInTheDocument();
+    expect(within(sheet).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["Next.js", "Docker"]);
+  });
+
+  it("only has the rows it can fill", () => {
+    render(<SpecSheet copy={copy} role="" stack={["Rust"]} />);
+    expect(screen.getAllByRole("term").map((t) => t.textContent)).toEqual(["Stack"]);
+  });
+
+  it("does not exist with nothing to say", () => {
+    const { container } = render(<SpecSheet copy={copy} role="" stack={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("marks a role written in the other language", () => {
+    render(<SpecSheet copy={en.projectPage.specs} role="Conception" roleLang="fr" stack={[]} />);
+    expect(screen.getByText("Conception")).toHaveAttribute("lang", "fr");
+  });
+});
+
+describe("ProjectView — the dev chapter's floppy and spec sheet", () => {
+  it("heads a dev project with its floppy, then its spec sheet", () => {
+    const { container } = render(
+      <ProjectView locale="fr" dict={fr} project={project()} images={sizes} disk={{ number: 2, total: 3 }} />,
+    );
+    const header = container.querySelector("article > header")!;
+    const floppy = header.querySelector("[data-floppy]")!;
+    expect(floppy.querySelector("[data-floppy-disk]")).toHaveTextContent("02/03");
+    const sheet = within(header as HTMLElement).getByRole("region", { name: "Fiche technique" });
+    // Reading order: title first, then the sheet; the floppy is decorative.
+    expect(screen.getByRole("heading", { level: 1 }).compareDocumentPosition(sheet)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it("gives the sheet a name in the page's language, and marks a French role on the English page", () => {
+    render(<ProjectView locale="en" dict={en} project={project({ roleLang: "fr" })} images={sizes} />);
+    const sheet = screen.getByRole("region", { name: "Spec sheet" });
+    expect(within(sheet).getByText("Conception et développement")).toHaveAttribute("lang", "fr");
+  });
+
+  it("keeps a dev project without data whole: the floppy alone", () => {
+    const { container } = render(
+      <ProjectView locale="fr" dict={fr} project={project({ year: undefined, role: "", stack: [] })} images={sizes} />,
+    );
+    expect(container.querySelector("[data-floppy]")).not.toBeNull();
+    expect(screen.queryByRole("region", { name: "Fiche technique" })).toBeNull();
+  });
+
+  it("is the dev chapter's object only: other chapters wait for their own", () => {
+    for (const chapter of ["infra", "repair", "creative"] as const) {
+      const { container, unmount } = render(
+        <ProjectView locale="fr" dict={fr} project={project({ chapter })} images={sizes} />,
+      );
+      expect(container.querySelector("[data-floppy]"), chapter).toBeNull();
+      expect(container.querySelector("[data-specs]"), chapter).toBeNull();
+      unmount();
+    }
   });
 });
