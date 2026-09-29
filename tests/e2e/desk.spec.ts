@@ -102,6 +102,38 @@ test.describe("desk", () => {
   });
 });
 
+test.describe("the desk's globe", () => {
+  test("turns on the right of the desk, on a wide screen, decorative", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "wide screens with a mouse only");
+    await page.goto("/fr");
+    const art = page.locator("[data-desk-art]");
+    await expect(art).toBeVisible();
+    await expect(art).toHaveAttribute("aria-hidden", "true");
+    // It is drawn — ink on the canvas — and it turns.
+    const inked = () =>
+      art.locator("canvas").evaluate((canvas: HTMLCanvasElement) => {
+        const data = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height).data;
+        let ink = 0;
+        for (let i = 3; i < data.length; i += 4) if (data[i]) ink += 1;
+        return ink;
+      });
+    const first = await inked();
+    expect(first).toBeGreaterThan(1000);
+    await expect.poll(inked, { timeout: 5000 }).not.toBe(first);
+    // Right of the name, never over it.
+    const name = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    const globe = (await art.boundingBox())!;
+    expect(globe.x).toBeGreaterThan(name.x + name.width);
+  });
+
+  test("is not even loaded on a phone", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile", "a phone");
+    await page.goto("/fr");
+    await expect(page.getByRole("banner").locator("time")).toBeVisible();
+    await expect(page.locator("[data-desk-art]")).toHaveCount(0);
+  });
+});
+
 test.describe("desk without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 

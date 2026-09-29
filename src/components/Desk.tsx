@@ -4,6 +4,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import { site } from "@/site";
 import { BootSequence } from "./BootSequence";
 import { ChapterMarks } from "./ChapterMarks";
+import { DeskArtSlot } from "./desk-art/DeskArtSlot";
 import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { TopBar } from "./TopBar";
@@ -29,13 +30,16 @@ export function Desk({ locale, dict, counts }: DeskProps) {
         id="content"
         className="flex flex-1 flex-col justify-between gap-16 px-gutter pt-12 pb-12 md:gap-24 md:pt-20 md:pb-16"
       >
-        <div className="max-w-content">
-          <h1 className="text-4xl font-semibold leading-tight tracking-display text-chapter-ink">
-            {site.ownerName}
-          </h1>
-          <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">
-            {dict.desk.identity}
-          </p>
+        <div className="flex items-start justify-between gap-12">
+          <div className="max-w-content">
+            <h1 className="text-4xl font-semibold leading-tight tracking-display text-chapter-ink">
+              {site.ownerName}
+            </h1>
+            <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">
+              {dict.desk.identity}
+            </p>
+          </div>
+          <DeskArtSlot />
         </div>
         <ChapterMarks locale={locale} dict={dict} counts={counts} />
       </main>

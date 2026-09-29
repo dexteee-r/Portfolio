@@ -250,7 +250,28 @@ test.describe("skipping", () => {
     expect(await bootState(page)).toBeNull();
     await expect(overlay(page)).toBeHidden();
     expect(await opacity(page, '[data-chapter-mark="creative"] svg')).toBe(1);
-    expect(await page.evaluate(() => document.getAnimations().filter((a) => a.playState !== "finished" && a.playState !== "idle").length)).toBe(0);
+    // Nothing of the sequence still runs. Only the desk's globe may be fading
+    // in: it waits for the sequence to end, skipped or not.
+    expect(
+      await page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => {
+            if (a.playState === "finished" || a.playState === "idle") return false;
+            const target = (a.effect as KeyframeEffect | null)?.target;
+            return !(target instanceof Element && target.closest("[data-desk-art]"));
+          }).length,
+      ),
+    ).toBe(0);
+  });
+
+  test("the desk's globe waits for the sequence, then fades in", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "wide screens with a mouse only");
+    await page.goto("/fr");
+    await catchTheFlight(page);
+    const art = page.locator("[data-desk-art]");
+    expect(await art.evaluate((el) => getComputedStyle(el).opacity)).toBe("0");
+    await page.mouse.click(5, 5);
+    await expect.poll(() => art.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
   });
 });
 

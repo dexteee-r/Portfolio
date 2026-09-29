@@ -29,6 +29,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   sa page, retourne au bureau ; le tiroir reprend là où le doigt l'a lâché.
 - Le tiroir ouvert : sommaire de chaque chapitre en dossiers suspendus à
   onglets (inspi : folder type › intercalaires).
+- Le globe du bureau (2026-09-29) : la Terre en trame 1 bit, éclairée, à
+  droite du nom, sur grand écran avec souris ; choisi sur banc d'essai parmi
+  cinq pistes (globe en points, constellation, dossier 3D, portrait ASCII).
 
 ## À faire — V1
 
@@ -63,24 +66,12 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     (animation › scan thermique), ramené aux tons brique ; fiche
     d'intervention en ticket (DA 2 › ticket) ;
   - création : l'étagère de cassettes VHS (folder type › Kurosawa), le suivi
-    de mouvement sur l'aperçu vidéo (animation › nickjaykdesign), le globe en
-    points des lieux de tournage (animation › Planet by Pixels).
+    de mouvement sur l'aperçu vidéo (animation › nickjaykdesign) ; le globe
+    des lieux de tournage est à repenser — le bureau a déjà le sien.
   Pas de police pixel (deux familles seulement) : le rendu pixel passe par
   DM Mono, l'ASCII et la trame.
-- **Animation en pixel art sur le côté droit du bureau, desktop uniquement**
-  (demandée le 2026-09-25). Points à trancher avant de la dessiner :
-  - le cadre est achromatique (règle 1) : en noir et blanc, ou seulement dans
-    les couleurs des quatre marques ?
-  - elle ne doit ni cacher le nom et l'activité, ni rivaliser avec la
-    séquence de démarrage — elle apparaît après, ou fait partie de sa fin ?
-  - desktop uniquement (≥ 768 px et pointeur fin), aucun mouvement sous
-    `prefers-reduced-motion`, rien de chargé sur mobile ;
-  - rendu : sprite CSS (`steps()`) ou `<canvas>` ; `image-rendering: pixelated`.
-  - piste (inspi, 2026-09-29) : trame 1 bit ou ASCII à l'encre sur fond clair
-    (animation › chrome skull, DA 4 › portrait ASCII) — le dossier du
-    démarrage en 3D tramée qui tourne lentement, ou un portrait en ASCII.
 - V2 : curseur vidéo sur les stations (avec son équivalent au doigt), schéma
-  réseau du homelab qui se dessine, globe pour le chapitre créatif.
+  réseau du homelab qui se dessine.
 - V3 : données réelles du homelab, référencement local de la réparation
   (fiche Google Business, pages par ville, avis).
 - Néerlandais, quand quelqu'un peut le relire.

@@ -413,3 +413,15 @@
 html:has([data-view="chapter"]) {
   overscroll-behavior-y: none;
 }
+
+/*
+ * The desk's art never competes with the boot sequence: hidden while it
+ * plays, faded in once it ends (components/desk-art).
+ */
+[data-desk-art] {
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+html[data-boot="play"] [data-desk-art] {
+  opacity: 0;
+}
