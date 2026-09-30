@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { chapterPath } from "@/i18n/paths";
 import { site } from "@/site";
+import { DiagnosticScan } from "./DiagnosticScan";
 import { Floppy } from "./Floppy";
 import { ProjectBody } from "./ProjectBody";
 import { hasTicket, RepairTicket } from "./RepairTicket";
@@ -30,7 +31,7 @@ interface ProjectViewProps {
   locale: Locale;
   dict: Dictionary;
   project: LocalizedProject;
-  /** Intrinsic sizes of the images inside the text. */
+  /** Intrinsic sizes of the images inside the text, and of the cover. */
   images: Record<string, Dimensions>;
   previous?: SiblingLink;
   next?: SiblingLink;
@@ -84,6 +85,10 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
           ? "ticket"
           : null;
   const layout = object ? HEADER_LAYOUT[object] : null;
+  // Repair's effect: the parts it names, boxed on the cover by a diagnostic
+  // scan — drawn at the photo's own proportions, so it needs to know them.
+  const scanSize =
+    project.chapter === "repair" && project.scan.length > 0 && project.cover ? images[project.cover] : undefined;
 
   return (
     <div
@@ -200,7 +205,20 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
             )}
           </header>
 
-          {project.cover && (
+          {project.cover && scanSize && (
+            <DiagnosticScan
+              cover={project.cover}
+              alt={project.coverAlt}
+              lang={other(project.lang)}
+              size={scanSize}
+              sizes={COVER_SIZES}
+              markers={project.scan}
+              markersLang={other(project.scanLang)}
+              copy={copy.scan}
+              className="mt-12 max-w-content md:mt-16"
+            />
+          )}
+          {project.cover && !scanSize && (
             <div className="relative mt-12 aspect-[16/10] max-w-content overflow-hidden rounded-sm bg-chapter-surface md:mt-16">
               <Image
                 src={project.cover}

@@ -7,6 +7,8 @@ import {
   linkKinds,
   projectStatuses,
   ROLE_MAX_LENGTH,
+  SCAN_LABEL_MAX_LENGTH,
+  SCAN_MAX_MARKERS,
   STACK_ITEM_MAX_LENGTH,
   STACK_MAX_ITEMS,
   SUMMARY_MAX_LENGTH,
@@ -231,6 +233,36 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             i18n: true,
             required: false,
             hint: "Ce que montre l'image, pour qui ne la voit pas. Obligatoire dès qu'une image est choisie.",
+          },
+          {
+            name: "scan",
+            label: "Scan de diagnostic",
+            label_singular: "Pièce",
+            widget: "list",
+            i18n: true,
+            required: false,
+            max: SCAN_MAX_MARKERS,
+            summary: "{{label}} — {{x}} %, {{y}} %",
+            hint: "Réparation : les pièces réparées, encadrées sur la photo de couverture. Chaque cadre en % de la photo, depuis son coin haut gauche ; les positions sont reprises dans chaque langue, seul le nom se traduit.",
+            fields: [
+              { name: "label", label: "Pièce", widget: "string", i18n: true, maxlength: SCAN_LABEL_MAX_LENGTH },
+              ...(
+                [
+                  ["x", "Depuis la gauche (%)"],
+                  ["y", "Depuis le haut (%)"],
+                  ["w", "Largeur (%)"],
+                  ["h", "Hauteur (%)"],
+                ] as const
+              ).map(([name, label]) => ({
+                name,
+                label,
+                widget: "number" as const,
+                i18n: "duplicate" as const,
+                value_type: "float" as const,
+                min: 0,
+                max: 100,
+              })),
+            ],
           },
           {
             name: "links",

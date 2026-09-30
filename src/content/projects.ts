@@ -15,6 +15,7 @@ import {
   SLUG_PATTERN,
   type LocalizedFields,
   type Project,
+  type ScanMarker,
 } from "./schema";
 
 /**
@@ -108,6 +109,10 @@ export function parseProject(slug: string, source: string, file = `${slug}.yaml`
     const parsed = localizedFieldsSchema.safeParse(pick(block, LOCALIZED_KEYS));
     if (!parsed.success) fail(`in "${locale}": ${z.prettifyError(parsed.error)}`);
     translations[locale] = parsed.data;
+  }
+
+  for (const [locale, fields] of Object.entries(translations)) {
+    if (fields?.scan.length && !shared.data.cover) fail(`${locale}.scan: the scan is drawn on the cover — add one`);
   }
 
   for (const [locale, fields] of Object.entries(translations)) {
@@ -214,6 +219,10 @@ export interface LocalizedProject {
   role: string;
   /** Language the role is actually written in. */
   roleLang: Locale;
+  /** Parts named on the cover by the diagnostic scan; empty without. */
+  scan: ScanMarker[];
+  /** Language the scan's labels are actually written in. */
+  scanLang: Locale;
 }
 
 /**
@@ -229,6 +238,7 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
   const card = translated ? own : fallback;
   const ownBody = own?.body.trim() ? own.body : "";
   const ownRole = own?.role ?? "";
+  const ownScan = own?.scan ?? [];
 
   return {
     slug: project.slug,
@@ -248,5 +258,8 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
     duration: project.duration,
     role: ownRole || fallback?.role || "",
     roleLang: ownRole ? locale : defaultLocale,
+    // A list as a whole, never a mix: the boxes of one language, with its labels.
+    scan: ownScan.length > 0 ? ownScan : (fallback?.scan ?? []),
+    scanLang: ownScan.length > 0 ? locale : defaultLocale,
   };
 }

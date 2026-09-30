@@ -80,7 +80,11 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/[chap
   const path = projectPath(locale, project.chapter, project.slug);
 
   const localized = localizeProject(project, locale);
-  const images = readDimensions(inspectMarkdown(localized.body).images.map((image) => image.url));
+  const images = readDimensions([
+    ...inspectMarkdown(localized.body).images.map((image) => image.url),
+    // The diagnostic scan draws the cover at its own proportions.
+    ...(localized.cover ? [localized.cover] : []),
+  ]);
 
   const structured = graph(
     breadcrumbLd([

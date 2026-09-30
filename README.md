@@ -221,6 +221,35 @@ y pend simplement. Sans rien à imprimer (ni appareil, ni intervention, ni
 durée, ni année), pas de ticket. L'appareil est aussi le premier mot-clé des
 données structurées.
 
+**Le scan de diagnostic.** Sur une page réparation, la photo de couverture
+passe au scanner (inspi : animation › scan thermique, ramené à la brique) :
+coins de viseur, puis, quand la photo entre à l'écran, une ligne balaie de
+haut en bas et chaque pièce réparée qu'elle croise se verrouille dans un
+cadre numéroté et nommé. Sans JavaScript ou avec les animations réduites, les
+cadres sont simplement là. Les pièces sont aussi dites en toutes lettres aux
+lecteurs d'écran. Les cadres se posent dans le CMS (**Scan de diagnostic**),
+en % de la photo depuis son coin haut gauche — la photo s'affiche alors dans
+ses propres proportions, pour que les cadres tombent juste :
+
+```yaml
+fr:
+  scan:                 # 6 pièces au plus ; le build refuse un cadre qui sort de la photo
+    - label: Vitre arrière
+      x: 10             # depuis la gauche
+      y: 20             # depuis le haut
+      w: 40             # largeur
+      h: 50             # hauteur
+en:
+  scan:                 # les mêmes cadres (le CMS les recopie), les noms traduits ;
+    - label: Back glass # sans liste anglaise, la française, marquée lang="fr"
+      x: 10
+      y: 20
+      w: 40
+      h: 50
+```
+
+Un scan exige une couverture : sans elle, le build échoue.
+
 **La jaquette VHS du chapitre création.** En tête de chaque page projet
 création, le projet est une cassette VHS dans sa jaquette ambre (inspi : folder
 type › Kurosawa) : la tranche porte le titre — de bas en haut en français, de

@@ -17,6 +17,8 @@ import {
   DEVICE_MAX_LENGTH,
   DURATION_MAX_MINUTES,
   ROLE_MAX_LENGTH,
+  SCAN_LABEL_MAX_LENGTH,
+  SCAN_MAX_MARKERS,
   STACK_ITEM_MAX_LENGTH,
   STACK_MAX_ITEMS,
   SUMMARY_MAX_LENGTH,
@@ -38,7 +40,7 @@ describe("parseProject — valid files", () => {
       order: 100,
       links: [],
       stack: [],
-      translations: { fr: { title: "T", summary: "S", body: "", coverAlt: "", role: "" } },
+      translations: { fr: { title: "T", summary: "S", body: "", coverAlt: "", role: "", scan: [] } },
     });
   });
 
@@ -50,7 +52,7 @@ describe("parseProject — valid files", () => {
     expect(project.chapter).toBe("infra");
     expect(project.status).toBe("published");
     expect(project.order).toBe(2);
-    expect(project.translations.fr).toEqual({ title: "T", summary: "S", body: "", coverAlt: "", role: "" });
+    expect(project.translations.fr).toEqual({ title: "T", summary: "S", body: "", coverAlt: "", role: "", scan: [] });
   });
 
   it("lets top-level shared fields win over duplicated ones", () => {
@@ -145,6 +147,23 @@ describe("parseProject — rejected files", () => {
     rejects("x", minimal("duration: 0\n"), /duration/);
     rejects("x", minimal(`duration: ${DURATION_MAX_MINUTES + 1}\n`), /duration/);
     rejects("x", minimal('duration: "2 h"\n'), /duration/);
+  });
+  it("rejects a scan box that leaves the photo, a nameless or wordy part, too many parts, or a stray key", () => {
+    const withCover = (scan: string) =>
+      `chapter: repair\ncover: /media/fixtures/alpha-shot.png\nfr:\n  title: T\n  summary: S\n  scan:\n${scan}`;
+    const box = (fields: string) => `    - ${fields.split(", ").join("\n      ")}\n`;
+    rejects("x", withCover(box("label: Vitre, x: 70, y: 10, w: 40, h: 20")), /inside the photo/);
+    rejects("x", withCover(box("label: Vitre, x: 10, y: 90, w: 20, h: 20")), /inside the photo/);
+    rejects("x", withCover(box("label: Vitre, x: -1, y: 10, w: 20, h: 20")), /scan/);
+    rejects("x", withCover(box("label: Vitre, x: 10, y: 10, w: 0, h: 20")), /scan/);
+    rejects("x", withCover(box("label: '', x: 10, y: 10, w: 20, h: 20")), /scan/);
+    rejects("x", withCover(box(`label: ${"a".repeat(SCAN_LABEL_MAX_LENGTH + 1)}, x: 1, y: 1, w: 2, h: 2`)), /scan/);
+    rejects("x", withCover(box("label: Vitre, x: 1, y: 1, w: 2, h: 2, colour: red")), /scan/);
+    const many = Array.from({ length: SCAN_MAX_MARKERS + 1 }, () => box("label: P, x: 1, y: 1, w: 2, h: 2")).join("");
+    rejects("x", withCover(many), /scan/);
+  });
+  it("rejects a scan without a cover to draw it on", () => {
+    rejects("x", `${minimal()}  scan:\n    - label: Vitre\n      x: 1\n      y: 1\n      w: 2\n      h: 2\n`, /fr\.scan: the scan is drawn on the cover/);
   });
   it("rejects a role that is a paragraph rather than a line", () => {
     rejects("x", `${minimal()}  role: ${"a".repeat(ROLE_MAX_LENGTH + 1)}\n`, /role/);
@@ -263,6 +282,22 @@ describe("localizeProject", () => {
   it("carries the stack, the same in every language", () => {
     expect(localizeProject(bySlug("alpha-app"), "fr").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
     expect(localizeProject(bySlug("alpha-app"), "en").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
+  });
+
+  it("scans with the requested language's list, else the French one as a whole, and says which", () => {
+    const french = [
+      { label: "Vitre arrière", x: 10, y: 20, w: 40, h: 50 },
+      { label: "Nappe du flash", x: 65, y: 4, w: 25, h: 20 },
+    ];
+    expect(localizeProject(bySlug("ecran-fixture"), "fr")).toMatchObject({ scan: french, scanLang: "fr" });
+    expect(localizeProject(bySlug("ecran-fixture"), "en")).toMatchObject({ scan: french, scanLang: "fr" });
+    const both = parseProject(
+      "x",
+      "chapter: repair\ncover: /media/fixtures/alpha-shot.png\nfr:\n  title: T\n  summary: S\n  coverAlt: A\n" +
+        "  scan: [{ label: Vitre, x: 1, y: 1, w: 2, h: 2 }]\nen:\n  title: T\n  summary: S\n  scan: [{ label: Glass, x: 1, y: 1, w: 2, h: 2 }]\n",
+    );
+    expect(localizeProject(both, "en")).toMatchObject({ scan: [{ label: "Glass" }], scanLang: "en" });
+    expect(localizeProject(bySlug("alpha-app"), "fr").scan).toEqual([]);
   });
 
   it("carries the device and the duration, the same in every language", () => {

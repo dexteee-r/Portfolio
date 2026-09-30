@@ -555,6 +555,78 @@ html[data-boot="play"] [data-desk-art] {
 }
 
 /*
+ * The repair chapter's diagnostic scan (components/DiagnosticScan). The boxes
+ * are there by default: only once the script has armed the scan do they
+ * wait, hidden, to be seen. Then a brick line sweeps down the photo — its
+ * band of heat trailing above it — and each box locks on as the line
+ * reaches it. The sweep is a full-height layer whose bottom edge travels
+ * from the top of the photo to its bottom, then fades.
+ */
+[data-scan] .scan-sweep {
+  opacity: 0;
+}
+
+[data-scan] .scan-sweep::before,
+[data-scan] .scan-sweep::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+}
+
+[data-scan] .scan-sweep::before {
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--chapter-accent) 30%, transparent));
+}
+
+[data-scan] .scan-sweep::after {
+  height: 2px;
+  background: var(--chapter-accent);
+}
+
+[data-scan][data-armed]:not([data-scanned]) .scan-mark {
+  opacity: 0;
+}
+
+[data-scan][data-scanned] .scan-sweep {
+  animation: scan-sweep calc(var(--duration-flood) * 2) linear both;
+}
+
+[data-scan][data-scanned] .scan-mark {
+  animation: scan-lock var(--duration-slow) var(--ease-standard) calc(var(--duration-flood) * 2 * 0.85 * var(--at, 0)) both;
+}
+
+@keyframes scan-sweep {
+  0% {
+    opacity: 1;
+    transform: translateY(-100%);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+/* The box closes in on the part, like the network map's brackets. */
+@keyframes scan-lock {
+  from {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scan] .scan-sweep,
+  [data-scan] .scan-mark {
+    animation: none !important;
+  }
+}
+
+/*
  * The creative chapter's VHS jacket (components/VhsJacket). Once the page has
  * faded in, it swings round on its spine to face you, like a tape pulled from
  * the shelf; its far edge recedes, so it never grows past its own box.

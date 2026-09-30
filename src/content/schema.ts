@@ -22,6 +22,25 @@ export const STACK_ITEM_MAX_LENGTH = 24;
 export const DEVICE_MAX_LENGTH = 40;
 /** A repair counted in minutes; past 100 hours, it is a project, not an intervention. */
 export const DURATION_MAX_MINUTES = 6000;
+/** A diagnosis names a few parts, each in a word or two. */
+export const SCAN_MAX_MARKERS = 6;
+export const SCAN_LABEL_MAX_LENGTH = 32;
+
+/**
+ * One part spotted on the cover photo by the diagnostic scan: a box, in
+ * percent of the photo from its top left corner, and the part's name.
+ */
+export const scanMarkerSchema = z
+  .object({
+    label: z.string().trim().min(1).max(SCAN_LABEL_MAX_LENGTH),
+    x: z.number().min(0).max(100),
+    y: z.number().min(0).max(100),
+    w: z.number().gt(0).max(100),
+    h: z.number().gt(0).max(100),
+  })
+  .strict()
+  .refine((m) => m.x + m.w <= 100 && m.y + m.h <= 100, "a box must stay inside the photo");
+export type ScanMarker = z.infer<typeof scanMarkerSchema>;
 
 export const projectStatuses = ["draft", "published"] as const;
 export type ProjectStatus = (typeof projectStatuses)[number];
@@ -40,6 +59,8 @@ export const localizedFieldsSchema = z
     coverAlt: z.string().trim().default(""),
     /** What was done on the project, in a few words — the spec sheet's "Role". */
     role: z.string().trim().max(ROLE_MAX_LENGTH).default(""),
+    /** Repair: the parts the diagnostic scan names on the cover photo. */
+    scan: z.array(scanMarkerSchema).max(SCAN_MAX_MARKERS).default([]),
   })
   .strict();
 export type LocalizedFields = z.infer<typeof localizedFieldsSchema>;

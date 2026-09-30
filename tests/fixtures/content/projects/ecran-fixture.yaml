@@ -1,15 +1,30 @@
-# Fixture: repair chapter, published, with a full ticket. The English card is
-# translated but has no role of its own — the ticket borrows the French one.
+# Fixture: repair chapter, published, with a full ticket and a diagnostic
+# scan on a 4:3 cover. The English card is translated but has neither a role
+# nor a scan of its own — the ticket and the scan borrow the French ones.
 chapter: repair
 status: published
 order: 1
 year: 2025
 device: iPhone 16 Pro Max
 duration: 150
+cover: /media/fixtures/alpha-shot.png
 fr:
   title: Écran de test
   summary: Une réparation de test.
+  coverAlt: Capture de test, au format 4:3.
   role: Remplacement de la vitre arrière
+  scan:
+    - label: Vitre arrière
+      x: 10
+      y: 20
+      w: 40
+      h: 50
+    - label: Nappe du flash
+      x: 65
+      y: 4
+      w: 25
+      h: 20
 en:
   title: Test screen
   summary: A test repair.
+  coverAlt: Test screenshot, 4:3.

@@ -45,6 +45,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - La jaquette VHS du chapitre création (2026-09-30) : en tête de page projet,
   la cassette dans sa jaquette qui pivote vers le lecteur, et son générique
   (année, rôle, durée, matériel — sans nouveau champ).
+- Le scan de diagnostic du chapitre réparation (2026-10-01) : la couverture
+  passe au scanner, une ligne brique la balaie et encadre chaque pièce réparée,
+  nommée ; cadres posés dans le CMS (**Scan de diagnostic**).
 
 ## À faire — V1
 
@@ -72,7 +75,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   matériel** : c'est la fiche technique sous le titre. Pour les réparations,
   **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour
   la création, **Rôle ou intervention**, **Durée** et **Stack ou matériel** :
-  c'est le générique.
+  c'est le générique. Pour les réparations avec photo, poser aussi les
+  cadres du **Scan de diagnostic** sur les pièces réparées.
 - **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
   (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
   puis passer `status` à `published`.
@@ -85,10 +89,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     projet~~ (fait), puis les schémas d'architecture sur grille de plan (RON) ;
   - infra : ~~le schéma réseau qui se dessine~~ (fait), puis en V3 le relief
     de points des vraies métriques et les chiffres entre crochets (DA 4) ;
-  - repair : ~~la fiche d'intervention en ticket~~ (fait), puis un scan de
-    diagnostic qui nomme les pièces réparées sur la photo (animation › scan
-    thermique), ramené aux tons brique — il demande des repères posés sur
-    chaque photo, donc un champ de plus dans le CMS ;
+  - repair : ~~la fiche d'intervention en ticket~~, ~~le scan de diagnostic
+    sur la photo~~ (faits) ;
   - création : ~~la jaquette VHS en tête de page projet~~ (fait), puis le
     suivi de mouvement sur l'aperçu vidéo (animation › nickjaykdesign), avec
     le curseur vidéo des stations ; l'étagère de cassettes du chapitre lui-même

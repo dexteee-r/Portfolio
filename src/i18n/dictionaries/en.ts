@@ -90,6 +90,11 @@ export const en: Dictionary = {
       duration: "Running time",
       stack: "Gear",
     },
+    scan: {
+      mode: "Scan · diagnostics",
+      parts: "Parts",
+      caption: "Parts spotted on the photo: {parts}.",
+    },
     ticket: {
       heading: "Repair ticket",
       number: "No.",

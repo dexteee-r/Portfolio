@@ -251,6 +251,8 @@ describe("every view ends with the contact footer", () => {
     stack: [],
     role: "",
     roleLang: "fr",
+    scan: [],
+    scanLang: "fr",
   };
   const counts = { dev: 1, infra: 0, repair: 0, creative: 0 };
 

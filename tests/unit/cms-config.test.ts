@@ -15,6 +15,8 @@ import {
   linkKinds,
   projectStatuses,
   ROLE_MAX_LENGTH,
+  SCAN_LABEL_MAX_LENGTH,
+  SCAN_MAX_MARKERS,
   SHARED_KEYS,
   SLUG_PATTERN,
   STACK_ITEM_MAX_LENGTH,
@@ -72,6 +74,18 @@ describe("CMS configuration, generated from the content schema", () => {
       min: 1,
       max: DURATION_MAX_MINUTES,
     });
+  });
+
+  it("asks for the scan's boxes once and their names in each language", () => {
+    const scan = field("scan") as Record<string, unknown> & { fields: Array<Record<string, unknown>> };
+    expect(scan).toMatchObject({ widget: "list", i18n: true, required: false, max: SCAN_MAX_MARKERS });
+    expect(scan.fields.map((f) => f.name)).toEqual(["label", "x", "y", "w", "h"]);
+    expect(scan.fields[0]).toMatchObject({ i18n: true, maxlength: SCAN_LABEL_MAX_LENGTH });
+    for (const position of scan.fields.slice(1)) {
+      // Copied from the French entry, never typed twice.
+      expect(position).toMatchObject({ widget: "number", i18n: "duplicate", value_type: "float", min: 0, max: 100 });
+    }
+    expect(String(scan.hint)).toMatch(/%/);
   });
 
   it("stores whole numbers for order and year", () => {

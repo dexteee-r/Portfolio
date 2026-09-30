@@ -134,6 +134,8 @@ describe("structured data", () => {
     stack: ["Next.js", "PostgreSQL"],
     role: "",
     roleLang: "fr",
+    scan: [],
+    scanLang: "fr",
     ...overrides,
   });
 

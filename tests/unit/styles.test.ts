@@ -95,6 +95,20 @@ describe("globals.css", () => {
     expect(globals).toMatch(/\.vhs-art::after[\s\S]*?color-mix\(in srgb, var\(--chapter-bg\) 30%, transparent\)/);
   });
 
+  it("shows the scan's boxes by default: they only hide once armed by the script, until seen", () => {
+    expect(globals).toMatch(/\[data-scan\]\[data-armed\]:not\(\[data-scanned\]\) \.scan-mark\s*\{\s*opacity: 0;/);
+    expect(globals).toMatch(/\[data-scan\] \.scan-sweep\s*\{\s*opacity: 0;/); // no sweep without the animation
+  });
+
+  it("locks each box as the line reaches it: a linear sweep, the same clock for both", () => {
+    expect(globals).toMatch(/scan-sweep calc\(var\(--duration-flood\) \* 2\) linear both/);
+    expect(globals).toMatch(/scan-lock var\(--duration-slow\) var\(--ease-standard\) calc\(var\(--duration-flood\) \* 2 \* 0\.85 \* var\(--at, 0\)\) both/);
+    // The line reaches the bottom at 85% of the sweep — the 0.85 above.
+    expect(globals).toMatch(/@keyframes scan-sweep\s*\{[\s\S]*?85% \{\s*opacity: 1;\s*transform: translateY\(0\);/);
+    expect(globals).toMatch(/color-mix\(in srgb, var\(--chapter-accent\) 30%, transparent\)/);
+    expect(reducedMotionFor("[data-scan]")).toMatch(/\.scan-mark\s*\{\s*animation: none !important/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

@@ -93,6 +93,11 @@ export const fr = {
       duration: "Durée",
       stack: "Matériel",
     },
+    scan: {
+      mode: "Scan · diagnostic",
+      parts: "Pièces",
+      caption: "Pièces repérées sur la photo : {parts}.",
+    },
     ticket: {
       heading: "Fiche d'intervention",
       number: "N°",

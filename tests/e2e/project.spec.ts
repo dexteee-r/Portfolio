@@ -197,6 +197,98 @@ test.describe("the dev chapter's floppy disk", () => {
   });
 });
 
+test.describe("the repair chapter's diagnostic scan", () => {
+  const scan = (page: Page) => page.locator("[data-scan]");
+  const marks = (page: Page) => page.locator("[data-scan-mark]");
+  const opacity = (page: Page, selector: string) =>
+    page.locator(selector).first().evaluate((el) => Number(getComputedStyle(el).opacity));
+
+  test("draws the cover at its own proportions, each part boxed where it was drawn", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    const photo = page.locator("[data-scan] img");
+    await expect(photo).toHaveAttribute("alt", "Capture de test, au format 4:3.");
+    const frame = (await photo.boundingBox())!;
+    expect(frame.width / frame.height).toBeCloseTo(4 / 3, 2);
+
+    await expect(marks(page)).toHaveText(["01 Vitre arrière", "02 Nappe du flash"]);
+    // Its laid-out place, not its painted one: the lock may still be closing in.
+    const box = await marks(page)
+      .first()
+      .evaluate((el: HTMLElement) => {
+        const photo = el.offsetParent as HTMLElement;
+        return {
+          x: el.offsetLeft / photo.clientWidth,
+          y: el.offsetTop / photo.clientHeight,
+          w: el.offsetWidth / photo.clientWidth,
+          h: el.offsetHeight / photo.clientHeight,
+        };
+      });
+    expect(box.x).toBeCloseTo(0.1, 2);
+    expect(box.y).toBeCloseTo(0.2, 2);
+    expect(box.w).toBeCloseTo(0.4, 2);
+    expect(box.h).toBeCloseTo(0.5, 2);
+    await expect(scan(page).locator("figcaption")).toHaveText(
+      "Pièces repérées sur la photo : Vitre arrière, Nappe du flash.",
+    );
+  });
+
+  test("sweeps once when it comes into view, then the boxes stay", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    await expect(scan(page)).toHaveAttribute("data-armed", "");
+    await scan(page).scrollIntoViewIfNeeded();
+    await expect(scan(page)).toHaveAttribute("data-scanned", "");
+    await expect.poll(() => opacity(page, "[data-scan-mark]:last-of-type")).toBe(1);
+    await expect.poll(() => opacity(page, "[data-scan] .scan-sweep")).toBe(0);
+  });
+
+  test("locks the box at the top before the one lower down", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    await scan(page).scrollIntoViewIfNeeded();
+    await expect(scan(page)).toHaveAttribute("data-scanned", "");
+    const delays = await marks(page).evaluateAll((els) =>
+      els.map((el) => Number((el.getAnimations()[0]?.effect?.getComputedTiming().delay as number) ?? -1)),
+    );
+    // Box 01 starts at 20% of the photo, box 02 at 4%: 02 locks first.
+    expect(delays[1]!).toBeLessThan(delays[0]!);
+    expect(delays[0]!).toBeCloseTo(1400 * 0.85 * 0.2, 0);
+  });
+
+  test("reduced motion: the boxes are simply there", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/fr/repair/ecran-fixture");
+    await expect(scan(page)).not.toHaveAttribute("data-armed", "");
+    expect(await opacity(page, "[data-scan-mark]")).toBe(1);
+    expect(await marks(page).first().evaluate((el) => el.getAnimations().length)).toBe(0);
+  });
+
+  test("the English page scans with the French names, marked as such", async ({ page }) => {
+    await page.goto("/en/repair/ecran-fixture");
+    await expect(marks(page).first().locator("span")).toHaveAttribute("lang", "fr");
+    await expect(scan(page).locator("figcaption")).toHaveText("Parts spotted on the photo: Vitre arrière, Nappe du flash.");
+    await expect(scan(page).locator("[data-scan-count]")).toHaveText("Parts 02");
+  });
+
+  test("is the repair chapter's effect only", async ({ page }) => {
+    for (const path of ["/fr/dev/alpha-app", "/fr/creatif/film-test"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(scan(page), path).toHaveCount(0);
+    }
+  });
+});
+
+test.describe("the diagnostic scan without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("shows every box, named, on the photo", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    await expect(page.locator("[data-scan]")).not.toHaveAttribute("data-armed", "");
+    await expect(page.locator("[data-scan-mark]")).toHaveCount(2);
+    await expect(page.locator("[data-scan-mark]").first()).toBeVisible();
+    expect(await page.locator("[data-scan-mark]").first().evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+  });
+});
+
 test.describe("the creative chapter's VHS jacket", () => {
   const box = (page: Page) => page.locator("[data-vhs] .vhs-case");
   const transform = (page: Page) => box(page).evaluate((el) => getComputedStyle(el).transform);

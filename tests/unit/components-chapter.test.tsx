@@ -27,6 +27,8 @@ function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
     stack: [],
     role: "",
     roleLang: "fr",
+    scan: [],
+    scanLang: "fr",
     ...overrides,
   };
 }

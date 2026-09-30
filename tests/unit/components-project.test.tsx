@@ -37,6 +37,8 @@ function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
     stack: ["Next.js", "PostgreSQL"],
     role: "Conception et développement",
     roleLang: "fr",
+    scan: [],
+    scanLang: "fr",
     ...overrides,
   };
 }
