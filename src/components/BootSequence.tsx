@@ -55,7 +55,9 @@ export function BootSequence({ phrase }: { phrase: string }) {
         <p className="boot-phrase">{phrase}</p>
       </div>
       {chapterIds.map((id) => (
-        <span key={id} className="boot-fly" data-boot-fly={id}>
+        // The runtime places each folder (its inline style) on its own clock:
+        // on a slow device, before React has hydrated. That is expected.
+        <span key={id} className="boot-fly" data-boot-fly={id} suppressHydrationWarning>
           <FolderGlyph className={`${MARK_COLOR[id]} block w-full`} />
         </span>
       ))}

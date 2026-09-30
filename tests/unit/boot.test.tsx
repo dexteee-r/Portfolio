@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BootSequence } from "@/components/BootSequence";
 import { Desk } from "@/components/Desk";
@@ -419,6 +421,29 @@ describe("BootSequence", () => {
       expect(name.style.getPropertyValue("--boot-at")).toBe(`${w.at}ms`);
       expect(name.style.getPropertyValue("--boot-for")).toBe(`${w.until - w.at}ms`);
     });
+  });
+
+  it("lets the runtime place the folders before React hydrates, without a mismatch", async () => {
+    // A slow device: the finale has already run when React arrives.
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<BootSequence phrase="x" />);
+    document.body.appendChild(container);
+    for (const flyer of container.querySelectorAll<HTMLElement>("[data-boot-fly]")) {
+      // What the runtime writes (lib/boot.ts, finale).
+      flyer.style.left = "-20px";
+      flyer.style.top = "-134.25px";
+      flyer.style.width = "80px";
+    }
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    await act(async () => {
+      hydrateRoot(container, <BootSequence phrase="x" />);
+    });
+    const mismatches = errors.mock.calls.filter((call) => /hydrat/i.test(call.map(String).join(" ")));
+    errors.mockRestore();
+    expect(mismatches).toEqual([]);
+    // And React leaves the runtime's placement alone.
+    expect(container.querySelector<HTMLElement>("[data-boot-fly]")!.style.width).toBe("80px");
+    container.remove();
   });
 
   it("holds the four coloured folders, in desk order, each in its mark's colour", () => {
