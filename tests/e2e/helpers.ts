@@ -1,6 +1,23 @@
 import type { Page } from "@playwright/test";
 
 /**
+ * Waits until every animation that ends has ended — the chapters' effects
+ * play once, on arrival or when seen — so a check such as axe's contrast
+ * reads the page as it stays, not a frame caught halfway. Endless ones
+ * (the network map's tracker) are left running.
+ */
+export function settled(page: Page): Promise<unknown> {
+  return page.waitForFunction(
+    () =>
+      document
+        .getAnimations()
+        .every((a) => a.playState !== "running" || a.effect?.getComputedTiming().iterations === Infinity),
+    undefined,
+    { timeout: 10_000 },
+  );
+}
+
+/**
  * Everything that sticks out sideways — including text clipped by an
  * `overflow: clip` ancestor, which a scrollWidth check on <html> never sees.
  * Returns a readable description of each offender; empty means clean.

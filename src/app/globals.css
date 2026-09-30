@@ -592,8 +592,13 @@ html[data-boot="play"] [data-desk-art] {
   animation: scan-sweep calc(var(--duration-flood) * 2) linear both;
 }
 
-[data-scan][data-scanned] .scan-mark {
+[data-scan][data-scanned] .scan-box {
   animation: scan-lock var(--duration-slow) var(--ease-standard) calc(var(--duration-flood) * 2 * 0.85 * var(--at, 0)) both;
+}
+
+/* The name appears whole once its box has closed in: never half-faded text. */
+[data-scan][data-scanned] .scan-label {
+  animation: scan-tag var(--duration-slow) steps(1, end) calc(var(--duration-flood) * 2 * 0.85 * var(--at, 0)) both;
 }
 
 @keyframes scan-sweep {
@@ -619,9 +624,16 @@ html[data-boot="play"] [data-desk-art] {
   }
 }
 
+@keyframes scan-tag {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-scan] .scan-sweep,
-  [data-scan] .scan-mark {
+  [data-scan] .scan-box,
+  [data-scan] .scan-label {
     animation: none !important;
   }
 }

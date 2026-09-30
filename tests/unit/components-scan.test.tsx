@@ -67,11 +67,11 @@ describe("DiagnosticScan", () => {
     expect(marks[0]!.style).toMatchObject({ left: "10%", top: "20%", width: "40%", height: "50%" });
     expect(marks[0]!.style.getPropertyValue("--at")).toBe("0.2");
     expect(marks.map((m) => m.textContent)).toEqual(["01 Vitre arrière", "02 Nappe du flash"]);
-    expect(marks[0]).toHaveClass("border-chapter-accent");
+    expect(marks[0]!.querySelector(".scan-box")).toHaveClass("border-chapter-accent");
   });
 
   it("keeps every label inside the photo: inside a box at the top, on the right edge of a box on the right", () => {
-    const [left, topRight] = [...renderScan().querySelectorAll<HTMLElement>("[data-scan-mark] > span")];
+    const [left, topRight] = [...renderScan().querySelectorAll<HTMLElement>("[data-scan-label]")];
     expect(left).toHaveClass("bottom-full", "left-0");
     expect(topRight).toHaveClass("top-0", "right-0");
     expect(MARKERS[1]!.y).toBeLessThan(LABEL_INSIDE_BELOW);
@@ -91,7 +91,7 @@ describe("DiagnosticScan", () => {
     const scan = renderScan({ copy: en.projectPage.scan, markersLang: "fr" });
     expect(scan.querySelector("figcaption")).toHaveTextContent("Parts spotted on the photo: Vitre arrière, Nappe du flash.");
     expect(scan.querySelector("figcaption span[lang]")).toHaveAttribute("lang", "fr");
-    for (const label of scan.querySelectorAll("[data-scan-mark] > span")) expect(label).toHaveAttribute("lang", "fr");
+    for (const label of scan.querySelectorAll("[data-scan-label]")) expect(label).toHaveAttribute("lang", "fr");
   });
 
   it("waits to be seen before scanning — only once the script is there to reveal the boxes", () => {
@@ -177,6 +177,6 @@ describe("ProjectView — the repair chapter's diagnostic scan", () => {
     const { container } = render(
       <ProjectView locale="en" dict={en} project={repair({ scanLang: "fr" })} images={images} />,
     );
-    expect(container.querySelector("[data-scan-mark] > span")).toHaveAttribute("lang", "fr");
+    expect(container.querySelector("[data-scan-label]")).toHaveAttribute("lang", "fr");
   });
 });

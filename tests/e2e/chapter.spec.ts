@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { horizontalOverflow } from "./helpers";
+import { horizontalOverflow, settled } from "./helpers";
 
 /** Fixture content: dev = alpha (cover) + beta (no cover, FR only) + a hidden draft. */
 test.describe("chapter page, loaded directly", () => {
@@ -235,6 +235,8 @@ test.describe("accessibility of every grade (axe, WCAG 2.1 AA)", () => {
   for (const path of ["/fr/dev", "/fr/infra", "/fr/repair", "/fr/creatif", "/en/dev", "/en/creative"]) {
     test(`${path} has no violations`, async ({ page }) => {
       await page.goto(path);
+      // Read the page as it stays, not a frame caught mid-animation.
+      await settled(page);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
         .analyze();

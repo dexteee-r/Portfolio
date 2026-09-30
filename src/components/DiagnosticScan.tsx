@@ -118,7 +118,7 @@ export function DiagnosticScan({
             <div
               key={index}
               data-scan-mark=""
-              className="scan-mark absolute border-2 border-chapter-accent"
+              className="scan-mark absolute"
               style={
                 {
                   left: `${marker.x}%`,
@@ -130,9 +130,12 @@ export function DiagnosticScan({
                 } as CSSProperties
               }
             >
+              {/* The box closes in; its name appears whole once it has — never half-faded, never hard to read. */}
+              <span className="scan-box absolute inset-0 border-2 border-chapter-accent" />
               <span
                 lang={markersLang}
-                className={`absolute whitespace-nowrap bg-chapter-bg px-1 py-0.5 text-chapter-accent-text ${
+                data-scan-label=""
+                className={`scan-label absolute whitespace-nowrap bg-chapter-bg px-1 py-0.5 text-chapter-accent-text ${
                   marker.y < LABEL_INSIDE_BELOW ? "top-0" : "bottom-full mb-0.5"
                 } ${marker.x >= LABEL_RIGHT_FROM ? "right-0" : "left-0"}`}
               >

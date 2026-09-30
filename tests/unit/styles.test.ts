@@ -102,11 +102,17 @@ describe("globals.css", () => {
 
   it("locks each box as the line reaches it: a linear sweep, the same clock for both", () => {
     expect(globals).toMatch(/scan-sweep calc\(var\(--duration-flood\) \* 2\) linear both/);
-    expect(globals).toMatch(/scan-lock var\(--duration-slow\) var\(--ease-standard\) calc\(var\(--duration-flood\) \* 2 \* 0\.85 \* var\(--at, 0\)\) both/);
+    expect(globals).toMatch(
+      /\.scan-box\s*\{\s*animation: scan-lock var\(--duration-slow\) var\(--ease-standard\) calc\(var\(--duration-flood\) \* 2 \* 0\.85 \* var\(--at, 0\)\) both/,
+    );
+    // The name never fades: hidden, then whole, the moment its box has closed in.
+    expect(globals).toMatch(
+      /\.scan-label\s*\{\s*animation: scan-tag var\(--duration-slow\) steps\(1, end\) calc\(var\(--duration-flood\) \* 2 \* 0\.85 \* var\(--at, 0\)\) both/,
+    );
     // The line reaches the bottom at 85% of the sweep — the 0.85 above.
     expect(globals).toMatch(/@keyframes scan-sweep\s*\{[\s\S]*?85% \{\s*opacity: 1;\s*transform: translateY\(0\);/);
     expect(globals).toMatch(/color-mix\(in srgb, var\(--chapter-accent\) 30%, transparent\)/);
-    expect(reducedMotionFor("[data-scan]")).toMatch(/\.scan-mark\s*\{\s*animation: none !important/);
+    expect(reducedMotionFor("[data-scan]")).toMatch(/\.scan-label\s*\{\s*animation: none !important/);
   });
 
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {

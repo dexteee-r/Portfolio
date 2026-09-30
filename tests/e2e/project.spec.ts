@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { horizontalOverflow } from "./helpers";
+import { horizontalOverflow, settled } from "./helpers";
 
 /** Fixture content: dev = alpha (cover, links, rich text) → beta (FR only, no text). */
 
@@ -237,7 +237,7 @@ test.describe("the repair chapter's diagnostic scan", () => {
     await expect(scan(page)).toHaveAttribute("data-armed", "");
     await scan(page).scrollIntoViewIfNeeded();
     await expect(scan(page)).toHaveAttribute("data-scanned", "");
-    await expect.poll(() => opacity(page, "[data-scan-mark]:last-of-type")).toBe(1);
+    await expect.poll(() => opacity(page, "[data-scan-mark]:last-of-type [data-scan-label]")).toBe(1);
     await expect.poll(() => opacity(page, "[data-scan] .scan-sweep")).toBe(0);
   });
 
@@ -245,7 +245,7 @@ test.describe("the repair chapter's diagnostic scan", () => {
     await page.goto("/fr/repair/ecran-fixture");
     await scan(page).scrollIntoViewIfNeeded();
     await expect(scan(page)).toHaveAttribute("data-scanned", "");
-    const delays = await marks(page).evaluateAll((els) =>
+    const delays = await page.locator("[data-scan] .scan-box").evaluateAll((els) =>
       els.map((el) => Number((el.getAnimations()[0]?.effect?.getComputedTiming().delay as number) ?? -1)),
     );
     // Box 01 starts at 20% of the photo, box 02 at 4%: 02 locks first.
@@ -257,13 +257,13 @@ test.describe("the repair chapter's diagnostic scan", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/fr/repair/ecran-fixture");
     await expect(scan(page)).not.toHaveAttribute("data-armed", "");
-    expect(await opacity(page, "[data-scan-mark]")).toBe(1);
-    expect(await marks(page).first().evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await opacity(page, "[data-scan-label]")).toBe(1);
+    expect(await page.locator("[data-scan]").evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
   });
 
   test("the English page scans with the French names, marked as such", async ({ page }) => {
     await page.goto("/en/repair/ecran-fixture");
-    await expect(marks(page).first().locator("span")).toHaveAttribute("lang", "fr");
+    await expect(page.locator("[data-scan-label]").first()).toHaveAttribute("lang", "fr");
     await expect(scan(page).locator("figcaption")).toHaveText("Parts spotted on the photo: Vitre arrière, Nappe du flash.");
     await expect(scan(page).locator("[data-scan-count]")).toHaveText("Parts 02");
   });
@@ -491,6 +491,8 @@ test.describe("accessibility of project pages (axe, WCAG 2.1 AA)", () => {
   ]) {
     test(`${path} has no violations`, async ({ page }) => {
       await page.goto(path);
+      // Read the page as it stays, not a frame caught mid-animation.
+      await settled(page);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
         .analyze();
