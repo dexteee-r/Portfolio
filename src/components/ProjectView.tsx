@@ -9,6 +9,7 @@ import { chapterPath } from "@/i18n/paths";
 import { site } from "@/site";
 import { Floppy } from "./Floppy";
 import { ProjectBody } from "./ProjectBody";
+import { hasTicket, RepairTicket } from "./RepairTicket";
 import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { SpecSheet } from "./SpecSheet";
@@ -29,22 +30,47 @@ interface ProjectViewProps {
   images: Record<string, Dimensions>;
   previous?: SiblingLink;
   next?: SiblingLink;
-  /** Its place in the chapter, 1-based: disk 1 of 4 on the floppy. */
-  disk?: { number: number; total: number };
+  /** Its place in the chapter, 1-based: disk 1 of 4, ticket No. 01. */
+  place?: { number: number; total: number };
 }
+
+/**
+ * How the header makes room for its chapter's object.
+ * - floppy: on a phone, the text, then the disk beside its spec sheet; on a
+ *   wide screen, the disk on the right, the sheet under the text.
+ * - ticket: under the text on a phone, on the right on a wide screen.
+ */
+const HEADER_LAYOUT = {
+  floppy: {
+    header:
+      "grid max-w-content grid-cols-[8rem_minmax(0,1fr)] items-start gap-x-5 gap-y-10 sm:grid-cols-[10rem_minmax(0,1fr)] md:grid-cols-[11rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-16",
+    text: "col-span-2 min-w-0 lg:col-span-1",
+  },
+  ticket: {
+    header: "grid max-w-content items-start gap-y-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-x-16",
+    text: "min-w-0",
+  },
+} as const;
 
 /**
  * The full reading of a project, in its chapter's grade: context, choices,
  * what got stuck, visuals, and a link when there is one. The station was the
  * trailer; this is the film.
  */
-export function ProjectView({ locale, dict, project, images, previous, next, disk }: ProjectViewProps) {
+export function ProjectView({ locale, dict, project, images, previous, next, place }: ProjectViewProps) {
   const chapterHref = chapterPath(locale, project.chapter);
   const folder = chapterSlugs[project.chapter][locale];
   const other = (lang: Locale) => (lang === locale ? undefined : lang);
   const copy = dict.projectPage;
-  // The dev chapter's object: the project as a floppy disk, with its spec sheet.
-  const floppy = project.chapter === "dev";
+  // Each chapter's object at the head of its projects: dev's floppy disk, with
+  // its spec sheet; repair's ticket, once there is something to print on it.
+  const object =
+    project.chapter === "dev"
+      ? "floppy"
+      : project.chapter === "repair" && hasTicket(project)
+        ? "ticket"
+        : null;
+  const layout = object ? HEADER_LAYOUT[object] : null;
 
   return (
     <div
@@ -61,19 +87,8 @@ export function ProjectView({ locale, dict, project, images, previous, next, dis
 
       <main id="content" className="flex-1 px-gutter pt-12 pb-16 md:pt-20 md:pb-24">
         <article>
-          {/*
-            With the floppy: on a phone, the text, then the disk beside its
-            spec sheet; on a wide screen, the disk on the right, the sheet
-            under the text.
-          */}
-          <header
-            className={
-              floppy
-                ? "grid max-w-content grid-cols-[8rem_minmax(0,1fr)] items-start gap-x-5 gap-y-10 sm:grid-cols-[10rem_minmax(0,1fr)] md:grid-cols-[11rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-16"
-                : "max-w-content"
-            }
-          >
-            <div className={floppy ? "col-span-2 min-w-0 lg:col-span-1" : undefined}>
+          <header className={layout?.header ?? "max-w-content"}>
+            <div className={layout?.text}>
               <p className="font-mono text-2xs uppercase tracking-label text-chapter-muted">
                 {dict.chapters[project.chapter].name}
                 {project.year !== undefined && <> · {project.year}</>}
@@ -106,7 +121,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, dis
                 </ul>
               )}
             </div>
-            {floppy && (
+            {object === "floppy" && (
               <>
                 <Floppy
                   brand={site.brand}
@@ -114,7 +129,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, dis
                   lang={other(project.lang)}
                   slug={project.slug}
                   year={project.year}
-                  disk={disk}
+                  disk={place}
                   className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
                 />
                 <SpecSheet
@@ -126,6 +141,21 @@ export function ProjectView({ locale, dict, project, images, previous, next, dis
                   className="lg:col-start-1 lg:row-start-2"
                 />
               </>
+            )}
+            {object === "ticket" && (
+              <RepairTicket
+                copy={copy.ticket}
+                locale={locale}
+                brand={site.brand}
+                slug={project.slug}
+                device={project.device}
+                role={project.role}
+                roleLang={other(project.roleLang)}
+                duration={project.duration}
+                year={project.year}
+                number={place?.number}
+                className="w-full max-w-xs lg:max-w-none"
+              />
             )}
           </header>
 

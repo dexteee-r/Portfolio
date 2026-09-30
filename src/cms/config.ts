@@ -2,6 +2,8 @@ import type { CmsConfig } from "@sveltia/cms";
 import { chapterIds } from "@/content/chapters";
 import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
 import {
+  DEVICE_MAX_LENGTH,
+  DURATION_MAX_MINUTES,
   linkKinds,
   projectStatuses,
   ROLE_MAX_LENGTH,
@@ -162,12 +164,32 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
           },
           {
             name: "role",
-            label: "Rôle",
+            label: "Rôle ou intervention",
             widget: "string",
             i18n: true,
             required: false,
             maxlength: ROLE_MAX_LENGTH,
-            hint: "Ce qui a été fait sur le projet, en quelques mots : « Conception et développement ». Dans la fiche technique.",
+            hint: "Ce qui a été fait, en quelques mots. Dev : le rôle (« Conception et développement »), dans la fiche technique. Réparation : l'intervention (« Remplacement de la vitre arrière »), sur le ticket.",
+          },
+          {
+            name: "device",
+            label: "Appareil",
+            widget: "string",
+            i18n: false,
+            required: false,
+            maxlength: DEVICE_MAX_LENGTH,
+            hint: "Réparation : l'appareil, par son nom commercial (iPhone 16 Pro Max). En gros sur le ticket.",
+          },
+          {
+            name: "duration",
+            label: "Durée (minutes)",
+            widget: "number",
+            i18n: false,
+            required: false,
+            value_type: "int",
+            min: 1,
+            max: DURATION_MAX_MINUTES,
+            hint: "Réparation : le temps de l'intervention, en minutes. Affiché en heures sur le ticket (150 → 2 h 30).",
           },
           {
             name: "stack",
@@ -183,7 +205,7 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
               widget: "string",
               maxlength: STACK_ITEM_MAX_LENGTH,
             },
-            hint: "Chaque technologie par son nom, jamais traduit : Next.js, PostgreSQL, Docker. Dans la fiche technique.",
+            hint: "Dev : chaque technologie par son nom, jamais traduit (Next.js, PostgreSQL, Docker). Dans la fiche technique.",
           },
           {
             name: "summary",

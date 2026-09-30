@@ -18,6 +18,10 @@ export const ROLE_MAX_LENGTH = 80;
 /** A stack is a handful of names; past this, it is a list of everything touched. */
 export const STACK_MAX_ITEMS = 8;
 export const STACK_ITEM_MAX_LENGTH = 24;
+/** A device's commercial name fits on one line of a ticket. */
+export const DEVICE_MAX_LENGTH = 40;
+/** A repair counted in minutes; past 100 hours, it is a project, not an intervention. */
+export const DURATION_MAX_MINUTES = 6000;
 
 export const projectStatuses = ["draft", "published"] as const;
 export type ProjectStatus = (typeof projectStatuses)[number];
@@ -61,6 +65,10 @@ export const sharedFieldsSchema = z
       .max(STACK_MAX_ITEMS)
       .refine((items) => new Set(items.map((item) => item.toLowerCase())).size === items.length, "lists a name twice")
       .default([]),
+    /** The repaired device, by its commercial name: never translated. */
+    device: z.string().trim().min(1).max(DEVICE_MAX_LENGTH).optional(),
+    /** How long the intervention took, in minutes. */
+    duration: z.number().int().min(1).max(DURATION_MAX_MINUTES).optional(),
   })
   .strict();
 
@@ -92,6 +100,8 @@ export interface Project {
   cover?: string;
   links: Array<{ kind: LinkKind; url: string }>;
   stack: string[];
+  device?: string;
+  duration?: number;
   translations: Partial<Record<Locale, LocalizedFields>>;
 }
 

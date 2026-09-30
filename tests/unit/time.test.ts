@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clockDateTime, formatClock } from "@/lib/time";
+import { clockDateTime, durationDateTime, formatClock, formatDuration } from "@/lib/time";
 
 const BRUSSELS = "Europe/Brussels";
 
@@ -34,5 +34,28 @@ describe("formatClock", () => {
 describe("clockDateTime", () => {
   it("is a valid HH:MM value for the time element", () => {
     expect(clockDateTime(new Date("2026-07-01T08:05:00Z"), BRUSSELS)).toMatch(/^\d{2}:\d{2}$/);
+  });
+});
+
+describe("formatDuration", () => {
+  it("writes a length of work the way a workshop ticket does", () => {
+    expect(formatDuration(45, "fr")).toBe("45 min");
+    expect(formatDuration(120, "fr")).toBe("2 h");
+    expect(formatDuration(150, "fr")).toBe("2 h 30");
+    expect(formatDuration(65, "fr")).toBe("1 h 05");
+  });
+
+  it("names the minutes in English, where « 2 h 30 » is not a habit", () => {
+    expect(formatDuration(45, "en")).toBe("45 min");
+    expect(formatDuration(120, "en")).toBe("2 h");
+    expect(formatDuration(150, "en")).toBe("2 h 30 min");
+  });
+});
+
+describe("durationDateTime", () => {
+  it("gives the same length as an ISO 8601 duration", () => {
+    expect(durationDateTime(45)).toBe("PT45M");
+    expect(durationDateTime(120)).toBe("PT2H");
+    expect(durationDateTime(150)).toBe("PT2H30M");
   });
 });

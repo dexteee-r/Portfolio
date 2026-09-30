@@ -73,7 +73,9 @@ export function projectLd(project: LocalizedProject, path: string): JsonLd {
     inLanguage: project.lang,
     ...(project.cover ? { image: absoluteUrl(project.cover) } : {}),
     ...(project.year !== undefined ? { dateCreated: String(project.year) } : {}),
-    ...(project.stack.length > 0 ? { keywords: project.stack.join(", ") } : {}),
+    ...(project.device || project.stack.length > 0
+      ? { keywords: [project.device, ...project.stack].filter(Boolean).join(", ") }
+      : {}),
     author: { "@id": PERSON_ID },
     isPartOf: { "@id": WEBSITE_ID },
   };

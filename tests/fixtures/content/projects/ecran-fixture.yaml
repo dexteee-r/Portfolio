@@ -1,0 +1,15 @@
+# Fixture: repair chapter, published, with a full ticket. The English card is
+# translated but has no role of its own — the ticket borrows the French one.
+chapter: repair
+status: published
+order: 1
+year: 2025
+device: iPhone 16 Pro Max
+duration: 150
+fr:
+  title: Écran de test
+  summary: Une réparation de test.
+  role: Remplacement de la vitre arrière
+en:
+  title: Test screen
+  summary: A test repair.

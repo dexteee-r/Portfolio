@@ -2,11 +2,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { horizontalOverflow } from "./helpers";
 
-/** Fixture content: dev 2 published + 1 draft, infra 1, repair 0, creative 1. */
+/** Fixture content: dev 2 published + 1 draft, infra 1, repair 1, creative 1. */
 const FR_MARKS = [
   { name: "Développement 2 projets", href: "/fr/dev" },
   { name: "Infrastructure 1 projet", href: "/fr/infra" },
-  { name: "Réparation 0 projet", href: "/fr/repair" },
+  { name: "Réparation 1 projet", href: "/fr/repair" },
   { name: "Création 1 projet", href: "/fr/creatif" },
 ];
 
@@ -73,7 +73,7 @@ test.describe("desk", () => {
     await expect(page.getByText("Full-stack and infrastructure developer", { exact: false })).toBeVisible();
     const links = await marks(page);
     await expect(links.nth(3)).toHaveAttribute("href", "/en/creative");
-    await expect(links.nth(2)).toHaveAccessibleName("Repair 0 projects");
+    await expect(links.nth(2)).toHaveAccessibleName("Repair 1 project");
   });
 
   test("shows the local time once hydrated", async ({ page }) => {

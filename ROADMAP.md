@@ -38,6 +38,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - La disquette du chapitre dev (2026-09-30) : en tête de page projet, le
   projet en disquette étiquetée dont le volet s'ouvre, et sa fiche technique
   (année, rôle, stack — deux nouveaux champs dans le CMS).
+- Le ticket du chapitre réparation (2026-09-30) : en tête de page projet, la
+  fiche d'intervention en ticket d'atelier qui s'imprime (appareil,
+  intervention, durée, année — deux nouveaux champs dans le CMS).
 
 ## À faire — V1
 
@@ -58,8 +61,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
-  Pour les projets dev, remplir aussi **Rôle** et **Stack et outils** : c'est
-  la fiche technique sous le titre.
+  Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack et
+  outils** : c'est la fiche technique sous le titre. Pour les réparations,
+  **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket.
 - **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
   (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
   puis passer `status` à `published`.
@@ -72,9 +76,10 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     projet~~ (fait), puis les schémas d'architecture sur grille de plan (RON) ;
   - infra : ~~le schéma réseau qui se dessine~~ (fait), puis en V3 le relief
     de points des vraies métriques et les chiffres entre crochets (DA 4) ;
-  - repair : un scan de diagnostic qui nomme les pièces réparées sur la photo
-    (animation › scan thermique), ramené aux tons brique ; fiche
-    d'intervention en ticket (DA 2 › ticket) ;
+  - repair : ~~la fiche d'intervention en ticket~~ (fait), puis un scan de
+    diagnostic qui nomme les pièces réparées sur la photo (animation › scan
+    thermique), ramené aux tons brique — il demande des repères posés sur
+    chaque photo, donc un champ de plus dans le CMS ;
   - création : l'étagère de cassettes VHS (folder type › Kurosawa), le suivi
     de mouvement sur l'aperçu vidéo (animation › nickjaykdesign) ; le globe
     des lieux de tournage est à repenser — le bureau a déjà le sien.

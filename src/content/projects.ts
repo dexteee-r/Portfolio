@@ -207,6 +207,9 @@ export interface LocalizedProject {
   year?: number;
   links: Project["links"];
   stack: string[];
+  device?: string;
+  /** Minutes. */
+  duration?: number;
   /** Empty when neither language has one. */
   role: string;
   /** Language the role is actually written in. */
@@ -241,6 +244,8 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
     year: project.year,
     links: project.links,
     stack: project.stack,
+    device: project.device,
+    duration: project.duration,
     role: ownRole || fallback?.role || "",
     roleLang: ownRole ? locale : defaultLocale,
   };

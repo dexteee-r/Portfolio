@@ -73,12 +73,6 @@ test.describe("chapter page, loaded directly", () => {
     await expect(page.locator('[data-station="alpha-app"]')).not.toHaveAttribute("lang", /.+/);
   });
 
-  test("says plainly when it is empty", async ({ page }) => {
-    await page.goto("/fr/repair");
-    await expect(page.getByText("Ce dossier est encore vide.")).toBeVisible();
-    await expect(page.getByText("0 projet")).toBeVisible();
-  });
-
   test("uses translated slugs, and the wrong language's slug is a 404", async ({ page, request }) => {
     expect((await page.goto("/en/creative"))?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Creative");

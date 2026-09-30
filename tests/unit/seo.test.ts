@@ -193,6 +193,12 @@ describe("structured data", () => {
     expect(bare).not.toHaveProperty("keywords");
   });
 
+  it("names a repaired device among the keywords, first", () => {
+    const repair = projectLd(project({ chapter: "repair", device: "iPhone 16 Pro Max", stack: [] }), "/fr/repair/x");
+    expect(repair.keywords).toBe("iPhone 16 Pro Max");
+    expect(projectLd(project({ device: "Pixel 7" }), "/fr/dev/x").keywords).toBe("Pixel 7, Next.js, PostgreSQL");
+  });
+
   it("states the language a project is actually written in", () => {
     expect(projectLd(project({ lang: "fr" }), "/en/dev/alpha-app").inLanguage).toBe("fr");
   });
@@ -250,8 +256,9 @@ describe("sitemap and robots", () => {
   const urls = entries.map((e) => e.url);
 
   it("lists every page in every language: desk, legal notice, chapters, published projects", () => {
-    // 1 desk + 1 legal notice + 4 chapters + 4 published fixture projects, × 2 languages
-    expect(entries).toHaveLength((1 + 1 + chapterIds.length + 4) * locales.length);
+    // 1 desk + 1 legal notice + 4 chapters + 5 published fixture projects, × 2 languages
+    expect(entries).toHaveLength((1 + 1 + chapterIds.length + 5) * locales.length);
+    expect(urls).toContain("https://elmzn.be/fr/repair/ecran-fixture");
     expect(urls).toContain("https://elmzn.be/fr");
     expect(urls).toContain("https://elmzn.be/en/creative");
     expect(urls).toContain("https://elmzn.be/fr/creatif");

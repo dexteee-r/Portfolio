@@ -23,6 +23,25 @@ export function formatClock(date: Date, locale: Locale, timeZone: string): strin
   }).format(date);
 }
 
+/**
+ * A length of work, the way a workshop ticket writes it: `45 min`, `2 h`,
+ * « 2 h 30 », "2 h 30 min".
+ */
+export function formatDuration(minutes: number, locale: Locale): string {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (hours === 0) return `${rest} min`;
+  if (rest === 0) return `${hours} h`;
+  return locale === "fr" ? `${hours} h ${String(rest).padStart(2, "0")}` : `${hours} h ${rest} min`;
+}
+
+/** The same length as an ISO 8601 duration, for a `<time dateTime>`: `PT2H30M`. */
+export function durationDateTime(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return `PT${hours ? `${hours}H` : ""}${rest || !hours ? `${rest}M` : ""}`;
+}
+
 /** ISO-like `HH:MM` for the `dateTime` attribute of a `<time>` element. */
 export function clockDateTime(date: Date, timeZone: string): string {
   return new Intl.DateTimeFormat("en-GB", {

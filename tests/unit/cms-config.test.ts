@@ -9,6 +9,8 @@ import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from 
 import { loadProjects, parseProject } from "@/content/projects";
 import {
   COVER_PATTERN,
+  DEVICE_MAX_LENGTH,
+  DURATION_MAX_MINUTES,
   LOCALIZED_KEYS,
   linkKinds,
   projectStatuses,
@@ -58,6 +60,18 @@ describe("CMS configuration, generated from the content schema", () => {
     expect(stack).toMatchObject({ widget: "list", i18n: false, required: false, max: STACK_MAX_ITEMS });
     expect(stack.field).toMatchObject({ widget: "string", maxlength: STACK_ITEM_MAX_LENGTH });
     expect(field("role")).toMatchObject({ widget: "string", i18n: true, required: false, maxlength: ROLE_MAX_LENGTH });
+  });
+
+  it("asks for the repaired device by name, and the repair's length in whole minutes", () => {
+    expect(field("device")).toMatchObject({ widget: "string", i18n: false, required: false, maxlength: DEVICE_MAX_LENGTH });
+    expect(field("duration")).toMatchObject({
+      widget: "number",
+      i18n: false,
+      required: false,
+      value_type: "int",
+      min: 1,
+      max: DURATION_MAX_MINUTES,
+    });
   });
 
   it("stores whole numbers for order and year", () => {

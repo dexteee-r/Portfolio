@@ -188,7 +188,7 @@ test.describe("the dev chapter's floppy disk", () => {
   });
 
   test("is the dev chapter's object only", async ({ page }) => {
-    for (const path of ["/fr/creatif/film-test", "/fr/infra/homelab-fixture"]) {
+    for (const path of ["/fr/creatif/film-test", "/fr/infra/homelab-fixture", "/fr/repair/ecran-fixture"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-floppy]"), path).toHaveCount(0);
@@ -197,10 +197,97 @@ test.describe("the dev chapter's floppy disk", () => {
   });
 });
 
+test.describe("the repair chapter's ticket", () => {
+  const paper = (page: Page) => page.locator("[data-ticket] .ticket-paper");
+  const transform = (page: Page) => paper(page).evaluate((el) => getComputedStyle(el).transform);
+
+  test("heads a repair project: the device in brick, then what was done, how long, when", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    const ticket = page.getByRole("region", { name: "Fiche d'intervention" });
+    await expect(ticket).toBeVisible();
+    await expect(ticket.locator("[data-ticket-number]")).toHaveText("N° 01");
+    await expect(ticket.getByRole("term")).toHaveText(["Appareil", "Intervention", "Durée", "Année"]);
+    await expect(ticket.getByRole("definition")).toHaveText([
+      "iPhone 16 Pro Max",
+      "Remplacement de la vitre arrière",
+      "2 h 30",
+      "2025",
+    ]);
+    await expect(ticket.locator("time")).toHaveAttribute("datetime", "PT2H30M");
+    // The brick of the repair grade, on its own paper — in the display face, not the mono of the ticket.
+    const device = ticket.getByText("iPhone 16 Pro Max");
+    expect(await device.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(196, 71, 47)");
+    const face = (text: string) => ticket.getByText(text).evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(await face("iPhone 16 Pro Max")).not.toBe(await face("Appareil"));
+  });
+
+  test("sits under the title on a phone, on its right on a wide screen", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    const title = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    const ticket = (await page.locator("[data-ticket]").boundingBox())!;
+    if (page.viewportSize()!.width >= 1024) {
+      expect(ticket.x).toBeGreaterThan(title.x + title.width);
+    } else {
+      expect(ticket.y).toBeGreaterThan(title.y + title.height);
+    }
+  });
+
+  test("comes out of its slot in steps, then hangs there", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    const at = (fraction: number) =>
+      paper(page).evaluate((el, f) => {
+        for (const a of el.getAnimations()) {
+          a.pause();
+          const { delay = 0, duration = 0 } = a.effect!.getComputedTiming() as { delay?: number; duration?: number };
+          a.currentTime = Number(delay) + Number(duration) * f;
+        }
+      }, fraction);
+    const offset = async () => {
+      const [, , , , , y] = (await transform(page)).match(/-?[\d.]+/g)!.map(Number);
+      return y!;
+    };
+    const height = (await paper(page).boundingBox())!.height;
+
+    await at(0);
+    expect(await offset()).toBeCloseTo(-height, 0); // still inside the printer
+    await at(0.5);
+    const halfway = await offset();
+    expect(halfway).toBeGreaterThan(-height);
+    expect(halfway).toBeLessThan(0);
+    await at(0.51);
+    expect(await offset()).toBe(halfway); // a step, not a glide
+    await paper(page).evaluate((el) => el.getAnimations().forEach((a) => a.play()));
+    await expect.poll(offset).toBe(0); // out, hanging from the slot
+  });
+
+  test("reduced motion: the ticket simply hangs there", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/fr/repair/ecran-fixture");
+    expect(await paper(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await transform(page)).toBe("none");
+  });
+
+  test("the English page names the ticket in English, and marks the French intervention", async ({ page }) => {
+    await page.goto("/en/repair/ecran-fixture");
+    const ticket = page.getByRole("region", { name: "Repair ticket" });
+    await expect(ticket.getByRole("term")).toHaveText(["Device", "Repair", "Time", "Year"]);
+    await expect(ticket.getByText("Remplacement de la vitre arrière")).toHaveAttribute("lang", "fr");
+    await expect(ticket.locator("time")).toHaveText("2 h 30 min");
+  });
+
+  test("is the repair chapter's object only", async ({ page }) => {
+    for (const path of ["/fr/dev/alpha-app", "/fr/creatif/film-test", "/fr/infra/homelab-fixture"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.locator("[data-ticket]"), path).toHaveCount(0);
+    }
+  });
+});
+
 test.describe("project pages on the smallest phones (320px)", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
-  for (const path of ["/fr/dev/alpha-app", "/en/dev/beta-tool", "/fr/creatif/film-test"]) {
+  for (const path of ["/fr/dev/alpha-app", "/en/dev/beta-tool", "/fr/creatif/film-test", "/fr/repair/ecran-fixture"]) {
     test(`${path}: nothing sticks out — tables and code scroll in their own frame`, async ({ page }) => {
       await page.goto(path);
       const overflow = await page.evaluate(
@@ -213,7 +300,15 @@ test.describe("project pages on the smallest phones (320px)", () => {
 });
 
 test.describe("accessibility of project pages (axe, WCAG 2.1 AA)", () => {
-  for (const path of ["/fr/dev/alpha-app", "/en/dev/alpha-app", "/en/dev/beta-tool", "/fr/creatif/film-test", "/fr/infra/homelab-fixture"]) {
+  for (const path of [
+    "/fr/dev/alpha-app",
+    "/en/dev/alpha-app",
+    "/en/dev/beta-tool",
+    "/fr/creatif/film-test",
+    "/fr/infra/homelab-fixture",
+    "/fr/repair/ecran-fixture",
+    "/en/repair/ecran-fixture",
+  ]) {
     test(`${path} has no violations`, async ({ page }) => {
       await page.goto(path);
       const results = await new AxeBuilder({ page })

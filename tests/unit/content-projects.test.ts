@@ -14,6 +14,8 @@ import {
   visibleProjects,
 } from "@/content/projects";
 import {
+  DEVICE_MAX_LENGTH,
+  DURATION_MAX_MINUTES,
   ROLE_MAX_LENGTH,
   STACK_ITEM_MAX_LENGTH,
   STACK_MAX_ITEMS,
@@ -83,6 +85,12 @@ describe("parseProject — valid files", () => {
     expect(project.stack).toEqual(["Rust"]);
   });
 
+  it("reads a repaired device and the time the repair took, in whole minutes", () => {
+    const project = parseProject("x", minimal("device: ' iPhone 16 Pro Max '\nduration: 150\n"));
+    expect(project).toMatchObject({ device: "iPhone 16 Pro Max", duration: 150 });
+    expect(parseProject("x", minimal("device: ''\nduration:\n"))).not.toHaveProperty("device");
+  });
+
   it("reads a role in each language", () => {
     const project = parseProject("x", `${minimal()}  role: Développement\nen:\n  title: T\n  summary: S\n  role: Development\n`);
     expect(project.translations.fr?.role).toBe("Développement");
@@ -130,6 +138,13 @@ describe("parseProject — rejected files", () => {
   it("rejects a summary that no longer fits a station", () => {
     const long = "a".repeat(SUMMARY_MAX_LENGTH + 1);
     rejects("x", `chapter: dev\nfr:\n  title: T\n  summary: ${long}\n`, /summary/);
+  });
+  it("rejects a device name that no longer fits a ticket, and a duration that is not whole minutes", () => {
+    rejects("x", minimal(`device: ${"a".repeat(DEVICE_MAX_LENGTH + 1)}\n`), /device/);
+    rejects("x", minimal("duration: 1.5\n"), /duration/);
+    rejects("x", minimal("duration: 0\n"), /duration/);
+    rejects("x", minimal(`duration: ${DURATION_MAX_MINUTES + 1}\n`), /duration/);
+    rejects("x", minimal('duration: "2 h"\n'), /duration/);
   });
   it("rejects a role that is a paragraph rather than a line", () => {
     rejects("x", `${minimal()}  role: ${"a".repeat(ROLE_MAX_LENGTH + 1)}\n`, /role/);
@@ -207,12 +222,13 @@ describe("fixtures", () => {
       "beta-tool",
       "gamma-draft",
       "homelab-fixture",
+      "ecran-fixture",
       "film-test",
     ]);
   });
 
   it("count only published projects, and every chapter appears", () => {
-    expect(countByChapter(projects)).toEqual({ dev: 2, infra: 1, repair: 0, creative: 1 });
+    expect(countByChapter(projects)).toEqual({ dev: 2, infra: 1, repair: 1, creative: 1 });
     expect(Object.keys(countByChapter([])).sort()).toEqual([...chapterIds].sort());
   });
 
@@ -247,6 +263,13 @@ describe("localizeProject", () => {
   it("carries the stack, the same in every language", () => {
     expect(localizeProject(bySlug("alpha-app"), "fr").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
     expect(localizeProject(bySlug("alpha-app"), "en").stack).toEqual(["Next.js", "PostgreSQL", "Docker"]);
+  });
+
+  it("carries the device and the duration, the same in every language", () => {
+    for (const locale of ["fr", "en"] as const) {
+      expect(localizeProject(bySlug("ecran-fixture"), locale)).toMatchObject({ device: "iPhone 16 Pro Max", duration: 150 });
+    }
+    expect(localizeProject(bySlug("alpha-app"), "fr")).toMatchObject({ device: undefined, duration: undefined });
   });
 
   it("uses the role of the requested language, else the French one, and says which", () => {

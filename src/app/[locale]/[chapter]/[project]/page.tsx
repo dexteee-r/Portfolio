@@ -41,7 +41,7 @@ async function resolve(params: PageProps<"/[locale]/[chapter]/[project]">["param
     project: siblings[index]!,
     previous: siblings[index - 1],
     next: siblings[index + 1],
-    disk: { number: index + 1, total: siblings.length },
+    place: { number: index + 1, total: siblings.length },
   };
 }
 
@@ -75,7 +75,7 @@ export async function generateViewport({ params }: PageProps<"/[locale]/[chapter
 export default async function ProjectPage({ params }: PageProps<"/[locale]/[chapter]/[project]">) {
   const resolved = await resolve(params);
   if (!resolved) notFound();
-  const { locale, project, previous, next, disk } = resolved;
+  const { locale, project, previous, next, place } = resolved;
   const dict = getDictionary(locale);
   const path = projectPath(locale, project.chapter, project.slug);
 
@@ -101,7 +101,7 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/[chap
         images={images}
         previous={sibling(previous, locale)}
         next={sibling(next, locale)}
-        disk={disk}
+        place={place}
       />
     </>
   );

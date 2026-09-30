@@ -133,6 +133,10 @@ describe("tokens.css contrast (WCAG 2.x, measured)", () => {
     );
   });
 
+  it("repair: its brick holds 3:1 on its own paper, where the ticket prints the device large", () => {
+    expect(contrastRatio(color("--repair-accent"), color("--repair-ink"))).toBeGreaterThanOrEqual(AA_GRAPHIC);
+  });
+
   it("every ratio written in a comment is the real, measured one", () => {
     const documented: Array<{ fg: string; bg: string; ratio: number }> = [];
 
@@ -186,6 +190,13 @@ describe("components respect the token contract", () => {
       const text = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
       return /#[0-9a-f]{3,8}\b(?![\w-])/i.test(text) || /\brgba?\(/.test(text) || /\bhsla?\(/.test(text);
     });
+    expect(offenders.map((f) => relative(ROOT, f))).toEqual([]);
+  });
+
+  it("uses only the two families there are: font-ui and font-mono — any other class is silently void", () => {
+    const offenders = outsideTokens.filter((f) =>
+      /\bfont-(?:sans|serif|display|body|heading)\b/.test(readFileSync(f, "utf8")),
+    );
     expect(offenders.map((f) => relative(ROOT, f))).toEqual([]);
   });
 });

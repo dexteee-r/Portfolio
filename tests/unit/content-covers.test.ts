@@ -87,6 +87,7 @@ describe("covers in fixtures and localisation", () => {
 
   it("projectsOf keeps one chapter, in station order", () => {
     expect(projectsOf(projects, "dev").map((p) => p.slug)).toEqual(["alpha-app", "beta-tool", "gamma-draft"]);
-    expect(projectsOf(projects, "repair")).toEqual([]);
+    expect(projectsOf(projects, "repair").map((p) => p.slug)).toEqual(["ecran-fixture"]);
+    expect(projectsOf(projects, "creative").map((p) => p.slug)).toEqual(["film-test"]);
   });
 });

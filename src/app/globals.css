@@ -532,3 +532,24 @@ html[data-boot="play"] [data-desk-art] {
     animation: none !important;
   }
 }
+
+/*
+ * The repair chapter's ticket (components/RepairTicket). Once the page has
+ * faded in, it comes out of its slot in the jerky steps of a thermal
+ * printer. Without animation, it simply hangs from the slot.
+ */
+[data-ticket] .ticket-paper {
+  animation: ticket-print var(--duration-flood) steps(8, end) var(--duration-slow) both;
+}
+
+@keyframes ticket-print {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ticket] .ticket-paper {
+    animation: none !important;
+  }
+}

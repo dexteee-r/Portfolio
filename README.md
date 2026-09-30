@@ -185,6 +185,8 @@ fr:
     - Next.js
     - PostgreSQL
   role: Conception et développement   # facultatif ; une ligne (80 caractères)
+  device: iPhone 16 Pro Max   # réparation, facultatif ; jamais traduit
+  duration: 150         # réparation, facultatif ; en minutes (→ « 2 h 30 »)
   body: |
     Texte long de la page projet, en Markdown.
 en:                     # facultatif : sans traduction complète, la version
@@ -194,8 +196,8 @@ en:                     # facultatif : sans traduction complète, la version
 ```
 
 Les champs communs (`chapter`, `status`, `order`, `year`, `cover`, `links`,
-`stack`) sont aussi acceptés au premier niveau du fichier ; un champ facultatif
-vide (`""` ou `null`) compte comme absent.
+`stack`, `device`, `duration`) sont aussi acceptés au premier niveau du
+fichier ; un champ facultatif vide (`""` ou `null`) compte comme absent.
 
 **La disquette du chapitre dev.** En tête de chaque page projet dev, le projet
 est une disquette 3,5" étiquetée (inspi : folder type › floppy disk mockups) :
@@ -205,8 +207,18 @@ disquette est lue ; sans animation, il est simplement ouvert. Elle est
 décorative (tout ce qu'elle porte est déjà sur la page), donc cachée aux
 lecteurs d'écran. À côté, la **fiche technique** (inspi : DA 2) : année, rôle
 et stack, en vrai texte, seulement les lignes remplies — rien à dire, pas de
-fiche. La stack sert aussi de mots-clés dans les données structurées. Les
-autres chapitres attendent leur propre objet (ticket, jaquette VHS).
+fiche. La stack sert aussi de mots-clés dans les données structurées.
+
+**Le ticket du chapitre réparation.** En tête de chaque page projet
+réparation, la **fiche d'intervention** en ticket d'atelier (inspi : DA 2 ›
+ticket), sur le papier du chapitre : son numéro (le rang dans le chapitre),
+l'appareil en grand et en brique, puis l'intervention (le champ `role`), la
+durée et l'année ; une ligne de découpe, le code-barres. C'est du vrai texte :
+seul le décor est caché aux lecteurs d'écran. Il sort de sa fente par à-coups,
+comme d'une imprimante thermique, une fois la page apparue ; sans animation, il
+y pend simplement. Sans rien à imprimer (ni appareil, ni intervention, ni
+durée, ni année), pas de ticket. L'appareil est aussi le premier mot-clé des
+données structurées. Le chapitre création attend sa jaquette VHS.
 
 Le texte long (`body`) est du Markdown avec tableaux (GFM). Les images s'y
 insèrent avec `![description](/media/projects/<slug>/capture.webp "légende")` :

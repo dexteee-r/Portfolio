@@ -83,6 +83,15 @@ export const en: Dictionary = {
       role: "Role",
       stack: "Stack",
     },
+    ticket: {
+      heading: "Repair ticket",
+      number: "No.",
+      device: "Device",
+      fix: "Repair",
+      duration: "Time",
+      year: "Year",
+      workshop: "Workshop",
+    },
   },
   projectCount: {
     one: "{count} project",

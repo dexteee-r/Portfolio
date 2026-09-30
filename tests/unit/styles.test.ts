@@ -75,6 +75,14 @@ describe("globals.css", () => {
     expect(reducedMotionFor("[data-floppy]")).toMatch(/\[data-floppy\] \.floppy-shutter\s*\{\s*animation: none !important/);
   });
 
+  it("prints the ticket in a thermal printer's steps, at the site's pace, and stills it under reduced motion", () => {
+    expect(globals).toMatch(
+      /\[data-ticket\] \.ticket-paper\s*\{\s*animation: ticket-print var\(--duration-flood\) steps\(8, end\) var\(--duration-slow\) both;/,
+    );
+    expect(globals).toMatch(/@keyframes ticket-print\s*\{\s*from\s*\{\s*transform: translateY\(-100%\);\s*\}\s*\}/);
+    expect(reducedMotionFor("[data-ticket]")).toMatch(/\[data-ticket\] \.ticket-paper\s*\{\s*animation: none !important/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

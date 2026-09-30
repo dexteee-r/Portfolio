@@ -1,8 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { barcode, Floppy } from "@/components/Floppy";
+import { barcode } from "@/components/Barcode";
+import { Floppy } from "@/components/Floppy";
 import { ProjectBody } from "@/components/ProjectBody";
 import { ProjectView } from "@/components/ProjectView";
+import { hasTicket, RepairTicket } from "@/components/RepairTicket";
 import { SpecSheet } from "@/components/SpecSheet";
 import type { LocalizedProject } from "@/content/projects";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -286,7 +288,7 @@ describe("SpecSheet", () => {
 describe("ProjectView — the dev chapter's floppy and spec sheet", () => {
   it("heads a dev project with its floppy, then its spec sheet", () => {
     const { container } = render(
-      <ProjectView locale="fr" dict={fr} project={project()} images={sizes} disk={{ number: 2, total: 3 }} />,
+      <ProjectView locale="fr" dict={fr} project={project()} images={sizes} place={{ number: 2, total: 3 }} />,
     );
     const header = container.querySelector("article > header")!;
     const floppy = header.querySelector("[data-floppy]")!;
@@ -319,6 +321,128 @@ describe("ProjectView — the dev chapter's floppy and spec sheet", () => {
       );
       expect(container.querySelector("[data-floppy]"), chapter).toBeNull();
       expect(container.querySelector("[data-specs]"), chapter).toBeNull();
+      unmount();
+    }
+  });
+});
+
+describe("RepairTicket", () => {
+  const copy = fr.projectPage.ticket;
+  const facts = {
+    device: "iPhone 16 Pro Max",
+    role: "Remplacement de la vitre arrière",
+    duration: 150,
+    year: 2025,
+  };
+  const renderTicket = (overrides: Partial<Parameters<typeof RepairTicket>[0]> = {}) =>
+    render(<RepairTicket copy={copy} locale="fr" brand="ELMZN" slug="ecran" number={1} {...facts} {...overrides} />);
+
+  it("is a titled section of real text: the device, then what was done, how long, when", () => {
+    renderTicket();
+    const ticket = screen.getByRole("region", { name: "Fiche d'intervention" });
+    expect(within(ticket).getAllByRole("term").map((t) => t.textContent)).toEqual([
+      "Appareil",
+      "Intervention",
+      "Durée",
+      "Année",
+    ]);
+    expect(within(ticket).getByText("iPhone 16 Pro Max")).toHaveClass("font-ui", "text-chapter-accent", "text-2xl");
+    expect(within(ticket).getByText("Remplacement de la vitre arrière")).toBeInTheDocument();
+    expect(within(ticket).getByText("2025")).toBeInTheDocument();
+  });
+
+  it("writes the time as a workshop would, and as a machine can read it", () => {
+    renderTicket();
+    const time = screen.getByText("2 h 30");
+    expect(time.tagName).toBe("TIME");
+    expect(time).toHaveAttribute("datetime", "PT2H30M");
+    render(<RepairTicket copy={en.projectPage.ticket} locale="en" brand="ELMZN" slug="ecran" {...facts} />);
+    expect(screen.getByText("2 h 30 min")).toBeInTheDocument();
+  });
+
+  it("numbers the ticket by the project's place in the chapter", () => {
+    const { container } = renderTicket({ number: 3 });
+    expect(container.querySelector("[data-ticket-number]")).toHaveTextContent("N° 03");
+  });
+
+  it("only prints the facts it has", () => {
+    renderTicket({ device: undefined, duration: undefined, number: undefined });
+    expect(screen.getAllByRole("term").map((t) => t.textContent)).toEqual(["Intervention", "Année"]);
+    expect(document.querySelector("[data-ticket-number]")).toBeNull();
+  });
+
+  it("does not exist with nothing to print", () => {
+    const { container } = renderTicket({ device: undefined, role: "", duration: undefined, year: undefined });
+    expect(container).toBeEmptyDOMElement();
+    expect(hasTicket({ role: "" })).toBe(false);
+    expect(hasTicket({ role: "", year: 2025 })).toBe(true);
+  });
+
+  it("marks an intervention written in the other language", () => {
+    render(<RepairTicket copy={en.projectPage.ticket} locale="en" brand="ELMZN" slug="ecran" roleLang="fr" {...facts} />);
+    expect(screen.getByText("Remplacement de la vitre arrière")).toHaveAttribute("lang", "fr");
+  });
+
+  it("hides only its decoration: the slot, the tear line and the barcode", () => {
+    const { container } = renderTicket();
+    const hidden = [...container.querySelectorAll('[aria-hidden="true"]')];
+    expect(hidden).toHaveLength(4); // slot, tear line, footer, and the barcode inside the footer
+    for (const element of hidden) expect(element.querySelector("dt, dd, h2")).toBeNull();
+    expect(container.querySelector("[data-ticket] .ticket-paper")).not.toBeNull();
+  });
+});
+
+describe("ProjectView — the repair chapter's ticket", () => {
+  const repair = (overrides: Partial<LocalizedProject> = {}) =>
+    project({
+      chapter: "repair",
+      stack: [],
+      device: "iPhone 16 Pro Max",
+      duration: 150,
+      role: "Remplacement de la vitre arrière",
+      ...overrides,
+    });
+
+  it("heads a repair project with its ticket, after the title in reading order", () => {
+    const { container } = render(
+      <ProjectView locale="fr" dict={fr} project={repair()} images={sizes} place={{ number: 2, total: 3 }} />,
+    );
+    const ticket = within(container.querySelector("article > header") as HTMLElement).getByRole("region", {
+      name: "Fiche d'intervention",
+    });
+    expect(ticket.querySelector("[data-ticket-number]")).toHaveTextContent("N° 02");
+    expect(screen.getByRole("heading", { level: 1 }).compareDocumentPosition(ticket)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(container.querySelector("[data-floppy], [data-specs]")).toBeNull();
+  });
+
+  it("names the ticket in the page's language", () => {
+    render(<ProjectView locale="en" dict={en} project={repair({ roleLang: "fr" })} images={sizes} />);
+    const ticket = screen.getByRole("region", { name: "Repair ticket" });
+    expect(within(ticket).getByText("Remplacement de la vitre arrière")).toHaveAttribute("lang", "fr");
+  });
+
+  it("keeps a repair project with nothing to print plain: no ticket, no empty column", () => {
+    const { container } = render(
+      <ProjectView
+        locale="fr"
+        dict={fr}
+        project={repair({ device: undefined, duration: undefined, role: "", year: undefined })}
+        images={sizes}
+      />,
+    );
+    expect(container.querySelector("[data-ticket]")).toBeNull();
+    expect(container.querySelector("article > header")).toHaveClass("max-w-content");
+    expect(container.querySelector("article > header")).not.toHaveClass("grid");
+  });
+
+  it("is the repair chapter's object only", () => {
+    for (const chapter of ["dev", "infra", "creative"] as const) {
+      const { container, unmount } = render(
+        <ProjectView locale="fr" dict={fr} project={repair({ chapter })} images={sizes} />,
+      );
+      expect(container.querySelector("[data-ticket]"), chapter).toBeNull();
       unmount();
     }
   });

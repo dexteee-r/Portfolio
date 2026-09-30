@@ -86,6 +86,15 @@ export const fr = {
       role: "Rôle",
       stack: "Stack",
     },
+    ticket: {
+      heading: "Fiche d'intervention",
+      number: "N°",
+      device: "Appareil",
+      fix: "Intervention",
+      duration: "Durée",
+      year: "Année",
+      workshop: "Atelier",
+    },
   },
   projectCount: {
     one: "{count} projet",
