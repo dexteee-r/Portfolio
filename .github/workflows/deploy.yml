@@ -1,0 +1,47 @@
+name: Deploy
+
+# Runs on the homelab's own GitHub Actions runner (label "portfolio"), once CI
+# has checked and published an image from main.
+#
+# The repository is public: anyone can open a pull request, and a self-hosted
+# runner must never run their code. So this workflow — the only one allowed to
+# reach the runner (tests/unit/deploy.test.ts) — starts only from a CI run for
+# a push to main of this very repository, never a pull request, never a fork;
+# it holds no token and checks nothing out: it only asks the server to pull
+# the image CI published, then checks the site serves it. A pull request's
+# own workflows are held for the owner's approval (repository settings, see
+# the README, "Hébergement").
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions: {}
+
+# One deployment at a time; a newer one waits instead of cutting one short.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Skipped, not stuck in the queue, until the runner exists: the repository
+    # variable DEPLOY_ON_HOMELAB is set to true once it is registered.
+    if: >-
+      vars.DEPLOY_ON_HOMELAB == 'true' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: [self-hosted, portfolio]
+    timeout-minutes: 10
+    env:
+      # A commit hash, handed over through the environment, never pasted into the script.
+      SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Pull the published image; restart the site if it changed
+        run: /opt/elmzn/deploy.sh
+
+      - name: Check the site serves this commit
+        run: /opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120

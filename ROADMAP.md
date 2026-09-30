@@ -24,7 +24,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   `/en/legal-notice`), éditeur à titre personnel (2026-09-28).
 - Auto-hébergement sur le homelab au lieu de Vercel (décision du 2026-09-28) :
   image Docker construite, testée et publiée par la CI, déploiement par
-  webhook signé, vérification que le site sert bien la nouvelle version.
+  runner GitHub Actions dans le LXC (depuis le 2026-09-30, à la place du
+  webhook signé), vérification que le site sert bien la nouvelle version.
 - Geste de balayage : un chapitre tiré vers le bas au doigt, depuis le haut de
   sa page, retourne au bureau ; le tiroir reprend là où le doigt l'a lâché.
 - Le tiroir ouvert : sommaire de chaque chapitre en dossiers suspendus à
@@ -47,9 +48,12 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 
 ## À faire — V1
 
-- **Serveur** : conteneur LXC sur srv1 (machine à choisir), Docker, webhook,
-  minuteur de rattrapage, NPM pour `elmzn.be` et `deploy.elmzn.be`, secrets
-  GitHub `DEPLOY_WEBHOOK_*` — pas à pas dans le README, « Hébergement ».
+- **Serveur** (préparé avec la session Claude du homelab) : conteneur LXC
+  sur srv1, Docker, runner GitHub Actions (label `portfolio`), minuteur de
+  rattrapage, NPM pour `elmzn.be` et la redirection de `www.elmzn.be`.
+  **Avant le runner** : exiger l'approbation de tous les contributeurs
+  externes (Settings → Actions → General). Puis la variable
+  `DEPLOY_ON_HOMELAB` = `true` — pas à pas dans le README, « Hébergement ».
 - **Domaine** : l'apex `elmzn.be` vers NPM ; la page d'accueil actuelle du
   homelab déménage sur `home.elmzn.be` (brief, §16).
 - **Mise en service du CMS** : créer l'OAuth App GitHub et renseigner les

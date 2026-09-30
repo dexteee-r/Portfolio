@@ -89,28 +89,5 @@ jobs:
           path: smoke-server.log
           retention-days: 7
 
-  # The homelab pulls the new image when told to (a signed webhook), and CI
-  # waits until the site really serves it. Skipped, not failed, until the
-  # server is set up (repository secrets DEPLOY_WEBHOOK_URL and _SECRET).
-  deploy:
-    needs: image
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
-      DEPLOY_WEBHOOK_SECRET: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
-      SITE_URL: ${{ vars.SITE_URL || 'https://elmzn.be' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Not set up yet
-        if: env.DEPLOY_WEBHOOK_URL == '' || env.DEPLOY_WEBHOOK_SECRET == ''
-        run: echo "::notice::Image published; no deployment webhook configured yet, so nothing was deployed."
-
-      - name: Tell the homelab a new image is out
-        if: env.DEPLOY_WEBHOOK_URL != '' && env.DEPLOY_WEBHOOK_SECRET != ''
-        run: sh deploy/notify.sh "$DEPLOY_WEBHOOK_URL" "${{ github.sha }}"
-
-      - name: Wait until the site serves this commit
-        if: env.DEPLOY_WEBHOOK_URL != '' && env.DEPLOY_WEBHOOK_SECRET != ''
-        run: sh deploy/wait-for-version.sh "$SITE_URL/fr" "${{ github.sha }}" 300
+  # Deployment is not a job here: once this run succeeds on main, the homelab's
+  # own runner takes over (deploy.yml).

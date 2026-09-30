@@ -1,6 +1,6 @@
-# The site on the homelab. Copy this folder's compose.yaml and deploy.sh to
-# /opt/elmzn/ on the server, next to a .env holding the CMS settings (see
-# .env.example); the README ("Hébergement") has the full setup.
+# The site on the homelab. Copy this folder's compose.yaml, deploy.sh and
+# wait-for-version.sh to /opt/elmzn/ on the server, next to a .env holding the
+# CMS settings (see .env.example); the README ("Hébergement") has the full setup.
 name: elmzn
 
 services:

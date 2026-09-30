@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
-import { createHmac } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -10,13 +9,14 @@ import nextConfig from "../../next.config";
 
 /**
  * The way the site reaches the homelab: the image, how the server runs it,
- * the signed webhook and the CI jobs that tie them together. The shell
- * scripts run for real, against fake `docker`, `curl` and `flock`.
+ * CI, and the deployment on the homelab's own runner. The shell scripts run
+ * for real, against fake `docker`, `curl` and `flock`.
  */
 
 const ROOT = join(__dirname, "..", "..");
 const read = (path: string) => readFileSync(join(ROOT, path), "utf8");
 const IMAGE = "ghcr.io/dexteee-r/portfolio";
+const WORKFLOWS = join(ROOT, ".github", "workflows");
 
 interface Step {
   name?: string;
@@ -27,14 +27,20 @@ interface Step {
 interface Job {
   needs?: string | string[];
   if?: string;
+  "runs-on"?: string | string[];
   permissions?: Record<string, string>;
   env?: Record<string, string>;
   steps: Step[];
 }
-const ci = parse(read(".github/workflows/ci.yml")) as {
+interface Workflow {
+  on: Record<string, unknown>;
   permissions: Record<string, string>;
+  concurrency?: { group: string; "cancel-in-progress": boolean };
   jobs: Record<string, Job>;
-};
+}
+const workflow = (file: string) => parse(readFileSync(join(WORKFLOWS, file), "utf8")) as Workflow;
+const ci = workflow("ci.yml");
+const deployment = workflow("deploy.yml");
 
 describe("the image", () => {
   const dockerfile = read("Dockerfile");
@@ -118,44 +124,76 @@ describe("the server", () => {
     expect(web.logging).toEqual({ driver: "json-file", options: { "max-size": "10m", "max-file": "3" } });
   });
 
-  it("catches up hourly on a missed webhook, through the same script", () => {
+  it("catches up hourly on a missed deployment, through the same script", () => {
     expect(read("deploy/elmzn-deploy.service")).toContain("ExecStart=/opt/elmzn/deploy.sh");
     expect(read("deploy/elmzn-deploy.timer")).toContain("OnUnitActiveSec=1h");
   });
+
+  it("opens nothing to the internet but the site: no webhook, no deployment endpoint", () => {
+    expect(Object.keys(parse(read("deploy/compose.yaml")).services)).toEqual(["web"]);
+    expect(existsSync(join(ROOT, "deploy", "hooks.json"))).toBe(false);
+    expect(existsSync(join(ROOT, "deploy", "notify.sh"))).toBe(false);
+  });
 });
 
-describe("the webhook", () => {
-  const [hook, ...others] = JSON.parse(read("deploy/hooks.json")) as Array<Record<string, unknown>>;
+describe("the deployment, on the homelab's own runner", () => {
+  const job = deployment.jobs.deploy!;
 
-  it("defines a single hook that runs the deploy script, on POST only", () => {
-    expect(others).toEqual([]);
-    expect(hook).toMatchObject({
-      id: "elmzn",
-      "execute-command": "/opt/elmzn/deploy.sh",
-      "http-methods": ["POST"],
-      "trigger-rule-mismatch-http-response-code": 403,
-    });
+  it("starts only when CI has finished a run on main", () => {
+    expect(deployment.on).toEqual({ workflow_run: { workflows: ["CI"], types: ["completed"], branches: ["main"] } });
   });
 
-  it("only fires on a request signed with the shared secret", () => {
-    expect(hook!["trigger-rule"]).toEqual({
-      match: {
-        type: "payload-hmac-sha256",
-        secret: "REPLACE_WITH_DEPLOY_WEBHOOK_SECRET",
-        parameter: { source: "header", name: "X-Hub-Signature-256" },
-      },
-    });
+  it("runs only for a successful CI run of a push to main of this repository — never a pull request, never a fork", () => {
+    const guard = job.if!.replace(/\s+/g, " ");
+    expect(guard).toContain("github.event.workflow_run.conclusion == 'success'");
+    expect(guard).toContain("github.event.workflow_run.event == 'push'");
+    expect(guard).toContain("github.event.workflow_run.head_branch == 'main'");
+    // A fork's own branch may well be called main, too.
+    expect(guard).toContain("github.event.workflow_run.head_repository.full_name == github.repository");
+    expect(guard.match(/&&/g)).toHaveLength(4); // all five, not any of them
+    expect(guard).not.toContain("||");
   });
 
-  it("passes nothing from the request to the script", () => {
-    expect(hook).not.toHaveProperty("pass-arguments-to-command");
-    expect(hook).not.toHaveProperty("pass-environment-to-command");
-    expect(hook).not.toHaveProperty("include-command-output-in-response");
+  it("is skipped, not left queued, until the homelab's runner is registered", () => {
+    expect(job.if!.trim().startsWith("vars.DEPLOY_ON_HOMELAB == 'true' &&")).toBe(true);
+  });
+
+  it("holds no token, and checks nothing out: no code from the repository runs on the runner", () => {
+    expect(deployment.permissions).toEqual({});
+    expect(job.permissions).toBeUndefined();
+    expect(job.steps.every((step) => step.uses === undefined)).toBe(true);
+    expect(JSON.stringify(deployment)).not.toMatch(/secrets\./);
+  });
+
+  it("asks the server to pull the published image, then checks the site serves this very commit", () => {
+    expect(job["runs-on"]).toEqual(["self-hosted", "portfolio"]);
+    expect(job.steps.map((step) => step.run)).toEqual([
+      "/opt/elmzn/deploy.sh",
+      '/opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120',
+    ]);
+    // The commit comes through the environment, never pasted into a script.
+    expect(job.env).toEqual({ SHA: "${{ github.event.workflow_run.head_sha }}" });
+    for (const step of job.steps) expect(step.run).not.toContain("${{");
+  });
+
+  it("deploys one at a time, never cutting a deployment short", () => {
+    expect(deployment.concurrency).toEqual({ group: "deploy", "cancel-in-progress": false });
+  });
+
+  it("is the only workflow that may reach the self-hosted runner", () => {
+    for (const file of readdirSync(WORKFLOWS).filter((name) => /\.ya?ml$/.test(name))) {
+      for (const [name, other] of Object.entries(workflow(file).jobs)) {
+        const labels = [other["runs-on"] ?? []].flat();
+        if (file === "deploy.yml") continue;
+        expect(labels, `${file} › ${name}`).not.toContain("self-hosted");
+        expect(labels, `${file} › ${name}`).not.toContain("portfolio");
+      }
+    }
   });
 });
 
 describe("CI", () => {
-  const { image, deploy } = ci.jobs;
+  const { image } = ci.jobs;
 
   it("gives every job read-only access by default", () => {
     expect(ci.permissions).toEqual({ contents: "read" });
@@ -171,23 +209,11 @@ describe("CI", () => {
     expect(runs.indexOf("deploy/smoke-test.sh")).toBeLessThan(runs.indexOf("docker push"));
   });
 
-  it("deploys what it just published, then checks the site really serves it", () => {
-    expect(deploy!.needs).toBe("image");
-    expect(deploy!.permissions).toBeUndefined();
-    const runs = deploy!.steps.map((s) => s.run ?? "").join("\n");
-    expect(runs).toContain('deploy/notify.sh "$DEPLOY_WEBHOOK_URL" "${{ github.sha }}"');
-    expect(runs).toContain('deploy/wait-for-version.sh "$SITE_URL/fr" "${{ github.sha }}"');
-  });
-
-  it("keeps the webhook secret out of the command line and the logs", () => {
-    expect(deploy!.env!.DEPLOY_WEBHOOK_SECRET).toBe("${{ secrets.DEPLOY_WEBHOOK_SECRET }}");
-    const runs = deploy!.steps.map((s) => s.run ?? "").join("\n");
-    expect(runs).not.toMatch(/SECRET/);
-  });
-
-  it("skips the deployment, green, until the server is set up", () => {
-    const guarded = deploy!.steps.filter((s) => s.run?.includes("deploy/"));
-    for (const step of guarded) expect(step.if).toContain("env.DEPLOY_WEBHOOK_URL != ''");
+  it("leaves deploying to the homelab's runner, and needs no deployment secret", () => {
+    expect(Object.keys(ci.jobs)).toEqual(["check", "image"]);
+    expect(read(".github/workflows/ci.yml")).not.toMatch(/DEPLOY_|self-hosted/);
+    // deploy.yml follows CI by its name.
+    expect(read(".github/workflows/ci.yml")).toMatch(/^name: CI$/m);
   });
 });
 
@@ -195,7 +221,6 @@ describe("CI", () => {
 // The scripts, run for real.
 
 const SH = ["sh", "/bin/sh"].find((candidate) => spawnSync(candidate, ["-c", "exit 0"]).status === 0);
-const HAS_OPENSSL = SH !== undefined && spawnSync(SH, ["-c", "command -v openssl"]).status === 0;
 const temporary: string[] = [];
 
 afterEach(() => {
@@ -234,6 +259,12 @@ describe.skipIf(!SH)("deploy.sh", () => {
     ]);
   });
 
+  it("locks on itself, read-only: the runner's user and the timer's root share one lock", () => {
+    const script = read("deploy/deploy.sh");
+    expect(script).toContain('exec 9<"$0"');
+    expect(script).not.toMatch(/exec 9>/); // a lock file root created first would shut the runner out
+  });
+
   it("stops at the first failure — a new image that never gets healthy is reported", () => {
     const fake = fakes({
       docker: 'case "$*" in *"up "*) echo "container unhealthy" >&2; exit 1 ;; esac',
@@ -243,34 +274,6 @@ describe.skipIf(!SH)("deploy.sh", () => {
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("container unhealthy");
     expect(fake.calls().some((call) => call.includes("prune"))).toBe(false);
-  });
-});
-
-describe.skipIf(!HAS_OPENSSL)("notify.sh", () => {
-  const SECRET = "test-webhook-secret";
-  const SHA = "0123456789abcdef0123456789abcdef01234567";
-
-  it("sends a request signed exactly as the webhook checks it (HMAC-SHA256 of the body)", () => {
-    const fake = fakes({ curl: 'for arg in "$@"; do echo "arg: $arg" >> "$(dirname "$0")/args.log"; done' });
-    const result = run("deploy/notify.sh", ["https://deploy.example/hooks/elmzn", SHA], fake.dir, {
-      DEPLOY_WEBHOOK_SECRET: SECRET,
-    });
-    expect(result.status, result.stderr).toBe(0);
-
-    const args = readFileSync(join(fake.dir, "args.log"), "utf8").split("\n").map((l) => l.replace(/^arg: /, ""));
-    const body = args[args.indexOf("--data") + 1]!;
-    expect(JSON.parse(body)).toEqual({ sha: SHA });
-    const signature = args.find((a) => a.startsWith("X-Hub-Signature-256: "))!;
-    expect(signature).toBe(`X-Hub-Signature-256: sha256=${createHmac("sha256", SECRET).update(body).digest("hex")}`);
-    expect(args).toContain("https://deploy.example/hooks/elmzn");
-    expect(args.join(" ")).not.toContain(SECRET);
-  });
-
-  it("refuses to run without the secret, or with something that is not a commit", () => {
-    const fake = fakes({ curl: "exit 0" });
-    expect(run("deploy/notify.sh", ["https://x", SHA], fake.dir, { DEPLOY_WEBHOOK_SECRET: "" }).status).not.toBe(0);
-    expect(run("deploy/notify.sh", ["https://x", "$(reboot)"], fake.dir, { DEPLOY_WEBHOOK_SECRET: SECRET }).status).toBe(2);
-    expect(fake.calls()).toEqual([]);
   });
 });
 

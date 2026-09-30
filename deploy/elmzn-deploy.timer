@@ -1,5 +1,5 @@
 [Unit]
-Description=ELMZN: catch up on a missed deployment (the webhook is the fast path)
+Description=ELMZN: catch up on a missed deployment (the runner is the fast path)
 
 [Timer]
 OnBootSec=5min

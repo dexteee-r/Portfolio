@@ -1,12 +1,15 @@
 #!/bin/sh
-# Brings the site up to the newest published image. Run by the webhook after
-# every successful CI run on main, and hourly by the safety-net timer.
-# Idempotent: with no new image, nothing restarts.
+# Brings the site up to the newest published image. Run by the homelab's
+# GitHub Actions runner after every successful CI run on main (deploy.yml),
+# and hourly by the safety-net timer. Idempotent: with no new image, nothing
+# restarts.
 set -eu
 cd "$(dirname "$0")"
 
-# One deployment at a time: a second call waits for the first to finish.
-exec 9>/tmp/elmzn-deploy.lock
+# One deployment at a time: a second call waits for the first to finish. The
+# lock is this very script, opened for reading: the runner's user and the
+# timer's root can both take it, whoever came first.
+exec 9<"$0"
 flock 9
 
 docker compose pull --quiet web

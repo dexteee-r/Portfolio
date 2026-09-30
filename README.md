@@ -44,7 +44,8 @@ src/components/ViewStage.tsx  orchestre le tiroir, le focus et la touche Échap
 tests/unit/                 Vitest
 tests/e2e/                  Playwright, contre tests/fixtures/content
 Dockerfile                  l'image du site (serveur Next autonome), construite par la CI
-deploy/                     ce qui tourne sur le serveur : compose, déploiement, webhook, tests de l'image
+deploy/                     ce qui tourne sur le serveur : compose, déploiement, rattrapage, tests de l'image
+.github/workflows/           ci.yml (tests, image) sur GitHub ; deploy.yml sur le runner du homelab
 ```
 
 ## La séquence de démarrage
@@ -364,21 +365,40 @@ GitHub refuserait la connexion — le test de l'image le vérifie.
 
 ## Hébergement
 
-Le site tourne sur le homelab, dans Docker, derrière Nginx Proxy Manager :
+Le site tourne sur le homelab, dans Docker, derrière Nginx Proxy Manager. Le
+déploiement passe par un runner GitHub Actions installé dans le LXC du site
+(comme Watchlist) :
 
 ```
 push sur main (ou enregistrement dans le CMS)
-  → CI : typecheck, lint, unitaires, E2E
+  → CI (GitHub) : typecheck, lint, unitaires, E2E
   → CI : construit l'image, la teste comme le serveur la lance (deploy/smoke-test.sh)
   → CI : la publie sur ghcr.io/dexteee-r/portfolio (:latest et :<commit>)
-  → CI : appelle le webhook du serveur, signé (deploy/notify.sh)
-  → serveur : deploy.sh tire l'image et relance le site s'il a changé, attend qu'il soit sain
-  → CI : attend que elmzn.be serve ce commit (en-tête X-Elmzn-Version) — sinon, rouge
+  → Deploy (runner du homelab) : deploy.sh tire l'image, relance le site s'il a changé, attend qu'il soit sain
+  → Deploy : vérifie que le site sert ce commit (en-tête X-Elmzn-Version) — sinon, rouge
 ```
 
-Tant que le serveur n'est pas en place (pas de secrets `DEPLOY_WEBHOOK_*`),
-l'étape de déploiement est simplement sautée : l'image est publiée, rien
-n'est déployé. Un minuteur horaire sur le serveur rattrape un webhook manqué.
+Rien n'est ouvert sur Internet à part le site : pas de webhook, pas de
+sous-domaine de déploiement, aucun secret de déploiement dans GitHub. Un
+minuteur horaire sur le serveur rattrape un déploiement manqué. Tant que la
+variable de dépôt `DEPLOY_ON_HOMELAB` n'est pas à `true`, le déploiement est
+simplement sauté : l'image est publiée, rien n'est déployé.
+
+**Le dépôt est public : un runner auto-hébergé ne doit jamais exécuter le
+code d'une pull request.** N'importe qui peut forker le dépôt et proposer un
+workflow qui viserait ce runner ; son code tournerait dans le LXC, avec les
+droits de Docker (autant dire root) et l'accès au `.env`. D'où trois verrous :
+
+- `.github/workflows/deploy.yml` ne part que d'un passage réussi de la CI pour
+  un push sur `main` de ce dépôt — jamais une pull request, jamais un fork —,
+  sans jeton, sans rien extraire du dépôt : il lance `deploy.sh` et vérifie la
+  version, rien d'autre ;
+- `tests/unit/deploy.test.ts` échoue si un autre workflow vise le runner ;
+- **réglage GitHub, obligatoire avant d'installer le runner** : Settings →
+  Actions → General → *Approval for running fork pull request workflows from
+  contributors* → **Require approval for all external contributors**. Les
+  workflows d'une pull request extérieure attendent alors ton approbation :
+  ne l'accorder qu'après avoir lu leurs fichiers `.github/workflows/`.
 
 ### Mise en place du serveur
 
@@ -386,36 +406,43 @@ Sur srv1, un conteneur LXC Debian 12 dédié (Proxmox : cocher *nesting* et
 *keyctl* pour Docker).
 
 1. **Docker** : installer Docker Engine et le plugin Compose (dépôt officiel
-   Docker pour Debian), puis `apt install webhook` (adnanh/webhook).
-2. **Le site** : créer `/opt/elmzn/`, y copier `deploy/compose.yaml` et
-   `deploy/deploy.sh` (`chmod +x deploy.sh`), et un `.env` (`chmod 600`) avec
-   les variables `CMS_GITHUB_*` (voir « Le CMS »).
-3. **L'image** : après le premier passage de la CI, rendre le paquet public
-   (GitHub → Packages → portfolio → Package settings → Change visibility →
-   Public) — le dépôt l'est déjà. Puis `cd /opt/elmzn && ./deploy.sh`.
-4. **Le webhook** : générer un secret (`openssl rand -hex 32`), copier
-   `deploy/hooks.json` dans `/etc/webhook.conf` en remplaçant
-   `REPLACE_WITH_DEPLOY_WEBHOOK_SECRET` (`chmod 600`), puis
-   `systemctl enable --now webhook` (écoute sur le port 9000).
-5. **Le rattrapage** : copier `deploy/elmzn-deploy.service` et `.timer` dans
-   `/etc/systemd/system/`, puis `systemctl enable --now elmzn-deploy.timer`.
-6. **Nginx Proxy Manager** :
-   - `elmzn.be` (et `www.elmzn.be`) → `http://<ip du LXC>:3000`, certificat
-     Let's Encrypt, *Force SSL*, *HTTP/2*, *HSTS*. NPM transmet `Host` et
+   Docker pour Debian).
+2. **L'utilisateur du runner** : `adduser --disabled-password github-runner`
+   puis `usermod -aG docker github-runner` (le nom importe peu ; il doit
+   seulement pouvoir lancer Docker et lire `/opt/elmzn`).
+3. **Le site** : créer `/opt/elmzn/`, y copier `deploy/compose.yaml`,
+   `deploy/deploy.sh` et `deploy/wait-for-version.sh` (`chmod +x` sur les deux
+   scripts), et un `.env` (`chmod 600`) avec les variables `CMS_GITHUB_*` (voir
+   « Le CMS ») ; puis `chown -R github-runner: /opt/elmzn`.
+4. **L'image** : le paquet `ghcr.io/dexteee-r/portfolio` est public. Lancer
+   une première fois `sudo -u github-runner /opt/elmzn/deploy.sh`.
+5. **Le réglage GitHub** ci-dessus (approbation de tous les contributeurs
+   externes), avant tout le reste.
+6. **Le runner** : GitHub → Settings → Actions → Runners → *New self-hosted
+   runner* (Linux x64). En tant que `github-runner`, dans
+   `~/actions-runner`, télécharger l'archive indiquée, puis
+   `./config.sh --url https://github.com/dexteee-r/Portfolio --token <jeton affiché> --labels portfolio --name elmzn --unattended`,
+   et en root `./svc.sh install github-runner && ./svc.sh start`.
+7. **L'interrupteur** : GitHub → Settings → Secrets and variables → Actions →
+   *Variables* → `DEPLOY_ON_HOMELAB` = `true`. Le prochain push sur `main` se
+   déploie.
+8. **Le rattrapage** : copier `deploy/elmzn-deploy.service` et `.timer` dans
+   `/etc/systemd/system/`, puis `systemctl enable --now elmzn-deploy.timer`
+   (il tourne en root ; `deploy.sh` se verrouille sur lui-même en lecture, le
+   runner et le minuteur ne se marchent donc jamais dessus).
+9. **Nginx Proxy Manager** :
+   - `elmzn.be` → `http://<ip du LXC>:3000`, certificat Let's Encrypt,
+     *Force SSL*, *HTTP/2*, *HSTS*. NPM transmet `Host` et
      `X-Forwarded-Proto` par défaut : ne pas les retirer.
-   - `deploy.elmzn.be` → `http://<ip du LXC>:9000`, avec son certificat (un
-     enregistrement DNS `deploy` vers la même IP que `elmzn.be`).
-7. **GitHub** → Settings → Secrets and variables → Actions :
-   `DEPLOY_WEBHOOK_URL` = `https://deploy.elmzn.be/hooks/elmzn`,
-   `DEPLOY_WEBHOOK_SECRET` = le secret de l'étape 4.
+   - `www.elmzn.be` → *Redirection Host* en 301 vers `https://elmzn.be`, en
+     gardant le chemin, avec son propre certificat. Pas un proxy vers le site :
+     la connexion GitHub du CMS construit son adresse de retour depuis `Host`,
+     et l'OAuth App n'accepte que `elmzn.be` ; le site serait aussi servi en
+     double.
 
 Pour vérifier l'image sans GitHub, avec Docker en local :
 `docker build --build-arg ELMZN_VERSION=local -t elmzn:local .` puis
 `sh deploy/smoke-test.sh elmzn:local local`.
-
-Le webhook ne transmet rien au script : quiconque le déclencherait ne pourrait
-que faire vérifier au serveur s'il existe une nouvelle image officielle. La
-signature évite seulement de le faire travailler pour rien.
 
 Les journaux d'accès de NPM gardent l'adresse IP des visiteurs : la note de
 confidentialité promet qu'ils disparaissent au plus tard après 11 semaines
@@ -438,9 +465,11 @@ confidentialité promet qu'ils disparaissent au plus tard après 11 semaines
 - `tests/e2e/helpers.ts` détecte tout texte qui dépasse, même masqué par un
   conteneur ; bureau, 404 et chapitres sont vérifiés jusqu'à 320 px.
 - `tests/unit/deploy.test.ts` vérifie l'image (utilisateur non root, aucun
-  secret, contrôle de santé), le verrouillage du conteneur, le webhook signé
-  et l'enchaînement de la CI, et exécute réellement `deploy.sh`, `notify.sh`
-  et `wait-for-version.sh` contre de faux `docker` et `curl`.
+  secret, contrôle de santé), le verrouillage du conteneur, l'enchaînement de
+  la CI et du déploiement — le runner du homelab n'est joignable que par
+  `deploy.yml`, pour un push sur `main` de ce dépôt, sans jeton ni code du
+  dépôt —, et exécute réellement `deploy.sh` et `wait-for-version.sh` contre
+  de faux `docker` et `curl`.
 - `deploy/smoke-test.sh` lance l'image en lecture seule, sans privilèges,
   derrière un faux proxy HTTPS, et contrôle pages, 404, redirections, images,
   CMS et connexion GitHub avant toute publication.
