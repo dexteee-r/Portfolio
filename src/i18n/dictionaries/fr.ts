@@ -86,6 +86,13 @@ export const fr = {
       role: "Rôle",
       stack: "Stack",
     },
+    credits: {
+      heading: "Générique",
+      year: "Année",
+      role: "Rôle",
+      duration: "Durée",
+      stack: "Matériel",
+    },
     ticket: {
       heading: "Fiche d'intervention",
       number: "N°",

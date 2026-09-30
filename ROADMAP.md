@@ -41,6 +41,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Le ticket du chapitre réparation (2026-09-30) : en tête de page projet, la
   fiche d'intervention en ticket d'atelier qui s'imprime (appareil,
   intervention, durée, année — deux nouveaux champs dans le CMS).
+- La jaquette VHS du chapitre création (2026-09-30) : en tête de page projet,
+  la cassette dans sa jaquette qui pivote vers le lecteur, et son générique
+  (année, rôle, durée, matériel — sans nouveau champ).
 
 ## À faire — V1
 
@@ -61,9 +64,11 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
-  Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack et
-  outils** : c'est la fiche technique sous le titre. Pour les réparations,
-  **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket.
+  Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack ou
+  matériel** : c'est la fiche technique sous le titre. Pour les réparations,
+  **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour
+  la création, **Rôle ou intervention**, **Durée** et **Stack ou matériel** :
+  c'est le générique.
 - **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
   (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
   puis passer `status` à `published`.
@@ -80,9 +85,11 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     diagnostic qui nomme les pièces réparées sur la photo (animation › scan
     thermique), ramené aux tons brique — il demande des repères posés sur
     chaque photo, donc un champ de plus dans le CMS ;
-  - création : l'étagère de cassettes VHS (folder type › Kurosawa), le suivi
-    de mouvement sur l'aperçu vidéo (animation › nickjaykdesign) ; le globe
-    des lieux de tournage est à repenser — le bureau a déjà le sien.
+  - création : ~~la jaquette VHS en tête de page projet~~ (fait), puis le
+    suivi de mouvement sur l'aperçu vidéo (animation › nickjaykdesign), avec
+    le curseur vidéo des stations ; l'étagère de cassettes du chapitre lui-même
+    (folder type › Kurosawa) reste une piste ; le globe des lieux de tournage
+    est à repenser — le bureau a déjà le sien.
   Les objets (disquette, ticket, jaquette VHS) vont en tête des pages projet
   (choix du 2026-09-29).
   Pas de police pixel (deux familles seulement) : le rendu pixel passe par

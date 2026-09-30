@@ -6,6 +6,7 @@ import { ProjectBody } from "@/components/ProjectBody";
 import { ProjectView } from "@/components/ProjectView";
 import { hasTicket, RepairTicket } from "@/components/RepairTicket";
 import { SpecSheet } from "@/components/SpecSheet";
+import { VhsJacket } from "@/components/VhsJacket";
 import type { LocalizedProject } from "@/content/projects";
 import { getDictionary } from "@/i18n/dictionaries";
 
@@ -259,7 +260,7 @@ describe("SpecSheet", () => {
   const copy = fr.projectPage.specs;
 
   it("is a titled section of terms and values, readable as text", () => {
-    render(<SpecSheet copy={copy} year={2025} role="Conception" stack={["Next.js", "Docker"]} />);
+    render(<SpecSheet copy={copy} locale="fr" year={2025} role="Conception" stack={["Next.js", "Docker"]} />);
     const sheet = screen.getByRole("region", { name: "Fiche technique" });
     expect(within(sheet).getByRole("heading", { level: 2, name: "Fiche technique" })).toBeInTheDocument();
     const terms = within(sheet).getAllByRole("term").map((t) => t.textContent);
@@ -270,17 +271,17 @@ describe("SpecSheet", () => {
   });
 
   it("only has the rows it can fill", () => {
-    render(<SpecSheet copy={copy} role="" stack={["Rust"]} />);
+    render(<SpecSheet copy={copy} locale="fr" role="" stack={["Rust"]} />);
     expect(screen.getAllByRole("term").map((t) => t.textContent)).toEqual(["Stack"]);
   });
 
   it("does not exist with nothing to say", () => {
-    const { container } = render(<SpecSheet copy={copy} role="" stack={[]} />);
+    const { container } = render(<SpecSheet copy={copy} locale="fr" role="" stack={[]} />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("marks a role written in the other language", () => {
-    render(<SpecSheet copy={en.projectPage.specs} role="Conception" roleLang="fr" stack={[]} />);
+    render(<SpecSheet copy={en.projectPage.specs} locale="en" role="Conception" roleLang="fr" stack={[]} />);
     expect(screen.getByText("Conception")).toHaveAttribute("lang", "fr");
   });
 });
@@ -314,13 +315,13 @@ describe("ProjectView — the dev chapter's floppy and spec sheet", () => {
     expect(screen.queryByRole("region", { name: "Fiche technique" })).toBeNull();
   });
 
-  it("is the dev chapter's object only: other chapters wait for their own", () => {
+  it("is the dev chapter's object only: other chapters have their own", () => {
     for (const chapter of ["infra", "repair", "creative"] as const) {
       const { container, unmount } = render(
         <ProjectView locale="fr" dict={fr} project={project({ chapter })} images={sizes} />,
       );
       expect(container.querySelector("[data-floppy]"), chapter).toBeNull();
-      expect(container.querySelector("[data-specs]"), chapter).toBeNull();
+      expect(screen.queryByRole("region", { name: "Fiche technique" }), chapter).toBeNull();
       unmount();
     }
   });
@@ -443,6 +444,148 @@ describe("ProjectView — the repair chapter's ticket", () => {
         <ProjectView locale="fr" dict={fr} project={repair({ chapter })} images={sizes} />,
       );
       expect(container.querySelector("[data-ticket]"), chapter).toBeNull();
+      unmount();
+    }
+  });
+});
+
+describe("VhsJacket", () => {
+  const COVER = "/media/fixtures/film-cover.webp";
+  const renderJacket = (props: Partial<Parameters<typeof VhsJacket>[0]> = {}) =>
+    render(
+      <VhsJacket
+        brand="ELMZN"
+        label="Création"
+        title="Film test"
+        locale="fr"
+        slug="film-test"
+        year={2024}
+        duration={12}
+        cover={COVER}
+        coverSizes="(min-width: 1024px) 64rem, 100vw"
+        {...props}
+      />,
+    ).container.querySelector<HTMLElement>("[data-vhs]")!;
+
+  it("is decorative: all of it is already on the page, so screen readers skip it", () => {
+    const jacket = renderJacket();
+    expect(jacket).toHaveAttribute("aria-hidden", "true");
+    expect(jacket.querySelectorAll("a, button, [tabindex]")).toHaveLength(0);
+    expect(jacket.querySelector("img")).toHaveAttribute("alt", "");
+  });
+
+  it("is labelled like a tape: format, title on the spine and the front, year and running time, the label", () => {
+    const jacket = renderJacket();
+    expect(jacket).toHaveTextContent("VHS");
+    expect(jacket).toHaveTextContent("PAL");
+    expect(jacket.querySelector("[data-vhs-spine]")).toHaveTextContent("Film test");
+    expect(within(jacket).getAllByText("Film test")).toHaveLength(2);
+    expect(jacket.querySelector("[data-vhs-meta]")).toHaveTextContent("2024 · 12 min");
+    expect(jacket).toHaveTextContent("ELMZN · Création");
+  });
+
+  it("reads its spine upwards in French, downwards in English, as on each language's shelves", () => {
+    expect(renderJacket().querySelector("[data-vhs-spine]")).toHaveClass("[writing-mode:vertical-rl]", "rotate-180");
+    expect(renderJacket({ locale: "en" }).querySelector("[data-vhs-spine]")).not.toHaveClass("rotate-180");
+  });
+
+  it("shows the cover as box art, asking for the very file the page's cover uses", () => {
+    const img = renderJacket().querySelector("img")!;
+    expect(img).toHaveAttribute("sizes", "(min-width: 1024px) 64rem, 100vw");
+    expect(img.getAttribute("src")).toContain(encodeURIComponent(COVER));
+  });
+
+  it("paints a sunset of its own without a cover, and leaves out what it does not know", () => {
+    const jacket = renderJacket({ cover: undefined, year: undefined, duration: undefined });
+    expect(jacket.querySelector("img")).toBeNull();
+    expect(jacket.querySelector(".vhs-art svg circle")).toHaveClass("fill-chapter-accent");
+    expect(jacket.querySelector("[data-vhs-meta]")).toBeEmptyDOMElement();
+  });
+
+  it("marks a title in the other language, on the spine and the front", () => {
+    const jacket = renderJacket({ lang: "fr", locale: "en" });
+    for (const title of within(jacket).getAllByText("Film test")) expect(title).toHaveAttribute("lang", "fr");
+  });
+
+  it("turns on its spine, in the chapter's colours only", () => {
+    const jacket = renderJacket({ cover: undefined });
+    expect(jacket.querySelector(".vhs-case")).not.toBeNull();
+    const colours = [...jacket.querySelectorAll("[class]")]
+      .flatMap((el) => [...el.classList])
+      .filter((c) => /^(bg|text|fill|stroke|border)-(?!current|\[)/.test(c) && !/^(text|border)-(2xs|xs|sm|lg|xl)$/.test(c));
+    for (const name of colours) expect(name, name).toMatch(/-(chapter-[a-z-]+)$|^border$/);
+  });
+});
+
+describe("SpecSheet — the credits' running time", () => {
+  it("shows a duration only on a sheet that names one", () => {
+    render(<SpecSheet copy={fr.projectPage.credits} locale="fr" role="" duration={95} stack={[]} />);
+    const time = screen.getByText("1 h 35");
+    expect(time.tagName).toBe("TIME");
+    expect(time).toHaveAttribute("datetime", "PT1H35M");
+    expect(screen.getAllByRole("term").map((t) => t.textContent)).toEqual(["Durée"]);
+  });
+
+  it("ignores a duration on the dev spec sheet", () => {
+    const { container } = render(<SpecSheet copy={fr.projectPage.specs} locale="fr" role="" duration={95} stack={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe("ProjectView — the creative chapter's jacket and credits", () => {
+  const film = (overrides: Partial<LocalizedProject> = {}) =>
+    project({
+      chapter: "creative",
+      title: "Film test",
+      year: 2024,
+      duration: 12,
+      role: "Réalisation et montage",
+      stack: ["Sony A7 IV", "DaVinci Resolve"],
+      ...overrides,
+    });
+
+  it("heads a creative project with its jacket, then its credits in reading order", () => {
+    const { container } = render(<ProjectView locale="fr" dict={fr} project={film()} images={sizes} />);
+    const header = container.querySelector("article > header") as HTMLElement;
+    expect(header.querySelector("[data-vhs]")).not.toBeNull();
+    const credits = within(header).getByRole("region", { name: "Générique" });
+    expect(within(credits).getAllByRole("term").map((t) => t.textContent)).toEqual([
+      "Année",
+      "Rôle",
+      "Durée",
+      "Matériel",
+    ]);
+    expect(within(credits).getByText("12 min")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 }).compareDocumentPosition(credits)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it("names the credits in the page's language", () => {
+    render(<ProjectView locale="en" dict={en} project={film({ roleLang: "fr" })} images={sizes} />);
+    const credits = screen.getByRole("region", { name: "Credits" });
+    expect(within(credits).getAllByRole("term").map((t) => t.textContent)).toEqual([
+      "Year",
+      "Role",
+      "Running time",
+      "Gear",
+    ]);
+    expect(within(credits).getByText("Réalisation et montage")).toHaveAttribute("lang", "fr");
+  });
+
+  it("keeps the page cover's own image, described, alongside the jacket's box art", () => {
+    render(<ProjectView locale="fr" dict={fr} project={film()} images={sizes} />);
+    expect(screen.getAllByRole("img")).toHaveLength(1); // the jacket's copy is hidden
+    expect(screen.getByRole("img", { name: "Dégradé indigo." })).toHaveAttribute("sizes", "(min-width: 1024px) 64rem, 100vw");
+  });
+
+  it("is the creative chapter's object only", () => {
+    for (const chapter of ["dev", "infra", "repair"] as const) {
+      const { container, unmount } = render(
+        <ProjectView locale="fr" dict={fr} project={film({ chapter })} images={sizes} />,
+      );
+      expect(container.querySelector("[data-vhs]"), chapter).toBeNull();
+      expect(screen.queryByRole("region", { name: "Générique" }), chapter).toBeNull();
       unmount();
     }
   });

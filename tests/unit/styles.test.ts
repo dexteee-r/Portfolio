@@ -83,6 +83,18 @@ describe("globals.css", () => {
     expect(reducedMotionFor("[data-ticket]")).toMatch(/\[data-ticket\] \.ticket-paper\s*\{\s*animation: none !important/);
   });
 
+  it("turns the VHS jacket on its spine, far edge receding, at the site's pace — still under reduced motion", () => {
+    expect(globals).toMatch(/\[data-vhs\] \.vhs-case\s*\{\s*transform-origin: left center;/);
+    expect(globals).toMatch(/vhs-pull var\(--duration-flood\) var\(--ease-flood\) var\(--duration-slow\) both/);
+    // A positive turn about the left edge sends the right edge away: the jacket never grows past its box.
+    expect(globals).toMatch(/@keyframes vhs-pull\s*\{\s*from\s*\{\s*transform: perspective\(40rem\) rotateY\(80deg\);/);
+    expect(reducedMotionFor("[data-vhs]")).toMatch(/\[data-vhs\] \.vhs-case\s*\{\s*animation: none !important/);
+  });
+
+  it("draws the jacket's scan lines from the chapter's ground, never a hard-coded colour", () => {
+    expect(globals).toMatch(/\.vhs-art::after[\s\S]*?color-mix\(in srgb, var\(--chapter-bg\) 30%, transparent\)/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

@@ -1,13 +1,20 @@
-# Fixture: creative chapter, published, with a cover.
+# Fixture: creative chapter, published, with a cover and full credits.
 chapter: creative
 status: published
 order: 1
+year: 2024
+duration: 12
 cover: /media/fixtures/film-cover.webp
+stack:
+  - Sony A7 IV
+  - DaVinci Resolve
 fr:
   title: Film test
   summary: Un film de test.
   coverAlt: Dégradé ambre, image de test.
+  role: Réalisation et montage
 en:
   title: Test film
   summary: A test film.
   coverAlt: Amber gradient, test image.
+  role: Directing and editing

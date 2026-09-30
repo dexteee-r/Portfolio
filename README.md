@@ -181,12 +181,12 @@ fr:
   links:                # facultatif ; libellés traduits par l'interface
     - kind: site        # site | repo | video | download
       url: https://…
-  stack:                # facultatif ; 8 noms au plus, jamais traduits
+  stack:                # facultatif ; 8 noms au plus, jamais traduits (dev : technologies ; création : matériel)
     - Next.js
     - PostgreSQL
   role: Conception et développement   # facultatif ; une ligne (80 caractères)
   device: iPhone 16 Pro Max   # réparation, facultatif ; jamais traduit
-  duration: 150         # réparation, facultatif ; en minutes (→ « 2 h 30 »)
+  duration: 150         # réparation ou création, facultatif ; en minutes (→ « 2 h 30 »)
   body: |
     Texte long de la page projet, en Markdown.
 en:                     # facultatif : sans traduction complète, la version
@@ -218,7 +218,19 @@ seul le décor est caché aux lecteurs d'écran. Il sort de sa fente par à-coup
 comme d'une imprimante thermique, une fois la page apparue ; sans animation, il
 y pend simplement. Sans rien à imprimer (ni appareil, ni intervention, ni
 durée, ni année), pas de ticket. L'appareil est aussi le premier mot-clé des
-données structurées. Le chapitre création attend sa jaquette VHS.
+données structurées.
+
+**La jaquette VHS du chapitre création.** En tête de chaque page projet
+création, le projet est une cassette VHS dans sa jaquette ambre (inspi : folder
+type › Kurosawa) : la tranche porte le titre — de bas en haut en français, de
+haut en bas en anglais, comme sur les étagères de chaque langue —, la face le
+format (VHS, PAL), la couverture derrière des lignes de balayage (un coucher de
+soleil rayé sans couverture), le titre, l'année et la durée. Elle pivote une
+fois vers le lecteur, comme une cassette tirée de l'étagère ; sans animation,
+elle lui fait simplement face. Décorative, comme la disquette. Sa couverture
+demande le même `sizes` que celle de la page : le navigateur ne télécharge
+qu'un fichier pour les deux. À côté, le **générique** : la fiche technique du
+dev, avec les mots du cinéma — année, rôle, durée, matériel.
 
 Le texte long (`body`) est du Markdown avec tableaux (GFM). Les images s'y
 insèrent avec `![description](/media/projects/<slug>/capture.webp "légende")` :

@@ -14,6 +14,10 @@ import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { SpecSheet } from "./SpecSheet";
 import { TopBar } from "./TopBar";
+import { VhsJacket } from "./VhsJacket";
+
+/** The cover's `sizes`, shared with the VHS jacket's box art: one file for both. */
+const COVER_SIZES = "(min-width: 1024px) 64rem, 100vw";
 
 export interface SiblingLink {
   href: string;
@@ -36,14 +40,20 @@ interface ProjectViewProps {
 
 /**
  * How the header makes room for its chapter's object.
- * - floppy: on a phone, the text, then the disk beside its spec sheet; on a
- *   wide screen, the disk on the right, the sheet under the text.
+ * - floppy, jacket: on a phone, the text, then the object beside its sheet;
+ *   on a wide screen, the object on the right, the sheet under the text.
  * - ticket: under the text on a phone, on the right on a wide screen.
  */
 const HEADER_LAYOUT = {
   floppy: {
     header:
       "grid max-w-content grid-cols-[8rem_minmax(0,1fr)] items-start gap-x-5 gap-y-10 sm:grid-cols-[10rem_minmax(0,1fr)] md:grid-cols-[11rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-x-16",
+    text: "col-span-2 min-w-0 lg:col-span-1",
+  },
+  // Narrower columns: a jacket stands taller than it is wide.
+  jacket: {
+    header:
+      "grid max-w-content grid-cols-[8rem_minmax(0,1fr)] items-start gap-x-5 gap-y-10 sm:grid-cols-[9rem_minmax(0,1fr)] md:grid-cols-[10rem_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-x-16",
     text: "col-span-2 min-w-0 lg:col-span-1",
   },
   ticket: {
@@ -63,13 +73,16 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
   const other = (lang: Locale) => (lang === locale ? undefined : lang);
   const copy = dict.projectPage;
   // Each chapter's object at the head of its projects: dev's floppy disk, with
-  // its spec sheet; repair's ticket, once there is something to print on it.
+  // its spec sheet; repair's ticket, once there is something to print on it;
+  // creative's VHS jacket, with its credits.
   const object =
     project.chapter === "dev"
       ? "floppy"
-      : project.chapter === "repair" && hasTicket(project)
-        ? "ticket"
-        : null;
+      : project.chapter === "creative"
+        ? "jacket"
+        : project.chapter === "repair" && hasTicket(project)
+          ? "ticket"
+          : null;
   const layout = object ? HEADER_LAYOUT[object] : null;
 
   return (
@@ -134,9 +147,37 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
                 />
                 <SpecSheet
                   copy={copy.specs}
+                  locale={locale}
                   year={project.year}
                   role={project.role}
                   roleLang={other(project.roleLang)}
+                  stack={project.stack}
+                  className="lg:col-start-1 lg:row-start-2"
+                />
+              </>
+            )}
+            {object === "jacket" && (
+              <>
+                <VhsJacket
+                  brand={site.brand}
+                  label={dict.chapters.creative.name}
+                  title={project.title}
+                  lang={other(project.lang)}
+                  locale={locale}
+                  slug={project.slug}
+                  year={project.year}
+                  duration={project.duration}
+                  cover={project.cover}
+                  coverSizes={COVER_SIZES}
+                  className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
+                />
+                <SpecSheet
+                  copy={copy.credits}
+                  locale={locale}
+                  year={project.year}
+                  role={project.role}
+                  roleLang={other(project.roleLang)}
+                  duration={project.duration}
                   stack={project.stack}
                   className="lg:col-start-1 lg:row-start-2"
                 />
@@ -166,7 +207,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
                 alt={project.coverAlt}
                 lang={other(project.lang)}
                 fill
-                sizes="(min-width: 1024px) 64rem, 100vw"
+                sizes={COVER_SIZES}
                 className="object-cover"
                 loading="eager"
                 fetchPriority="high"

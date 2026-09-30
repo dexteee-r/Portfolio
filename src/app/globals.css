@@ -553,3 +553,39 @@ html[data-boot="play"] [data-desk-art] {
     animation: none !important;
   }
 }
+
+/*
+ * The creative chapter's VHS jacket (components/VhsJacket). Once the page has
+ * faded in, it swings round on its spine to face you, like a tape pulled from
+ * the shelf; its far edge recedes, so it never grows past its own box.
+ * Without animation, it simply faces you.
+ */
+[data-vhs] .vhs-case {
+  transform-origin: left center;
+  animation: vhs-pull var(--duration-flood) var(--ease-flood) var(--duration-slow) both;
+}
+
+@keyframes vhs-pull {
+  from {
+    transform: perspective(40rem) rotateY(80deg);
+  }
+}
+
+/* The box art, seen through a tape's scan lines. */
+[data-vhs] .vhs-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    color-mix(in srgb, var(--chapter-bg) 30%, transparent) 2px 3px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-vhs] .vhs-case {
+    animation: none !important;
+  }
+}

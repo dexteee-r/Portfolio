@@ -192,7 +192,95 @@ test.describe("the dev chapter's floppy disk", () => {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-floppy]"), path).toHaveCount(0);
-      await expect(page.locator("[data-specs]"), path).toHaveCount(0);
+      await expect(page.getByRole("region", { name: "Fiche technique" }), path).toHaveCount(0);
+    }
+  });
+});
+
+test.describe("the creative chapter's VHS jacket", () => {
+  const box = (page: Page) => page.locator("[data-vhs] .vhs-case");
+  const transform = (page: Page) => box(page).evaluate((el) => getComputedStyle(el).transform);
+
+  test("heads a creative project: the jacket, then the credits", async ({ page }) => {
+    await page.goto("/fr/creatif/film-test");
+    const jacket = page.locator("[data-vhs]");
+    await expect(jacket).toBeVisible();
+    await expect(jacket).toHaveAttribute("aria-hidden", "true");
+    await expect(jacket.locator("[data-vhs-meta]")).toHaveText("2024 · 12 min");
+
+    const credits = page.getByRole("region", { name: "Générique" });
+    await expect(credits.getByRole("term")).toHaveText(["Année", "Rôle", "Durée", "Matériel"]);
+    await expect(credits.locator("time")).toHaveAttribute("datetime", "PT12M");
+    await expect(credits.getByRole("listitem")).toHaveText(["Sony A7 IV", "DaVinci Resolve"]);
+  });
+
+  test("reads its spine upwards in French, downwards in English", async ({ page }) => {
+    const turned = () => page.locator("[data-vhs-spine]").evaluate((el) => getComputedStyle(el).rotate);
+    await page.goto("/fr/creatif/film-test");
+    expect(await turned()).toBe("180deg");
+    await page.goto("/en/creative/film-test");
+    expect(await turned()).toBe("none");
+  });
+
+  test("asks for the cover once: the box art and the page's cover are the same file", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes(encodeURIComponent("/media/fixtures/film-cover.webp"))) requests.push(request.url());
+    });
+    await page.goto("/fr/creatif/film-test");
+    await page.waitForLoadState("networkidle");
+    expect(await page.locator("[data-vhs] img").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+    expect(new Set(requests).size).toBe(1);
+  });
+
+  test("sits under the title: beside its credits on a phone, on the right on a wide screen", async ({ page }) => {
+    await page.goto("/fr/creatif/film-test");
+    const title = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    const jacket = (await page.locator("[data-vhs]").boundingBox())!;
+    const credits = (await page.locator("[data-specs]").boundingBox())!;
+    expect(credits.y).toBeGreaterThan(title.y + title.height);
+    if (page.viewportSize()!.width >= 1024) {
+      expect(jacket.x).toBeGreaterThan(credits.x + credits.width);
+    } else {
+      expect(Math.abs(jacket.y - credits.y)).toBeLessThan(2);
+      expect(jacket.x + jacket.width).toBeLessThan(credits.x);
+    }
+  });
+
+  test("turns to face you once — from edge-on — then faces you", async ({ page }) => {
+    await page.goto("/fr/creatif/film-test");
+    await box(page).evaluate((el) =>
+      el.getAnimations().forEach((a) => {
+        a.pause();
+        a.currentTime = 420; // the end of its delay: the turn begins
+      }),
+    );
+    // Edge-on: the case's width, seen at 80°, is a sliver of itself.
+    const width = (await page.locator("[data-vhs]").boundingBox())!.width;
+    expect((await box(page).boundingBox())!.width).toBeLessThan(width * 0.3);
+    await box(page).evaluate((el) => el.getAnimations().forEach((a) => a.play()));
+    await expect.poll(async () => Math.round((await box(page).boundingBox())!.width)).toBe(Math.round(width));
+  });
+
+  test("reduced motion: the jacket simply faces you", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/fr/creatif/film-test");
+    expect(await box(page).evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await transform(page)).toBe("none");
+  });
+
+  test("the English page names the credits in English", async ({ page }) => {
+    await page.goto("/en/creative/film-test");
+    const credits = page.getByRole("region", { name: "Credits" });
+    await expect(credits.getByRole("term")).toHaveText(["Year", "Role", "Running time", "Gear"]);
+    await expect(credits.getByRole("definition").nth(1)).toHaveText("Directing and editing");
+  });
+
+  test("is the creative chapter's object only", async ({ page }) => {
+    for (const path of ["/fr/dev/alpha-app", "/fr/infra/homelab-fixture", "/fr/repair/ecran-fixture"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.locator("[data-vhs]"), path).toHaveCount(0);
     }
   });
 });

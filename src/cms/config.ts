@@ -169,7 +169,7 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             i18n: true,
             required: false,
             maxlength: ROLE_MAX_LENGTH,
-            hint: "Ce qui a été fait, en quelques mots. Dev : le rôle (« Conception et développement »), dans la fiche technique. Réparation : l'intervention (« Remplacement de la vitre arrière »), sur le ticket.",
+            hint: "Ce qui a été fait, en quelques mots. Dev : le rôle (« Conception et développement »), dans la fiche technique. Réparation : l'intervention (« Remplacement de la vitre arrière »), sur le ticket. Création : le rôle (« Réalisation et montage »), dans le générique.",
           },
           {
             name: "device",
@@ -189,11 +189,11 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             value_type: "int",
             min: 1,
             max: DURATION_MAX_MINUTES,
-            hint: "Réparation : le temps de l'intervention, en minutes. Affiché en heures sur le ticket (150 → 2 h 30).",
+            hint: "Réparation : le temps de l'intervention. Création : la durée de la vidéo. En minutes, affiché en heures au besoin (150 → 2 h 30).",
           },
           {
             name: "stack",
-            label: "Stack et outils",
+            label: "Stack ou matériel",
             label_singular: "Technologie",
             widget: "list",
             i18n: false,
@@ -205,7 +205,7 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
               widget: "string",
               maxlength: STACK_ITEM_MAX_LENGTH,
             },
-            hint: "Dev : chaque technologie par son nom, jamais traduit (Next.js, PostgreSQL, Docker). Dans la fiche technique.",
+            hint: "Chaque nom tel quel, jamais traduit. Dev : les technologies (Next.js, PostgreSQL, Docker), dans la fiche technique. Création : le matériel et les logiciels (Sony A7 IV, DaVinci Resolve), dans le générique.",
           },
           {
             name: "summary",

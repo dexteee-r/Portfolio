@@ -1,13 +1,26 @@
 import type { ReactNode } from "react";
 import type { Locale } from "@/i18n/config";
-import type { Dictionary } from "@/i18n/dictionaries";
+import { durationDateTime, formatDuration } from "@/lib/time";
+
+/** The sheet's words: dev's spec sheet, the creative chapter's credits. */
+export interface SpecSheetCopy {
+  heading: string;
+  year: string;
+  role: string;
+  stack: string;
+  /** Only a sheet that names it shows a duration. */
+  duration?: string;
+}
 
 interface SpecSheetProps {
-  copy: Dictionary["projectPage"]["specs"];
+  copy: SpecSheetCopy;
+  locale: Locale;
   year?: number;
   role: string;
   /** Language the role is written in, when it is not the page's. */
   roleLang?: Locale;
+  /** Minutes. */
+  duration?: number;
   stack: string[];
   className?: string;
 }
@@ -23,12 +36,14 @@ function Row({ term, children }: { term: string; children: ReactNode }) {
 
 /**
  * A project's spec sheet (inspi: DA 2): what a reader skims for before the
- * text — when, who did what, with what. Real text, in the page's reading
- * order; only the rows that have something to say. Nothing to say: no sheet.
- * A column beside the floppy on a phone, a strip under the title on a wide screen.
+ * text — when, who did what, how long, with what. Real text, in the page's
+ * reading order; only the rows that have something to say. Nothing to say:
+ * no sheet. A column beside the chapter's object on a phone, a strip under
+ * the title on a wide screen.
  */
-export function SpecSheet({ copy, year, role, roleLang, stack, className = "" }: SpecSheetProps) {
-  if (year === undefined && !role && stack.length === 0) return null;
+export function SpecSheet({ copy, locale, year, role, roleLang, duration, stack, className = "" }: SpecSheetProps) {
+  const timed = copy.duration !== undefined && duration !== undefined;
+  if (year === undefined && !role && !timed && stack.length === 0) return null;
   return (
     <section
       aria-labelledby="project-specs"
@@ -46,6 +61,11 @@ export function SpecSheet({ copy, year, role, roleLang, stack, className = "" }:
         {role && (
           <Row term={copy.role}>
             <span lang={roleLang}>{role}</span>
+          </Row>
+        )}
+        {timed && (
+          <Row term={copy.duration!}>
+            <time dateTime={durationDateTime(duration!)}>{formatDuration(duration!, locale)}</time>
           </Row>
         )}
         {stack.length > 0 && (
