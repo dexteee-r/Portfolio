@@ -6,6 +6,8 @@ fr:
   order: 1
   title: Homelab
   summary: Un homelab de test.
+  role: Conception et exploitation
+  stack: [Proxmox VE, Docker]
 en:
   chapter: infra
   status: published

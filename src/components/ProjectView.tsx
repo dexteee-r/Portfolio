@@ -203,6 +203,18 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
                 className="w-full max-w-xs lg:max-w-none"
               />
             )}
+            {/* The infra chapter's effect is its network map; its projects keep a plain spec sheet. */}
+            {project.chapter === "infra" && (
+              <SpecSheet
+                copy={copy.specs}
+                locale={locale}
+                year={project.year}
+                role={project.role}
+                roleLang={other(project.roleLang)}
+                stack={project.stack}
+                className="mt-10"
+              />
+            )}
           </header>
 
           {project.cover && scanSize && (

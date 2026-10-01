@@ -1,5 +1,74 @@
 fr:
   title: Supervision
   chapter: infra
-  status: draft
+  status: published
   order: 2
+  year: 2025
+  role: Mise en place et tableaux de bord
+  stack:
+    - Prometheus
+    - Grafana
+    - node_exporter
+    - Checkmk
+  summary: >-
+    Savoir qu'un service tombe avant que la famille ne s'en plaigne :
+    Prometheus et Grafana pour les métriques, Checkmk pour suivre chaque
+    machine virtuelle et chaque conteneur.
+  body: |
+    ## Contexte
+
+    Une quinzaine de services sur trois machines : impossible de tout
+    surveiller à la main. Il fallait une vue d'ensemble — la charge, les
+    disques, les conteneurs, les sauvegardes — et être prévenu quand quelque
+    chose tombe.
+
+    ## Les choix
+
+    - **Prometheus et Grafana**, la pile standard : légère (environ 400 Mo de
+      mémoire), des collecteurs pour presque tout, des tableaux de bord sur
+      mesure. Netdata (trop gourmand), Zabbix (trop lourd pour une maison) et
+      Glances (pas d'alertes) ont été écartés, comparaison à l'appui.
+    - **Un seul centre, sur l'intranet.** Prometheus y rassemble les métriques
+      des deux machines ; celles de l'extranet ne répondent qu'à lui.
+    - **Checkmk en complément**, dans son propre conteneur : il interroge
+      directement l'hyperviseur Proxmox et en déduit l'état de chaque machine
+      virtuelle et de chaque conteneur, sans agent à installer dans chacun.
+
+    ## Ce qui a coincé
+
+    - Ouvrir les métriques de l'extranet à l'intranet sans les ouvrir à tout le
+      monde : un pare-feu qui n'accepte que le collecteur.
+    - Checkmk ne découvre pas seul les machines qu'il voit à travers Proxmox :
+      chacune se déclare à la main. Le travail est en cours.
+en:
+  title: Monitoring
+  summary: >-
+    Knowing a service is down before the family complains: Prometheus and
+    Grafana for the metrics, Checkmk to watch every virtual machine and every
+    container.
+  role: Setup and dashboards
+  body: |
+    ## Context
+
+    Some fifteen services across three machines: impossible to watch them all
+    by hand. It needed an overview — load, disks, containers, backups — and a
+    warning when something goes down.
+
+    ## Choices
+
+    - **Prometheus and Grafana**, the standard stack: light (about 400 MB of
+      memory), exporters for almost everything, dashboards made to measure.
+      Netdata (too hungry), Zabbix (too heavy for a house) and Glances (no
+      alerts) were ruled out, with the comparison to show for it.
+    - **One centre, on the intranet.** Prometheus gathers both machines'
+      metrics there; the extranet's answer to it alone.
+    - **Checkmk alongside**, in its own container: it asks the Proxmox
+      hypervisor directly and works out the state of every virtual machine and
+      container, with no agent to install in each.
+
+    ## What got stuck
+
+    - Opening the extranet's metrics to the intranet without opening them to
+      everyone: a firewall that lets the collector alone through.
+    - Checkmk does not discover on its own the machines it sees through
+      Proxmox: each one is declared by hand. Work in progress.

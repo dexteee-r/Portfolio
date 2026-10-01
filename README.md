@@ -209,7 +209,9 @@ disquette est lue ; sans animation, il est simplement ouvert. Elle est
 décorative (tout ce qu'elle porte est déjà sur la page), donc cachée aux
 lecteurs d'écran. À côté, la **fiche technique** (inspi : DA 2) : année, rôle
 et stack, en vrai texte, seulement les lignes remplies — rien à dire, pas de
-fiche. La stack sert aussi de mots-clés dans les données structurées.
+fiche. La stack sert aussi de mots-clés dans les données structurées. Les
+projets infra gardent cette fiche seule, sous leur titre : l'effet du chapitre
+infra, c'est le schéma du homelab.
 
 **Le ticket du chapitre réparation.** En tête de chaque page projet
 réparation, la **fiche d'intervention** en ticket d'atelier (inspi : DA 2 ›

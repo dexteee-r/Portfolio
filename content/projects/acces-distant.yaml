@@ -1,5 +1,88 @@
 fr:
   title: Accès distant / VPN
   chapter: infra
-  status: draft
+  status: published
   order: 3
+  year: 2026
+  role: Mise en place et tutoriel
+  stack:
+    - WireGuard
+    - wg-easy
+    - Docker
+    - OVH DynHost
+  summary: >-
+    Atteindre tout le homelab depuis la 4G comme si j'étais à la maison, sans
+    exposer un seul service de plus : WireGuard auto-hébergé, en routeur de
+    sous-réseau.
+  body: |
+    ## Contexte
+
+    Les services de l'intranet — les photos, les fichiers — ne sont jamais
+    exposés à Internet. Il faut pourtant pouvoir y accéder hors de la maison.
+    Le premier essai, OpenVPN, n'a jamais été mis en service.
+
+    ## Les choix
+
+    - **WireGuard, auto-hébergé.** Plutôt qu'un service tiers comme Tailscale
+      ou ZeroTier : aucun cloud extérieur dans la boucle, et un protocole
+      moderne, rapide et léger.
+    - **Un routeur de sous-réseau.** Un seul tunnel donne accès à tout le
+      réseau de la maison, sans toucher à la configuration des autres
+      machines. Seul le trafic du homelab passe par le VPN ; le reste garde sa
+      route habituelle.
+    - **Un conteneur dédié, non privilégié**, sur la machine allumée en
+      permanence, avec wg-easy : un nouvel appareil s'ajoute d'un QR code.
+    - **Un nom qui suit l'adresse.** L'adresse publique de la maison change ;
+      un DNS dynamique, chez OVH, la suit.
+
+    ## Ce qui a coincé
+
+    - Vérifier d'abord que l'opérateur ne partage pas son adresse publique
+      entre plusieurs clients (CGNAT) : sans vraie adresse publique, le VPN est
+      impossible.
+    - Docker dans un conteneur LXC non privilégié : le module noyau et le
+      périphérique du tunnel à lui confier, l'IPv6 à retirer.
+    - Un fichier de configuration collé dans le terminal qui perdait son
+      indentation. Depuis, les fichiers se téléchargent, ils ne se collent
+      plus.
+
+    Tout est consigné dans un tutoriel pas à pas, refait de bout en bout pour
+    vérifier qu'il suffit.
+en:
+  title: Remote access / VPN
+  summary: >-
+    Reaching the whole homelab over 4G as if I were home, without exposing one
+    more service: self-hosted WireGuard, as a subnet router.
+  role: Setup and tutorial
+  body: |
+    ## Context
+
+    The intranet's services — the photos, the files — are never exposed to
+    the internet. Yet they have to be reachable away from home. The first
+    attempt, OpenVPN, never went into service.
+
+    ## Choices
+
+    - **WireGuard, self-hosted.** Rather than a third-party service such as
+      Tailscale or ZeroTier: no outside cloud in the loop, and a modern, fast,
+      light protocol.
+    - **A subnet router.** One tunnel reaches the whole home network, without
+      touching the other machines' configuration. Only the homelab's traffic
+      goes through the VPN; the rest keeps its usual route.
+    - **A dedicated, unprivileged container** on the machine that is always
+      on, with wg-easy: a new device joins with a QR code.
+    - **A name that follows the address.** The house's public address
+      changes; a dynamic DNS record, at OVH, follows it.
+
+    ## What got stuck
+
+    - Checking first that the provider does not share its public address
+      between customers (CGNAT): without a real public address, the VPN is
+      impossible.
+    - Docker inside an unprivileged LXC container: the kernel module and the
+      tunnel device to hand to it, IPv6 to take out.
+    - A configuration file pasted into the terminal that lost its indentation.
+      Since then, files are downloaded, never pasted.
+
+    It is all written up as a step-by-step tutorial, run again end to end to
+    check that it is enough.

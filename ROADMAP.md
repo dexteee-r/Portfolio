@@ -74,7 +74,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   avis juridique). Le jour où la réparation devient une activité rémunérée :
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
-- **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier.
+- **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier. Les
+  3 projets infra (homelab, supervision, accès distant) sont rédigés d'après
+  `dexteee-r/elmzn_homelab` et publiés (2026-10-01), en français et en anglais.
   Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack ou
   matériel** : c'est la fiche technique sous le titre. Pour les réparations,
   **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour

@@ -192,8 +192,15 @@ test.describe("the dev chapter's floppy disk", () => {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-floppy]"), path).toHaveCount(0);
-      await expect(page.getByRole("region", { name: "Fiche technique" }), path).toHaveCount(0);
     }
+  });
+
+  test("an infra project keeps a plain spec sheet under its title — the chapter's effect is its map", async ({ page }) => {
+    await page.goto("/fr/infra/homelab-fixture");
+    const sheet = page.getByRole("region", { name: "Fiche technique" });
+    await expect(sheet.getByRole("term")).toHaveText(["Rôle", "Stack"]);
+    await expect(sheet.getByRole("listitem")).toHaveText(["Proxmox VE", "Docker"]);
+    await expect(page.locator("[data-floppy], [data-ticket], [data-vhs]")).toHaveCount(0);
   });
 });
 

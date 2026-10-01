@@ -323,9 +323,28 @@ describe("ProjectView — the dev chapter's floppy and spec sheet", () => {
         <ProjectView locale="fr" dict={fr} project={project({ chapter })} images={sizes} />,
       );
       expect(container.querySelector("[data-floppy]"), chapter).toBeNull();
+      unmount();
+    }
+    for (const chapter of ["repair", "creative"] as const) {
+      const { unmount } = render(<ProjectView locale="fr" dict={fr} project={project({ chapter })} images={sizes} />);
       expect(screen.queryByRole("region", { name: "Fiche technique" }), chapter).toBeNull();
       unmount();
     }
+  });
+
+  it("gives an infra project its spec sheet under the title — the chapter's effect is its map", () => {
+    const { container } = render(
+      <ProjectView locale="fr" dict={fr} project={project({ chapter: "infra" })} images={sizes} />,
+    );
+    const header = container.querySelector("article > header") as HTMLElement;
+    expect(header).toHaveClass("max-w-content");
+    expect(header).not.toHaveClass("grid");
+    const sheet = within(header).getByRole("region", { name: "Fiche technique" });
+    expect(within(sheet).getAllByRole("term").map((t) => t.textContent)).toEqual(["Année", "Rôle", "Stack"]);
+    expect(screen.getByRole("heading", { level: 1 }).compareDocumentPosition(sheet)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(container.querySelector("[data-floppy], [data-ticket], [data-vhs]")).toBeNull();
   });
 });
 

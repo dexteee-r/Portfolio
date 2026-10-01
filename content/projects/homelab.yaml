@@ -1,5 +1,92 @@
 fr:
   title: Homelab elmzn.be
   chapter: infra
-  status: draft
+  status: published
   order: 1
+  year: 2025
+  role: Conception, installation et exploitation
+  stack:
+    - Proxmox VE
+    - Debian
+    - Docker
+    - ZFS
+    - Nginx Proxy Manager
+    - ZimaOS
+  summary: >-
+    Trois machines à la maison qui font tourner, jour et nuit, mes sites et la
+    photothèque de la famille : une zone exposée à Internet, un intranet qui ne
+    l'est jamais, et un NAS.
+  body: |
+    ## Contexte
+
+    Tout a commencé avec un seul PC, un Dell OptiPlex, et deux machines
+    virtuelles : l'une ouverte sur Internet, l'autre pour la maison.
+    Aujourd'hui, le homelab compte trois machines. Il fait tourner ce
+    portfolio, d'autres sites et applications, et la photothèque de la
+    famille — 24 heures sur 24.
+
+    ## Les choix
+
+    - **Deux zones, deux machines.** L'extranet est le seul point exposé à
+      Internet : un reverse proxy, Nginx Proxy Manager, y reçoit tout le
+      trafic web et le distribue. L'intranet, qui garde les photos et les
+      fichiers, n'est jamais exposé directement. Une machine compromise ne
+      donne pas l'autre.
+    - **Proxmox partout.** Chaque service vit dans sa machine virtuelle ou son
+      conteneur LXC : on le met à jour, on le redémarre ou on le restaure sans
+      toucher aux autres.
+    - **ZFS pour les données.** Un disque de 4 To découpé en jeux de données,
+      chacun avec son quota : photos, fichiers, sauvegardes.
+    - **Tout est écrit.** Chaque décision a sa fiche (le *pourquoi*), chaque
+      mise en place son tutoriel (le *comment*). Refaire le homelab de zéro,
+      c'est suivre la documentation.
+
+    ## Ce qui a coincé
+
+    - Passer d'une machine à deux, puis remplacer l'extranet par un Beelink
+      S12, plus sobre, sans couper les services.
+    - La documentation qui prend du retard sur la réalité : un audit complet,
+      machine par machine, l'a remise d'équerre.
+    - Servir des projets publics depuis une connexion résidentielle : un DNS
+      qui suit l'adresse de la maison, des certificats partout, et un
+      déploiement automatique qui reste sûr.
+en:
+  title: The elmzn.be homelab
+  summary: >-
+    Three machines at home running my sites and the family's photo library,
+    day and night: a zone open to the internet, an intranet that never is,
+    and a NAS.
+  role: Design, setup and operations
+  body: |
+    ## Context
+
+    It all started with a single PC, a Dell OptiPlex, and two virtual
+    machines: one open to the internet, the other for the house. Today the
+    homelab has three machines. It runs this portfolio, other sites and apps,
+    and the family's photo library — around the clock.
+
+    ## Choices
+
+    - **Two zones, two machines.** The extranet is the only point exposed to
+      the internet: a reverse proxy, Nginx Proxy Manager, takes all the web
+      traffic and hands it on. The intranet, which keeps the photos and files,
+      is never exposed directly. One compromised machine does not give away
+      the other.
+    - **Proxmox everywhere.** Each service lives in its own virtual machine or
+      LXC container: it can be updated, restarted or restored without touching
+      the others.
+    - **ZFS for the data.** A 4 TB disk cut into datasets, each with its own
+      quota: photos, files, backups.
+    - **Everything written down.** Each decision has its record (the *why*),
+      each setup its tutorial (the *how*). Rebuilding the homelab from scratch
+      means following the documentation.
+
+    ## What got stuck
+
+    - Going from one machine to two, then replacing the extranet with a
+      leaner Beelink S12, without taking the services down.
+    - Documentation falling behind reality: a full audit, machine by machine,
+      set it straight.
+    - Serving public projects from a home connection: a DNS name that follows
+      the house's address, certificates everywhere, and automatic deployment
+      that stays safe.
