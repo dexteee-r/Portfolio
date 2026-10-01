@@ -1,7 +1,9 @@
 fr:
   title: Homelab elmzn.be
+  coverAlt: "Dessin des trois machines du homelab reliées à la box : l'extranet, un mini-PC Beelink S12 ; l'intranet, une tour i7-6700 avec 4 To de stockage ZFS ; le NAS sous ZimaOS."
   chapter: infra
   status: published
+  cover: /media/projects/homelab/cover.webp
   order: 1
   year: 2025
   role: Conception, installation et exploitation
@@ -52,6 +54,7 @@ fr:
       déploiement automatique qui reste sûr.
 en:
   title: The elmzn.be homelab
+  coverAlt: "Drawing of the homelab's three machines, joined to the home router: the extranet, a Beelink S12 mini PC; the intranet, an i7-6700 tower with 4 TB of ZFS storage; the NAS running ZimaOS."
   summary: >-
     Three machines at home running my sites and the family's photo library,
     day and night: a zone open to the internet, an intranet that never is,

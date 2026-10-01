@@ -292,6 +292,14 @@ pointe vers un fichier absent fait aussi échouer le build. Sans couverture, la
 station affiche le dossier du projet. Les compteurs du bureau ne comptent que
 les projets publiés.
 
+L'infra ne se photographie pas : les couvertures de ses projets sont
+**dessinées** par `scripts/generate-infra-covers.mjs`, dans la palette du
+chapitre (lue dans `tokens.css`), d'après la documentation du homelab — les
+trois machines, un tableau de bord sans chiffres, le tunnel du VPN. Après une
+retouche : `node scripts/generate-infra-covers.mjs`, vérifier, commiter les
+WebP. Les autres chapitres attendent de vraies images : captures d'apps en
+situation, photos avant / pendant / après, plans de tournage.
+
 ## Le schéma du homelab
 
 En tête du chapitre infra, le homelab se dessine quand il entre à l'écran :

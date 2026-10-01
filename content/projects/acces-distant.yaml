@@ -1,7 +1,9 @@
 fr:
   title: Accès distant / VPN
+  coverAlt: "Schéma : un téléphone en 4G relié au réseau de la maison par un tunnel WireGuard chiffré."
   chapter: infra
   status: published
+  cover: /media/projects/acces-distant/cover.webp
   order: 3
   year: 2026
   role: Mise en place et tutoriel
@@ -50,6 +52,7 @@ fr:
     vérifier qu'il suffit.
 en:
   title: Remote access / VPN
+  coverAlt: "Diagram: a phone on 4G linked to the home network through an encrypted WireGuard tunnel."
   summary: >-
     Reaching the whole homelab over 4G as if I were home, without exposing one
     more service: self-hosted WireGuard, as a subnet router.

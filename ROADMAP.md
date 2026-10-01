@@ -77,6 +77,11 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier. Les
   3 projets infra (homelab, supervision, accès distant) sont rédigés d'après
   `dexteee-r/elmzn_homelab` et publiés (2026-10-01), en français et en anglais.
+  **Images** : les 3 couvertures infra sont dessinées (2026-10-01) ; les
+  10 autres projets attendent leurs images, à fournir — dev : captures des
+  apps en situation (MyTCG connecté, pas l'écran de connexion ; Taxi Qissi
+  avec l'accord du client) ; réparation : photos avant / pendant / après ;
+  création : plans du vlog, export de l'animation, sélection de photos.
   Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack ou
   matériel** : c'est la fiche technique sous le titre. Pour les réparations,
   **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour

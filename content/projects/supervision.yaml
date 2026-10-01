@@ -1,7 +1,9 @@
 fr:
   title: Supervision
+  coverAlt: "Illustration d'un tableau de bord de supervision : quatre panneaux — processeur, mémoire, stockage ZFS, conteneurs Docker —, chacun avec sa courbe."
   chapter: infra
   status: published
+  cover: /media/projects/supervision/cover.webp
   order: 2
   year: 2025
   role: Mise en place et tableaux de bord
@@ -42,6 +44,7 @@ fr:
       chacune se déclare à la main. Le travail est en cours.
 en:
   title: Monitoring
+  coverAlt: "Illustration of a monitoring dashboard: four panels — processor, memory, ZFS storage, Docker containers — each with its curve."
   summary: >-
     Knowing a service is down before the family complains: Prometheus and
     Grafana for the metrics, Checkmk to watch every virtual machine and every
