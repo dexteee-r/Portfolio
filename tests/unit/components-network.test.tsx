@@ -70,6 +70,29 @@ describe("NetworkMap", () => {
     }
   });
 
+  it("stays readable on a wide screen however many machines: past five columns, lists under them", () => {
+    // Three machines hosting twelve leaves: a plain tree would be twelve columns wide.
+    const wide: NetworkNode[] = [
+      { id: "internet", label: "Internet", kind: "internet" },
+      { id: "box", label: "Box", kind: "router", parent: "internet" },
+      ...["m1", "m2", "m3"].map((id) => ({ id, label: id, kind: "hypervisor" as const, parent: "box" })),
+      ...Array.from({ length: 12 }, (_, i) => ({
+        id: `s${i}`,
+        label: `service-${i}`,
+        kind: "container" as const,
+        parent: `m${(i % 3) + 1}`,
+      })),
+    ];
+    const { container } = render(<NetworkMap dict={fr} nodes={wide} />);
+    const drawing = container.querySelector("svg")!;
+    const [, , width] = drawing.getAttribute("viewBox")!.split(" ").map(Number);
+    // Three columns, not twelve: the labels keep a readable size at 64rem.
+    expect(width).toBeLessThan(1100);
+    // A listed node hangs from its machine like a file in a folder: down, then across.
+    const paths = [...drawing.querySelectorAll(".net-line")].map((p) => p.getAttribute("d")!);
+    expect(paths.filter((d) => /^M[\d.]+ [\d.]+V[\d.]+H[\d.]+$/.test(d))).toHaveLength(12);
+  });
+
   it("holds every node in the chapter's accent brackets, named and typed in the page's language", () => {
     const { container } = render(<NetworkMap dict={en} nodes={nodes} />);
     const tree = container.querySelector("svg")!;

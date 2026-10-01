@@ -64,6 +64,7 @@ export const fr = {
       router: "Routeur",
       proxy: "Proxy inverse",
       hypervisor: "Hyperviseur",
+      nas: "NAS",
       vm: "Machine virtuelle",
       container: "Conteneur",
       service: "Service",

@@ -61,6 +61,7 @@ export const en: Dictionary = {
       router: "Router",
       proxy: "Reverse proxy",
       hypervisor: "Hypervisor",
+      nas: "NAS",
       vm: "Virtual machine",
       container: "Container",
       service: "Service",

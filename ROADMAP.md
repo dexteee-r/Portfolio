@@ -82,9 +82,9 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   c'est le générique. Pour les réparations avec photo, poser aussi les
   cadres du **Scan de diagnostic** sur les pièces réparées. Les projets filmés
   gagnent un **Aperçu vidéo** (extrait muet, MP4, 4 Mo au plus).
-- **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
-  (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
-  puis passer `status` à `published`.
+- **Schéma du homelab** : `content/infra/network.yaml` est redessiné d'après
+  `dexteee-r/elmzn_homelab` et publié (2026-10-01) ; le tenir à jour quand
+  le homelab change (CMS, **Homelab**).
 
 ## À faire — plus tard
 

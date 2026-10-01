@@ -294,10 +294,12 @@ les projets publiés.
 
 En tête du chapitre infra, le homelab se dessine quand il entre à l'écran :
 les liaisons se tracent niveau par niveau, depuis Internet, et chaque machine
-s'allume avec ses repères (inspi : animation › Hyperspace tracking). Un arbre
-sur grand écran, une arborescence de fichiers sur téléphone ; pour un lecteur
-d'écran, une liste imbriquée. Sans JavaScript ou avec les animations réduites,
-il est dessiné d'emblée.
+s'allume avec ses repères (inspi : animation › Hyperspace tracking). Sur grand
+écran, un arbre tant qu'il tient en cinq colonnes ; au-delà, l'arbre s'arrête au
+niveau le plus profond qui tient — les machines — et tout ce qu'elles hébergent
+est listé sous elles, en arborescence (`layoutHybrid`). Sur téléphone, une
+arborescence de fichiers ; pour un lecteur d'écran, une liste imbriquée. Sans
+JavaScript ou avec les animations réduites, il est dessiné d'emblée.
 
 Tout vient de `content/infra/network.yaml`, éditable dans le CMS
 (**Homelab › Schéma réseau (chapitre infra)**) :
@@ -307,7 +309,7 @@ status: draft           # draft : le schéma ne s'affiche qu'en développement
 nodes:                  # dans l'ordre de lecture, 24 au maximum
   - id: internet        # minuscules et tirets, unique
     label: Internet     # 32 caractères au maximum
-    kind: internet      # internet | router | proxy | hypervisor | vm | container | service
+    kind: internet      # internet | router | proxy | hypervisor | nas | vm | container | service
   - id: box
     label: Box
     kind: router
@@ -317,8 +319,11 @@ nodes:                  # dans l'ordre de lecture, 24 au maximum
 Le schéma est **public** : le build refuse toute adresse IP (v4 ou v6) et tout
 port (`:8080`) dans un libellé ou un identifiant. Il refuse aussi un arbre
 cassé : plusieurs racines, un parent inconnu, une boucle, un identifiant en
-double. Le fichier actuel est un brouillon à corriger d'après le vrai homelab
-avant de le publier.
+double. Le fichier actuel est tiré du dépôt du homelab
+([`dexteee-r/elmzn_homelab`](https://github.com/dexteee-r/elmzn_homelab)) : les
+trois machines et ce qui tourne aujourd'hui, rien d'arrêté ni d'encore en
+configuration, aucun nom de domaine réservé au réseau local. Publié le
+2026-10-01.
 
 ## Contact et mentions légales
 

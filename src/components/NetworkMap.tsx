@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
-import { layoutList, layoutTree, type NetworkNode, type Placed } from "@/content/network-layout";
+import { layoutHybrid, layoutList, type NetworkNode, type Placed } from "@/content/network-layout";
 import type { Dictionary } from "@/i18n/dictionaries";
 
 /** Units of the wide drawing: columns, rows, margins. */
 const TREE = { column: 230, row: 128, left: 40, top: 48, label: 230 } as const;
 /** Units of the narrow drawing: one row per node, an indent per level. */
 const LIST = { row: 60, indent: 30, left: 22, top: 30, width: 360 } as const;
+/** Units of the wide drawing once its deeper levels are listed under their column: wider columns, list lines. */
+const HYBRID = { column: 300, line: 54, indent: 30 } as const;
 /** Pace of the drawing: each level after the one above it; siblings a beat apart. */
 export const LEVEL_DELAY_MS = 320;
 export const SIBLING_DELAY_MS = 60;
@@ -88,7 +90,7 @@ function Drawing({
 }: {
   placed: Placed[];
   point: (p: Placed) => Point;
-  link: (from: Point, to: Point) => string;
+  link: (from: Point, to: Point, child: Placed) => string;
   viewBox: string;
   className: string;
   dict: Dictionary;
@@ -107,7 +109,7 @@ function Drawing({
               key={p.node.id}
               className="net-line text-chapter-muted"
               style={style}
-              d={link(point(parent), point(p))}
+              d={link(point(parent), point(p), p)}
               pathLength={1}
               stroke="currentColor"
               fill="none"
@@ -173,11 +175,15 @@ export function NetworkMap({ dict, nodes }: NetworkMapProps) {
     return () => observer.disconnect();
   }, []);
 
-  const tree = layoutTree(nodes);
-  const columns = Math.max(...tree.map((p) => p.x)) + 1;
-  const levels = Math.max(...tree.map((p) => p.depth)) + 1;
-  const treeWidth = TREE.left + (columns - 1) * TREE.column + TREE.label;
-  const treeHeight = TREE.top + (levels - 1) * TREE.row + 50;
+  // A tree while it fits; past that, each column's nodes listed under it.
+  const wide = layoutHybrid(nodes);
+  const listed = wide.some((p) => p.line);
+  const column = listed ? HYBRID.column : TREE.column;
+  const columns = Math.max(...wide.map((p) => p.x)) + 1;
+  const levels = Math.max(...wide.map((p) => p.y)) + 1;
+  const lines = Math.max(...wide.map((p) => p.line ?? 0));
+  const treeWidth = TREE.left + (columns - 1) * column + (listed ? HYBRID.column : TREE.label);
+  const treeHeight = TREE.top + (levels - 1) * TREE.row + lines * HYBRID.line + 50;
 
   const list = layoutList(nodes);
   const listHeight = LIST.top + (list.length - 1) * LIST.row + 40;
@@ -186,12 +192,20 @@ export function NetworkMap({ dict, nodes }: NetworkMapProps) {
     <figure ref={figure} data-network="" className="mt-12 max-w-content md:mt-16">
       <Drawing
         dict={dict}
-        placed={tree}
+        placed={wide}
         viewBox={`0 0 ${treeWidth} ${treeHeight}`}
         className="hidden h-auto w-full md:block"
-        point={(p) => ({ x: TREE.left + p.x * TREE.column, y: TREE.top + p.y * TREE.row })}
-        // Down, across below the parent's label, down again: no line crosses a word.
-        link={(from, to) => `M${from.x} ${from.y}V${from.y + TREE.row * 0.55}H${to.x}V${to.y}`}
+        point={(p) => ({
+          x: TREE.left + p.x * column + (p.indent ?? 0) * HYBRID.indent,
+          y: TREE.top + p.y * TREE.row + (p.line ?? 0) * HYBRID.line,
+        })}
+        link={(from, to, child) =>
+          child.line
+            ? // In a list: down the parent's left edge, then across — as in a file tree.
+              `M${from.x} ${from.y}V${to.y}H${to.x}`
+            : // In the tree: down, across below the parent's label, down again: no line crosses a word.
+              `M${from.x} ${from.y}V${from.y + TREE.row * 0.55}H${to.x}V${to.y}`
+        }
       />
       <Drawing
         dict={dict}

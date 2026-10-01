@@ -4,7 +4,15 @@ import { describe, expect, it } from "vitest";
 import { stringify } from "yaml";
 import { ContentError } from "@/content/projects";
 import { loadNetwork, NETWORK_FILE, NETWORK_MAX_NODES, parseNetwork } from "@/content/network";
-import { layoutList, layoutTree, networkKinds, networkLinks, type NetworkNode } from "@/content/network-layout";
+import {
+  layoutHybrid,
+  layoutList,
+  layoutTree,
+  MAX_TREE_COLUMNS,
+  networkKinds,
+  networkLinks,
+  type NetworkNode,
+} from "@/content/network-layout";
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales } from "@/i18n/config";
 
@@ -118,5 +126,46 @@ describe("the layouts", () => {
   it("links each node to its parent: one line fewer than nodes", () => {
     expect(networkLinks(nodes)).toHaveLength(nodes.length - 1);
     expect(networkLinks(nodes)).toContainEqual(["host", "web"]);
+  });
+
+  it("hybrid: a homelab that fits is simply the tree", () => {
+    const tree = layoutTree(nodes);
+    const hybrid = layoutHybrid(nodes);
+    expect(hybrid.map(({ node, x, y }) => ({ id: node.id, x, y }))).toEqual(tree.map(({ node, x, y }) => ({ id: node.id, x, y })));
+    expect(hybrid.every((p) => p.line === 0 && p.indent === 0)).toBe(true);
+  });
+
+  it("hybrid: past the columns that fit, stops the tree at the deepest level that fits and lists the rest under it", () => {
+    // Too wide for two columns: the tree stops at box's children; host's are listed under it.
+    const placed = new Map(layoutHybrid(nodes, 2).map((p) => [p.node.id, p]));
+    expect([placed.get("host")!.x, placed.get("nas")!.x]).toEqual([0, 1]);
+    expect(placed.get("host")).toMatchObject({ y: 2, line: 0, indent: 0 });
+    expect(placed.get("web")).toMatchObject({ x: 0, y: 2, line: 1, indent: 1, depth: 3 });
+    expect(placed.get("app")).toMatchObject({ x: 0, y: 2, line: 2, indent: 1 });
+    expect(placed.get("nas")).toMatchObject({ line: 0 });
+  });
+
+  it("hybrid: lists deeper levels in reading order, indented by how far below the column they sit", () => {
+    const deep = [...nodes, node("db", "app")];
+    const placed = new Map(layoutHybrid(deep, 2).map((p) => [p.node.id, p]));
+    expect(["web", "app", "db"].map((id) => placed.get(id)!.line)).toEqual([1, 2, 3]);
+    expect(placed.get("db")!.indent).toBe(2);
+    expect(layoutHybrid(deep, 2).map((p) => p.node.id)).toEqual(deep.map((n) => n.id)); // file order kept
+  });
+
+  it("hybrid: never puts two nodes on the same spot", () => {
+    const spots = layoutHybrid(nodes, 2).map((p) => `${p.x + (p.indent ?? 0) / 10}:${p.y}:${p.line}`);
+    expect(new Set(spots).size).toBe(spots.length);
+  });
+
+  it("draws the real homelab as its three machines side by side, everything they host listed under them", () => {
+    const network = loadNetwork(join(ROOT, "content"), true)!;
+    const placed = new Map(layoutHybrid(network).map((p) => [p.node.id, p]));
+    const machines = network.filter((n) => n.parent === "box");
+    expect(machines.map((m) => m.kind)).toEqual(["hypervisor", "hypervisor", "nas"]);
+    expect(machines.map((m) => placed.get(m.id)!.x)).toEqual([0, 1, 2]);
+    expect(Math.max(...[...placed.values()].map((p) => p.x)) + 1).toBeLessThanOrEqual(MAX_TREE_COLUMNS);
+    expect(placed.get("portfolio")).toMatchObject({ x: 0, indent: 1 });
+    expect(placed.get("immich")).toMatchObject({ x: 1, indent: 2 });
   });
 });
