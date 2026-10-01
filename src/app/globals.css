@@ -555,6 +555,21 @@ html[data-boot="play"] [data-desk-art] {
 }
 
 /*
+ * A station's video preview (components/StationPreview): hidden until it
+ * plays, over the cover it replaces — which comes back when it stops.
+ */
+[data-preview] .preview-video,
+[data-preview] .preview-tracking {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+[data-preview][data-playing] .preview-video,
+[data-preview][data-playing] .preview-tracking {
+  opacity: 1;
+}
+
+/*
  * The repair chapter's diagnostic scan (components/DiagnosticScan). The boxes
  * are there by default: only once the script has armed the scan do they
  * wait, hidden, to be seen. Then a brick line sweeps down the photo — its

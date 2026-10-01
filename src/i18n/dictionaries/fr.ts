@@ -55,6 +55,7 @@ export const fr = {
     empty: "Ce dossier est encore vide.",
     open: "Ouvrir le dossier",
     draft: "Brouillon",
+    preview: "Aperçu",
   },
   network: {
     caption: "Le homelab, tel qu'il tourne",

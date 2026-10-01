@@ -5,6 +5,7 @@ order: 1
 year: 2024
 duration: 12
 cover: /media/fixtures/film-cover.webp
+preview: /media/fixtures/film-preview.webm
 stack:
   - Sony A7 IV
   - DaVinci Resolve

@@ -203,6 +203,107 @@ test.describe("the network map without JavaScript", () => {
   });
 });
 
+test.describe("the creative stations' video preview, tracked", () => {
+  const PREVIEW = "/media/fixtures/film-preview.webm";
+  const station = (page: Page) => page.locator('[data-station="film-test"]');
+  const video = (page: Page) => station(page).locator("video");
+  const paused = (page: Page) => video(page).evaluate((v: HTMLVideoElement) => v.paused);
+  const button = (page: Page) => page.getByRole("button", { name: "Aperçu — Film test" });
+  /** Presses the button from the keyboard: no pointer passes over the station on the way. */
+  const press = async (page: Page) => {
+    await button(page).focus();
+    await page.keyboard.press("Enter");
+  };
+  /** Puts the mouse in the middle of the station's image — under its link, as a visitor's would be. */
+  const hoverImage = async (page: Page) => {
+    const box = (await station(page).locator("img").boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  };
+
+  /** Records every request for the clip. */
+  function clipRequests(page: Page) {
+    const seen: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes(PREVIEW)) seen.push(request.url());
+    });
+    return seen;
+  }
+
+  test("loads nothing until asked; its button plays and stops it, without leaving the chapter", async ({ page }) => {
+    const requests = clipRequests(page);
+    await page.goto("/fr/creatif");
+    await expect(button(page)).toHaveAttribute("aria-pressed", "false");
+    await page.waitForLoadState("networkidle");
+    expect(requests).toEqual([]);
+
+    await press(page);
+    await expect.poll(() => paused(page)).toBe(false);
+    await expect.poll(() => video(page).evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(0.3);
+    await expect(button(page)).toHaveAttribute("aria-pressed", "true");
+    await expect(station(page).locator("[data-preview]")).toHaveAttribute("data-playing", "");
+    expect(requests.length).toBeGreaterThan(0);
+    await expect(page).toHaveURL(/\/fr\/creatif$/);
+
+    await press(page);
+    await expect.poll(() => paused(page)).toBe(true);
+    await expect(button(page)).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("tracks what moves in the clip, boxes drawn from its own frames", async ({ page }) => {
+    await page.goto("/fr/creatif");
+    await press(page);
+    const painted = () =>
+      station(page)
+        .locator("canvas")
+        .evaluate((canvas: HTMLCanvasElement) => {
+          const context = canvas.getContext("2d")!;
+          const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+          let count = 0;
+          for (let i = 3; i < data.length; i += 4) if (data[i]! > 0) count += 1;
+          return count;
+        });
+    await expect.poll(painted, { timeout: 5000 }).toBeGreaterThan(0);
+    // Stopped, the tracker wipes its frame: the cover is clean again.
+    await press(page);
+    await expect.poll(painted).toBe(0);
+  });
+
+  test("with a mouse, plays on hover and stops on leaving", async ({ page, isMobile }) => {
+    test.skip(isMobile, "no hover on a phone");
+    await page.goto("/fr/creatif");
+    await hoverImage(page);
+    await expect.poll(() => paused(page)).toBe(false);
+    await page.mouse.move(0, 0);
+    await expect.poll(() => paused(page)).toBe(true);
+  });
+
+  test("never plays by itself on a phone", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "a phone's behaviour");
+    const requests = clipRequests(page);
+    await page.goto("/fr/creatif");
+    await station(page).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    expect(await paused(page)).toBe(true);
+    expect(requests).toEqual([]);
+  });
+
+  test("reduced motion: hovering plays nothing — the button still does", async ({ page, isMobile }) => {
+    test.skip(isMobile, "no hover on a phone");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/fr/creatif");
+    await hoverImage(page);
+    await page.waitForTimeout(500);
+    expect(await paused(page)).toBe(true);
+    await press(page);
+    await expect.poll(() => paused(page)).toBe(false);
+  });
+
+  test("is only on the stations that have a clip", async ({ page }) => {
+    await page.goto("/fr/dev");
+    await expect(page.locator("[data-preview]")).toHaveCount(0);
+  });
+});
+
 test.describe("every chapter on the smallest phones (320px)", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 

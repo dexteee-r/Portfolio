@@ -16,6 +16,7 @@ import {
 import {
   DEVICE_MAX_LENGTH,
   DURATION_MAX_MINUTES,
+  PREVIEW_MAX_BYTES,
   ROLE_MAX_LENGTH,
   SCAN_LABEL_MAX_LENGTH,
   SCAN_MAX_MARKERS,
@@ -162,6 +163,17 @@ describe("parseProject — rejected files", () => {
     const many = Array.from({ length: SCAN_MAX_MARKERS + 1 }, () => box("label: P, x: 1, y: 1, w: 2, h: 2")).join("");
     rejects("x", withCover(many), /scan/);
   });
+  it("takes a preview as a short clip in /media, MP4 or WebM — never a remote or other file", () => {
+    const at = (preview: string) => `chapter: creative\ncover: /media/c.webp\npreview: ${preview}\n`;
+    expect(parseProject("x", at("/media/projects/x/preview.mp4")).preview).toBe("/media/projects/x/preview.mp4");
+    expect(parseProject("x", at("/media/projects/x/preview.webm")).preview).toBe("/media/projects/x/preview.webm");
+    for (const bad of ["https://example.com/clip.mp4", "/media/clip.mov", "/media/Clip.MP4", "/elsewhere/clip.mp4"]) {
+      rejects("x", at(bad), /preview/);
+    }
+  });
+  it("rejects a preview without a cover: the cover is what shows until it plays", () => {
+    rejects("x", "chapter: creative\npreview: /media/clip.mp4\n", /preview: the cover is what shows/);
+  });
   it("rejects a scan without a cover to draw it on", () => {
     rejects("x", `${minimal()}  scan:\n    - label: Vitre\n      x: 1\n      y: 1\n      w: 2\n      h: 2\n`, /fr\.scan: the scan is drawn on the cover/);
   });
@@ -214,6 +226,30 @@ describe("loadProjects", () => {
     write("a.yaml", minimal());
     write("a.yml", minimal());
     expect(() => loadProjects(dir)).toThrow(/duplicates/);
+  });
+
+  describe("a video preview", () => {
+    const withPreview = `chapter: creative\ncover: /media/c.webp\npreview: /media/clip.mp4\n${"fr:\n  title: T\n  summary: S\n"}`;
+    const media = () => {
+      const root = join(dir, "public");
+      mkdirSync(join(root, "media"), { recursive: true });
+      writeFileSync(join(root, "media", "c.webp"), "");
+      return root;
+    };
+
+    it("must exist in public/", () => {
+      write("a.yaml", withPreview);
+      expect(() => loadProjects(dir, media())).toThrow(/a\.yaml: preview \/media\/clip\.mp4 does not exist/);
+    });
+
+    it("stays light: past the cap, it is a film, and every visitor pays for it", () => {
+      write("a.yaml", withPreview);
+      const root = media();
+      writeFileSync(join(root, "media", "clip.mp4"), Buffer.alloc(PREVIEW_MAX_BYTES));
+      expect(loadProjects(dir, root)[0]!.preview).toBe("/media/clip.mp4");
+      writeFileSync(join(root, "media", "clip.mp4"), Buffer.alloc(PREVIEW_MAX_BYTES + 1));
+      expect(() => loadProjects(dir, root)).toThrow(/weighs 4\.0 MB — 4 MB at most/);
+    });
   });
 
   it("fails loudly on a single broken file instead of dropping it", () => {

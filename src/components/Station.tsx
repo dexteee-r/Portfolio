@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { projectPath } from "@/i18n/paths";
 import { FolderGlyph } from "./FolderGlyph";
+import { StationPreview } from "./StationPreview";
 
 interface StationProps {
   locale: Locale;
@@ -16,7 +17,8 @@ interface StationProps {
 /**
  * One project inside a chapter: a strong image, a title, two or three lines.
  * Enough to make someone want the project page, not enough to replace it.
- * The whole station is one link, carried by the title.
+ * The whole station is one link, carried by the title. With a preview, the
+ * image comes alive on demand (StationPreview).
  */
 export function Station({ locale, dict, project, index }: StationProps) {
   const flipped = index % 2 === 1;
@@ -48,6 +50,14 @@ export function Station({ locale, dict, project, index }: StationProps) {
             <FolderGlyph className="w-20 text-chapter-accent" />
             <span className="font-mono text-sm text-chapter-muted">{project.slug}/</span>
           </div>
+        )}
+        {project.cover && project.preview && (
+          <StationPreview
+            src={project.preview}
+            label={dict.chapterPage.preview}
+            name={`${dict.chapterPage.preview} — ${project.title}`}
+            tracking={project.chapter === "creative"}
+          />
         )}
       </div>
 

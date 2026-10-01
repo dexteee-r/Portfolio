@@ -178,6 +178,7 @@ fr:
   year: 2025            # facultatif
   summary: Deux ou trois lignes pour la station (280 caractères max).
   cover: /media/projects/mytgc/cover.webp   # facultatif ; le fichier doit exister
+  preview: /media/projects/mytgc/preview.mp4   # facultatif ; extrait muet, 4 Mo max, couverture obligatoire
   coverAlt: Ce que montre l'image, pour qui ne la voit pas.
   links:                # facultatif ; libellés traduits par l'interface
     - kind: site        # site | repo | video | download
@@ -261,6 +262,20 @@ elle lui fait simplement face. Décorative, comme la disquette. Sa couverture
 demande le même `sizes` que celle de la page : le navigateur ne télécharge
 qu'un fichier pour les deux. À côté, le **générique** : la fiche technique du
 dev, avec les mots du cinéma — année, rôle, durée, matériel.
+
+**L'aperçu vidéo des stations, et son suivi de mouvement.** Un projet peut
+avoir un aperçu (`preview`) : un extrait muet de quelques secondes, en MP4
+(H.264, lu partout), 4 Mo au plus, sa couverture servant d'image d'attente.
+Sur la station, il prend la place de l'image : au survol avec une souris, ou
+avec le bouton **Aperçu** — au doigt, au clavier. Il ne se lance jamais seul
+sur un téléphone, ni au survol avec les animations réduites ; il ne se
+télécharge qu'au premier lancement et s'arrête hors de l'écran. Dans le
+chapitre création, un suivi de mouvement s'y superpose (inspi : animation ›
+nickjaykdesign) : calculé en direct à partir des images de la vidéo
+(`src/lib/motion.ts`, 15 fois par seconde sur une version de 64 pixels de
+large), il teinte d'ambre ce qui bouge et l'encadre, chaque cadre avec la part
+de ses pixels qui a bougé. Pour préparer un extrait :
+`ffmpeg -i source.mov -t 6 -an -vf scale=1280:-2 -c:v libx264 -crf 28 -movflags +faststart preview.mp4`.
 
 Le texte long (`body`) est du Markdown avec tableaux (GFM). Les images s'y
 insèrent avec `![description](/media/projects/<slug>/capture.webp "légende")` :

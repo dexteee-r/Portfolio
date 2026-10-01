@@ -10,6 +10,11 @@ export { SLUG_PATTERN } from "./slug";
  */
 export const COVER_PATTERN = /^\/media\/[a-z0-9][a-z0-9/_-]*\.(?:avif|webp|png)$/;
 
+/** A station's video preview: a short, silent clip in public/media, served as is. */
+export const PREVIEW_PATTERN = /^\/media\/[a-z0-9][a-z0-9/_-]*\.(?:mp4|webm)$/;
+/** A preview lasts a few seconds; past this, it is a film, and every visitor pays for it. */
+export const PREVIEW_MAX_BYTES = 4 * 1024 * 1024;
+
 /** A station shows two or three lines. Past this, it is no longer a teaser. */
 export const SUMMARY_MAX_LENGTH = 280;
 
@@ -90,6 +95,8 @@ export const sharedFieldsSchema = z
     device: z.string().trim().min(1).max(DEVICE_MAX_LENGTH).optional(),
     /** How long the intervention took, in minutes. */
     duration: z.number().int().min(1).max(DURATION_MAX_MINUTES).optional(),
+    /** `/media/projects/<slug>/preview.mp4` — played on the station, over its cover. */
+    preview: z.string().regex(PREVIEW_PATTERN, "must be /media/….mp4 or .webm (lowercase)").optional(),
   })
   .strict();
 
@@ -123,6 +130,7 @@ export interface Project {
   stack: string[];
   device?: string;
   duration?: number;
+  preview?: string;
   translations: Partial<Record<Locale, LocalizedFields>>;
 }
 

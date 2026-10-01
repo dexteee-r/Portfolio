@@ -115,6 +115,13 @@ describe("globals.css", () => {
     expect(reducedMotionFor("[data-scan]")).toMatch(/\.scan-label\s*\{\s*animation: none !important/);
   });
 
+  it("hides a station's clip and its tracking until it plays: the cover shows meanwhile", () => {
+    expect(globals).toMatch(
+      /\[data-preview\] \.preview-video,\s*\[data-preview\] \.preview-tracking\s*\{\s*opacity: 0;\s*transition: opacity var\(--duration-base\) var\(--ease-standard\);/,
+    );
+    expect(globals).toMatch(/\[data-preview\]\[data-playing\] \.preview-video,\s*\[data-preview\]\[data-playing\] \.preview-tracking\s*\{\s*opacity: 1;/);
+  });
+
   it("keeps Tailwind's 4px spacing base, the same as tokens.css", () => {
     expect(theme).toMatch(/--spacing:\s*0\.25rem;/);
     expect(theme).not.toMatch(/--spacing-\d+:/);

@@ -5,6 +5,7 @@ import {
   DEVICE_MAX_LENGTH,
   DURATION_MAX_MINUTES,
   linkKinds,
+  PREVIEW_MAX_BYTES,
   projectStatuses,
   ROLE_MAX_LENGTH,
   SCAN_LABEL_MAX_LENGTH,
@@ -225,6 +226,15 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
             i18n: false,
             required: false,
             hint: "L'image forte de la station. Convertie en WebP à l'envoi.",
+          },
+          {
+            name: "preview",
+            label: "Aperçu vidéo",
+            widget: "file",
+            i18n: false,
+            required: false,
+            accept: "video/mp4,video/webm",
+            hint: `Un extrait muet de quelques secondes (MP4 en H.264, ${PREVIEW_MAX_BYTES / 1024 / 1024} Mo au plus), joué sur la station au survol ou avec le bouton Aperçu ; l'image de couverture, obligatoire, reste l'image d'attente. Dans le chapitre création, un suivi de mouvement s'y superpose.`,
           },
           {
             name: "coverAlt",

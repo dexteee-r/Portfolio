@@ -13,6 +13,7 @@ import {
   DURATION_MAX_MINUTES,
   LOCALIZED_KEYS,
   linkKinds,
+  PREVIEW_MAX_BYTES,
   projectStatuses,
   ROLE_MAX_LENGTH,
   SCAN_LABEL_MAX_LENGTH,
@@ -86,6 +87,16 @@ describe("CMS configuration, generated from the content schema", () => {
       expect(position).toMatchObject({ widget: "number", i18n: "duplicate", value_type: "float", min: 0, max: 100 });
     }
     expect(String(scan.hint)).toMatch(/%/);
+  });
+
+  it("takes a video preview as a file, MP4 or WebM, shared by every language", () => {
+    expect(field("preview")).toMatchObject({
+      widget: "file",
+      i18n: false,
+      required: false,
+      accept: "video/mp4,video/webm",
+    });
+    expect(String(field("preview").hint)).toContain(`${PREVIEW_MAX_BYTES / 1024 / 1024} Mo`);
   });
 
   it("stores whole numbers for order and year", () => {

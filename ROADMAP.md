@@ -48,6 +48,10 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 - Le scan de diagnostic du chapitre réparation (2026-10-01) : la couverture
   passe au scanner, une ligne brique la balaie et encadre chaque pièce réparée,
   nommée ; cadres posés dans le CMS (**Scan de diagnostic**).
+- L'aperçu vidéo des stations et le suivi de mouvement du chapitre création
+  (2026-10-01) : un extrait muet par projet (**Aperçu vidéo** dans le CMS),
+  joué au survol ou avec le bouton Aperçu ; en création, ce qui bouge est
+  teinté et encadré, calculé en direct.
 
 ## À faire — V1
 
@@ -76,7 +80,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour
   la création, **Rôle ou intervention**, **Durée** et **Stack ou matériel** :
   c'est le générique. Pour les réparations avec photo, poser aussi les
-  cadres du **Scan de diagnostic** sur les pièces réparées.
+  cadres du **Scan de diagnostic** sur les pièces réparées. Les projets filmés
+  gagnent un **Aperçu vidéo** (extrait muet, MP4, 4 Mo au plus).
 - **Schéma du homelab** : `content/infra/network.yaml` est un brouillon
   (machines devinées d'après le brief) ; le corriger d'après le vrai homelab,
   puis passer `status` à `published`.
@@ -91,16 +96,15 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     de points des vraies métriques et les chiffres entre crochets (DA 4) ;
   - repair : ~~la fiche d'intervention en ticket~~, ~~le scan de diagnostic
     sur la photo~~ (faits) ;
-  - création : ~~la jaquette VHS en tête de page projet~~ (fait), puis le
-    suivi de mouvement sur l'aperçu vidéo (animation › nickjaykdesign), avec
-    le curseur vidéo des stations ; l'étagère de cassettes du chapitre lui-même
-    (folder type › Kurosawa) reste une piste ; le globe des lieux de tournage
-    est à repenser — le bureau a déjà le sien.
+  - création : ~~la jaquette VHS en tête de page projet~~, ~~le suivi de
+    mouvement sur l'aperçu vidéo, avec le curseur vidéo des stations~~ (faits) ;
+    l'étagère de cassettes du chapitre lui-même (folder type › Kurosawa) reste
+    une piste ; le globe des lieux de tournage est à repenser — le bureau a
+    déjà le sien.
   Les objets (disquette, ticket, jaquette VHS) vont en tête des pages projet
   (choix du 2026-09-29).
   Pas de police pixel (deux familles seulement) : le rendu pixel passe par
   DM Mono, l'ASCII et la trame.
-- V2 : curseur vidéo sur les stations (avec son équivalent au doigt).
 - V3 : données réelles du homelab, référencement local de la réparation
   (fiche Google Business, pages par ville, avis).
 - Néerlandais, quand quelqu'un peut le relire.

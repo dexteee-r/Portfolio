@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import {
   ALLOWED_TOP_LEVEL_KEYS,
   LOCALIZED_KEYS,
   localizedFieldsSchema,
+  PREVIEW_MAX_BYTES,
   publicationProblems,
   SHARED_KEYS,
   sharedFieldsSchema,
@@ -114,6 +115,9 @@ export function parseProject(slug: string, source: string, file = `${slug}.yaml`
   for (const [locale, fields] of Object.entries(translations)) {
     if (fields?.scan.length && !shared.data.cover) fail(`${locale}.scan: the scan is drawn on the cover — add one`);
   }
+  if (shared.data.preview && !shared.data.cover) {
+    fail("preview: the cover is what shows until the video plays — add one");
+  }
 
   for (const [locale, fields] of Object.entries(translations)) {
     if (!fields?.body.trim()) continue;
@@ -170,6 +174,16 @@ export function loadProjects(root: string = contentRoot(), media: string = publi
         throw new ContentError(`${file}: image ${src} does not exist in public/`);
       }
     }
+    if (project.preview) {
+      const video = path.join(media, project.preview);
+      if (!existsSync(video)) throw new ContentError(`${file}: preview ${project.preview} does not exist in public/`);
+      const size = statSync(video).size;
+      if (size > PREVIEW_MAX_BYTES) {
+        throw new ContentError(
+          `${file}: preview ${project.preview} weighs ${(size / 1024 / 1024).toFixed(1)} MB — ${PREVIEW_MAX_BYTES / 1024 / 1024} MB at most`,
+        );
+      }
+    }
     projects.push(project);
   }
 
@@ -215,6 +229,8 @@ export interface LocalizedProject {
   device?: string;
   /** Minutes. */
   duration?: number;
+  /** A short, silent clip played on the station. */
+  preview?: string;
   /** Empty when neither language has one. */
   role: string;
   /** Language the role is actually written in. */
@@ -256,6 +272,7 @@ export function localizeProject(project: Project, locale: Locale): LocalizedProj
     stack: project.stack,
     device: project.device,
     duration: project.duration,
+    preview: project.preview,
     role: ownRole || fallback?.role || "",
     roleLang: ownRole ? locale : defaultLocale,
     // A list as a whole, never a mix: the boxes of one language, with its labels.

@@ -52,6 +52,7 @@ export const en: Dictionary = {
     empty: "This folder is still empty.",
     open: "Open the folder",
     draft: "Draft",
+    preview: "Preview",
   },
   network: {
     caption: "The homelab, as it runs",
