@@ -1,0 +1,93 @@
+fr:
+  title: MyTCG
+  chapter: dev
+  status: draft
+  order: 2
+  year: 2026
+  role: Conception et développement
+  stack:
+    - React
+    - TypeScript
+    - FastAPI
+    - SQLite
+    - Capacitor
+  links:
+    - kind: site
+      url: https://mytcg.elmzn.be
+    - kind: repo
+      url: https://github.com/dexteee-r/MyTGC
+  summary: >-
+    Ma collection de cartes One Piece dans le téléphone : je vise une carte
+    avec la caméra, l'appli la reconnaît, en édition anglaise ou japonaise, et
+    suit sa cote.
+  body: |
+    ## Contexte
+
+    Collectionner les cartes du jeu One Piece, c'est suivre des centaines de
+    références, en deux langues, et leur cote qui bouge. MyTCG garde ma
+    collection et reconnaît une carte à la caméra. Il tourne sur mon homelab.
+
+    ## Les choix
+
+    - **Reconnaître l'illustration, pas le texte.** Chaque carte du catalogue
+      officiel est réduite à une empreinte de son illustration (un hash
+      perceptuel) ; une photo est comparée à toutes. Le texte, lui, change
+      d'une édition à l'autre : c'est moi qui choisis la langue, l'appli ne la
+      devine pas.
+    - **Ne jamais se tromper en silence.** Sur 24 photos de vraies cartes —
+      dans un classeur, avec des reflets, de biais —, 75 % sont reconnues et
+      aucune mauvaise réponse n'est montrée : bonnes et mauvaises
+      correspondances ne se recouvrent pas, un seuil les sépare. Ce qui échoue
+      part vers la recherche manuelle.
+    - **La caméra en continu.** Comme un lecteur de code-barres : l'appli
+      n'envoie une image que quand elle est stable, et se fige sur la carte
+      trouvée.
+    - **Deux éditions, deux cotes.** Les catalogues anglais et japonais, et
+      leurs prix en euros.
+
+    ## Ce qui a coincé
+
+    - Le filigrane « SAMPLE » de toutes les images officielles, absent des
+      vraies cartes : il a fallu le localiser, puis cadrer l'empreinte
+      au-dessus.
+    - Les réimpressions à l'illustration identique : aucune empreinte ne peut
+      les séparer, l'appli propose le choix.
+    - Une empreinte de 64 bits qui ne tient pas dans un entier signé de SQLite
+      sans perdre ses derniers bits.
+en:
+  title: MyTCG
+  summary: >-
+    My One Piece card collection on my phone: I point the camera at a card,
+    the app recognises it, in its English or Japanese edition, and tracks its
+    price.
+  role: Design and development
+  body: |
+    ## Context
+
+    Collecting One Piece cards means following hundreds of references, in two
+    languages, and their moving prices. MyTCG keeps my collection and
+    recognises a card through the camera. It runs on my homelab.
+
+    ## Choices
+
+    - **Recognise the artwork, not the text.** Every card in the official
+      catalogue is reduced to a fingerprint of its artwork (a perceptual
+      hash); a photo is compared with all of them. The text changes from one
+      edition to the other: I pick the language, the app does not guess it.
+    - **Never wrong in silence.** On 24 photos of real cards — in a binder,
+      with glare, at an angle — 75% are recognised and not one wrong answer is
+      shown: right and wrong matches never overlap, a threshold separates
+      them. What fails goes to manual search.
+    - **The camera stays on.** Like a barcode scanner: the app only sends a
+      frame once it is steady, and freezes on the card it found.
+    - **Two editions, two prices.** The English and Japanese catalogues, and
+      their prices in euros.
+
+    ## What got stuck
+
+    - The "SAMPLE" watermark on every official image, absent from real cards:
+      it had to be located, and the fingerprint framed above it.
+    - Reprints with identical artwork: no fingerprint can tell them apart, so
+      the app offers the choice.
+    - A 64-bit fingerprint that does not fit in a SQLite signed integer
+      without losing its last bits.

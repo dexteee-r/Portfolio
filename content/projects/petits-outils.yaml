@@ -1,0 +1,86 @@
+fr:
+  title: Petits outils
+  coverAlt: "Trois habillages de Music Overlay Server sur leur morceau de démonstration : un titre découpé en masque, une typographie animée, une cassette rétro."
+  chapter: dev
+  status: draft
+  cover: /media/projects/petits-outils/cover.webp
+  order: 8
+  year: 2026
+  role: Conception et développement
+  stack:
+    - Python
+    - TypeScript
+    - React
+    - Remotion
+    - Node.js
+  summary: >-
+    Des outils faits pour moi, puis partagés : un overlay musical pour OBS, un
+    faux chat Twitch exporté en vidéo, un convertisseur, une souris pilotée au
+    téléphone, une page de liens auto-hébergée.
+  body: |
+    ## Contexte
+
+    Quand un outil me manque, je l'écris. La plupart naissent d'un besoin de
+    stream ou de montage, et finissent publiés.
+
+    ## Les outils
+
+    - **[Music Overlay Server](https://github.com/dexteee-r/Windows-Music-overlay-server)**
+      — affiche en direct dans OBS la musique qui joue sous Windows, avec dix
+      habillages au choix. Un exécutable, aucune installation.
+    - **[Fake Live Chat](https://github.com/dexteee-r/fake-live-chat)** — un
+      faux chat Twitch reproductible, exporté en vidéo à fond transparent pour
+      Premiere Pro : même graine, même chat, à l'image près. Rendu avec
+      Remotion.
+    - **[Convertisseur vidéo et audio](https://github.com/dexteee-r/video-audio_converter)**
+      — une application Windows qui télécharge en MP4 ou en audio (MP3,
+      FLAC…) depuis YouTube, TikTok et plus de mille sites, sur le moteur
+      yt-dlp.
+    - **[Remote Mouse](https://github.com/dexteee-r/remote-mouse)** — le
+      téléphone devient le trackpad et le clavier du PC, sur le Wi-Fi de la
+      maison, dans une application web installable, protégée par mot de passe.
+    - **[linktree-host](https://github.com/dexteee-r/linktree-host)** — ma page
+      de liens pour les réseaux sociaux, auto-hébergée sur le homelab, avec ses
+      statistiques et sans interface d'administration exposée.
+
+    ## Ce qui a coincé
+
+    - Faire tenir chaque outil en un double-clic pour quelqu'un qui n'est pas
+      développeur : un exécutable, ou un script qui installe ce qui manque.
+en:
+  title: Small tools
+  coverAlt: "Three skins of Music Overlay Server on their demo track: a title cut out as a mask, kinetic typography, a retro cassette."
+  summary: >-
+    Tools made for myself, then shared: a music overlay for OBS, a fake Twitch
+    chat exported as video, a converter, a mouse driven from the phone, a
+    self-hosted links page.
+  role: Design and development
+  body: |
+    ## Context
+
+    When I miss a tool, I write it. Most are born of a streaming or editing
+    need, and end up published.
+
+    ## The tools
+
+    - **[Music Overlay Server](https://github.com/dexteee-r/Windows-Music-overlay-server)**
+      — shows the music playing on Windows live in OBS, with ten skins to
+      choose from. One executable, nothing to install.
+    - **[Fake Live Chat](https://github.com/dexteee-r/fake-live-chat)** — a
+      reproducible fake Twitch chat, exported as video with a transparent
+      background for Premiere Pro: same seed, same chat, frame for frame.
+      Rendered with Remotion.
+    - **[Video and audio converter](https://github.com/dexteee-r/video-audio_converter)**
+      — a Windows app that downloads as MP4 or audio (MP3, FLAC…) from
+      YouTube, TikTok and over a thousand sites, on the yt-dlp engine.
+    - **[Remote Mouse](https://github.com/dexteee-r/remote-mouse)** — the
+      phone becomes the PC's trackpad and keyboard, over the home Wi-Fi, in an
+      installable web app protected by a password.
+    - **[linktree-host](https://github.com/dexteee-r/linktree-host)** — my
+      links page for social networks, self-hosted on the homelab, with its
+      statistics and no admin interface exposed.
+
+    ## What got stuck
+
+    - Making each tool a double-click away for someone who is not a
+      developer: an executable, or a script that installs what is missing.

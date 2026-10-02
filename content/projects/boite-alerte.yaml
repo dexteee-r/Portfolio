@@ -1,0 +1,57 @@
+fr:
+  title: Boîte-alerte
+  coverAlt: "Le prototype de la boîte aux lettres, imprimé en 3D en rouge et noir, sur un établi d'électronique, entre une alimentation de laboratoire et un fer à souder."
+  chapter: dev
+  status: draft
+  cover: /media/projects/boite-alerte/cover.webp
+  order: 9
+  year: 2025
+  role: Électronique, en équipe de cinq
+  stack:
+    - ESP32
+    - JavaScript
+  links:
+    - kind: site
+      url: https://boite-alerte.vercel.app
+    - kind: repo
+      url: https://github.com/rayleiighh/Boite-alerte
+  summary: >-
+    Une boîte aux lettres qui prévient quand le courrier arrive, pour ne plus
+    descendre pour rien : un projet d'intégration à cinq — capteurs, serveur
+    et application.
+  body: |
+    ## Contexte
+
+    Projet d'intégration de troisième année à l'EPHEC, en équipe de cinq :
+    moderniser la boîte aux lettres, pour savoir depuis chez soi si du
+    courrier est arrivé.
+
+    ## Le projet
+
+    - **Des capteurs** détectent l'ouverture de la boîte et l'arrivée du
+      courrier, reliés à un microcontrôleur ESP32.
+    - **Un serveur** reçoit et garde les événements ; **une interface web**
+      montre l'état de la boîte et prévient à l'arrivée du courrier.
+    - **Un message pour le facteur**, en cas d'absence.
+    - **Distinguer une lettre d'un colis** : à l'étude.
+en:
+  title: Boîte-alerte
+  coverAlt: "The letterbox prototype, 3D-printed in red and black, on an electronics bench between a lab power supply and a soldering iron."
+  role: Electronics, in a team of five
+  summary: >-
+    A letterbox that tells you when the post arrives, so you stop going down
+    for nothing: an integration project for five — sensors, server and app.
+  body: |
+    ## Context
+
+    A third-year integration project at EPHEC, in a team of five: modernising
+    the letterbox, to know from home whether post has arrived.
+
+    ## The project
+
+    - **Sensors** detect the box being opened and the post arriving, wired to
+      an ESP32 microcontroller.
+    - **A server** receives and keeps the events; **a web interface** shows
+      the box's state and gives notice when post arrives.
+    - **A message for the postman**, for when nobody is home.
+    - **Telling a letter from a parcel**: under study.

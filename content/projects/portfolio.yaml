@@ -1,0 +1,94 @@
+fr:
+  title: elmzn.be — ce portfolio
+  coverAlt: "Deux pages d'elmzn.be en ligne : le bureau d'accueil avec son globe tramé et ses dossiers, et devant lui le chapitre Infrastructure avec sa carte du réseau."
+  chapter: dev
+  status: draft
+  cover: /media/projects/portfolio/cover.webp
+  order: 5
+  year: 2026
+  role: Conception et développement
+  stack:
+    - Next.js
+    - React
+    - TypeScript
+    - Tailwind CSS
+    - Sveltia CMS
+    - Docker
+  links:
+    - kind: site
+      url: https://elmzn.be
+    - kind: repo
+      url: https://github.com/dexteee-r/Portfolio
+  summary: >-
+    Le site que vous lisez : un bureau, quatre dossiers, et derrière, un CMS,
+    plus de mille tests et un déploiement automatique sur mon homelab.
+  body: |
+    ## Contexte
+
+    Quatre univers sans rapport — le développement, l'infrastructure, la
+    réparation, la vidéo — et un seul site pour les montrer. Le lien n'est pas
+    un thème, c'est un geste : chacun de mes projets a commencé par un dossier
+    à son nom. D'où le bureau.
+
+    ## Les choix
+
+    - **Un bureau, quatre chapitres.** Chaque chapitre a sa couleur et son
+      objet : une disquette pour le développement, le schéma du homelab pour
+      l'infrastructure, un ticket et un scan de diagnostic pour la réparation,
+      une cassette VHS pour la création.
+    - **Du vrai texte, partout.** Tout est rendu côté serveur, lisible sans
+      JavaScript, en français et en anglais, et l'accessibilité (WCAG AA) est
+      vérifiée à chaque commit.
+    - **Un CMS sans service tiers.** Sveltia CMS édite le contenu ; la
+      connexion GitHub passe par le site lui-même, et le secret ne quitte
+      jamais le serveur.
+    - **Testé avant d'être servi.** Plus de mille tests, unitaires et de bout
+      en bout ; une image Docker vérifiée comme le serveur la lance ; un
+      déploiement automatique sur mon homelab.
+
+    ## Ce qui a coincé
+
+    - Un runner GitHub Actions auto-hébergé, sur un dépôt public : par défaut,
+      n'importe quelle pull request pourrait exécuter son code chez moi. Il ne
+      répond qu'à la branche principale, sans jeton, et les contributions
+      extérieures attendent mon approbation.
+    - Une séquence de démarrage de quatre secondes qui doit rester juste sur
+      une machine lente : elle se mesure à sa première image, pas au
+      chargement de la page.
+en:
+  title: elmzn.be — this portfolio
+  coverAlt: "Two live pages of elmzn.be: the home desk with its dithered globe and folders, and in front of it the Infrastructure chapter with its network map."
+  summary: >-
+    The site you are reading: a desk, four folders, and behind them a CMS,
+    over a thousand tests and automatic deployment to my homelab.
+  role: Design and development
+  body: |
+    ## Context
+
+    Four unrelated worlds — development, infrastructure, repair, video — and
+    one site to show them. The link is not a theme, it is a habit: every one of
+    my projects started as a folder with its name. Hence the desk.
+
+    ## Choices
+
+    - **A desk, four chapters.** Each chapter has its colour and its object: a
+      floppy disk for development, the homelab's map for infrastructure, a
+      ticket and a diagnostic scan for repair, a VHS tape for creative work.
+    - **Real text, everywhere.** Everything is rendered on the server,
+      readable without JavaScript, in French and English, and accessibility
+      (WCAG AA) is checked on every commit.
+    - **A CMS with no third-party service.** Sveltia CMS edits the content;
+      the GitHub sign-in goes through the site itself, and the secret never
+      leaves the server.
+    - **Tested before it is served.** Over a thousand tests, unit and
+      end-to-end; a Docker image checked the way the server runs it;
+      automatic deployment to my homelab.
+
+    ## What got stuck
+
+    - A self-hosted GitHub Actions runner on a public repository: by default,
+      any pull request could run its code at my place. It answers the main
+      branch alone, with no token, and outside contributions wait for my
+      approval.
+    - A four-second boot sequence that has to stay accurate on a slow machine:
+      it is timed from its first frame, not from the page load.

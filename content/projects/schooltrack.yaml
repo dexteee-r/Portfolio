@@ -1,5 +1,87 @@
 fr:
   title: SchoolTrack
+  coverAlt: "Le tableau de bord web de SchoolTrack, sur la vue d'ensemble des voyages, et deux écrans de l'application mobile : les voyages prêts hors ligne et le scan d'un bracelet NFC."
   chapter: dev
   status: draft
-  order: 2
+  cover: /media/projects/schooltrack/cover.webp
+  order: 1
+  year: 2026
+  role: Conception et développement, seul (TFE)
+  stack:
+    - Flutter
+    - FastAPI
+    - PostgreSQL
+    - React
+    - SQLCipher
+    - Docker
+  links:
+    - kind: repo
+      url: https://github.com/mm-elmazani/TFE_SchoolTrack
+  summary: >-
+    Mon travail de fin d'études : l'appel des élèves en sortie scolaire, au
+    bracelet NFC ou au QR code, même sans réseau — puis tout se synchronise
+    avec l'école.
+  body: |
+    ## Contexte
+
+    En sortie scolaire, l'appel se fait encore sur papier, et le réseau manque
+    souvent là où il en faudrait. SchoolTrack est mon travail de fin d'études
+    de bachelier en technologies de l'informatique à l'EPHEC (2025-2026) : une
+    application pour les enseignants sur le terrain, un tableau de bord pour la
+    direction à l'école.
+
+    ## Les choix
+
+    - **Hors ligne d'abord.** L'application Flutter fonctionne sans aucun
+      réseau pendant la sortie ; tout se synchronise au retour, avec reprises
+      et idempotence — un même pointage envoyé deux fois ne compte qu'une fois.
+    - **Deux façons de pointer.** Un bracelet NFC pour la rapidité, un QR code
+      pour l'élève qui l'a oublié.
+    - **Les données des élèves protégées.** Base locale chiffrée (AES-256),
+      double authentification, et une isolation stricte entre écoles.
+    - **Une API, deux interfaces.** FastAPI et PostgreSQL au centre ;
+      l'application mobile pour les enseignants, un tableau de bord React pour
+      la direction.
+    - **Testé de bout en bout.** Plus de 1 300 tests — 610 côté serveur, 503
+      côté tableau de bord, 225 côté mobile — et des tests de charge.
+
+    ## Ce qui a coincé
+
+    - La synchronisation : réconcilier ce qui a été pointé hors ligne, sur
+      plusieurs téléphones, sans doublon ni perte.
+    - Chiffrer la base locale du téléphone sans ralentir le pointage.
+en:
+  title: SchoolTrack
+  coverAlt: "SchoolTrack's web dashboard, on its overview of the trips, and two screens of the mobile app: the trips ready for offline use and the scan of an NFC wristband."
+  summary: >-
+    My final-year project: taking the register on school trips, with an NFC
+    wristband or a QR code, even with no network — then everything syncs with
+    the school.
+  role: Design and development, solo (final-year project)
+  body: |
+    ## Context
+
+    On school trips, the register is still taken on paper, and the network is
+    often missing where it is needed. SchoolTrack is my final-year project for
+    a bachelor's in computer technology at EPHEC (2025-2026): an app for the
+    teachers out in the field, a dashboard for the school's management.
+
+    ## Choices
+
+    - **Offline first.** The Flutter app works with no network at all during
+      the trip; everything syncs on return, with retries and idempotence — the
+      same check-in sent twice counts once.
+    - **Two ways to check in.** An NFC wristband for speed, a QR code for the
+      pupil who forgot it.
+    - **Pupils' data protected.** An encrypted local database (AES-256),
+      two-factor authentication, and strict isolation between schools.
+    - **One API, two front ends.** FastAPI and PostgreSQL at the centre; the
+      mobile app for teachers, a React dashboard for management.
+    - **Tested end to end.** Over 1,300 tests — 610 on the server, 503 on the
+      dashboard, 225 on mobile — plus load tests.
+
+    ## What got stuck
+
+    - Syncing: reconciling what was checked in offline, on several phones,
+      with no duplicate and no loss.
+    - Encrypting the phone's local database without slowing the check-in.

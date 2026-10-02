@@ -141,13 +141,13 @@ test.describe("first visit to the desk", () => {
     await scrubTo(page, 450); // tracing; the label already has its first name
     expect(await traceOffset(page)).toBeGreaterThan(0);
     expect(await traceOffset(page)).toBeLessThan(1);
-    expect(await visibleName(page)).toEqual(["mytgc"]);
+    expect(await visibleName(page)).toEqual(["mytcg"]);
 
     await scrubTo(page, 800);
     expect(await visibleName(page)).toEqual(["schooltrack"]);
     await scrubTo(page, 1200); // folder drawn
     expect(await traceOffset(page)).toBe(0);
-    expect(await visibleName(page)).toEqual(["omniroute"]);
+    expect(await visibleName(page)).toEqual(["watchlist"]);
     await scrubTo(page, 1500);
     expect(await visibleName(page)).toEqual(["dexteeer-labo"]);
     expect(await opacity(page, ".boot-phrase")).toBe(0);

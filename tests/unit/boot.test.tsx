@@ -47,7 +47,7 @@ describe("the timeline", () => {
   });
 
   it("cycles through four real project names, in order", () => {
-    expect(BOOT_NAMES).toEqual(["mytgc", "schooltrack", "omniroute", "dexteeer-labo"]);
+    expect(BOOT_NAMES).toEqual(["mytcg", "schooltrack", "watchlist", "dexteeer-labo"]);
     expect(windows.map((w) => w.name)).toEqual([...BOOT_NAMES]);
   });
 

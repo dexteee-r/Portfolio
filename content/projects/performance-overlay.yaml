@@ -1,0 +1,72 @@
+fr:
+  title: Performance Overlay
+  chapter: dev
+  status: draft
+  order: 7
+  year: 2025
+  role: Conception et développement
+  stack:
+    - C++
+    - Qt 6
+    - QML
+    - CMake
+  links:
+    - kind: repo
+      url: https://github.com/dexteee-r/PerformanceOverlay
+  summary: >-
+    Un tableau de bord transparent posé sur l'écran de Windows : processeur,
+    carte graphique, mémoire, disques et réseau en temps réel, sans gêner ce
+    qu'il y a dessous.
+  body: |
+    ## Contexte
+
+    Je voulais voir l'état de ma machine sans ouvrir le gestionnaire des
+    tâches : un overlay toujours au premier plan, qui laisse passer les clics.
+
+    ## Les choix
+
+    - **Une première version en C pur**, sur l'API Win32, sans aucune
+      dépendance : quelques mégaoctets de mémoire, presque rien en processeur.
+    - **Puis une réécriture en Qt 6** — l'interface en QML, les mesures en
+      C++ — pour un vrai cockpit : jauges, courbes, une vue compacte, un
+      gestionnaire de tâches et des réglages.
+    - **Onze sources de mesures**, chacune dans son module : processeur,
+      mémoire, carte graphique, disques, réseau, volume, processus…
+    - **Interactif ou transparent aux clics**, d'un raccourci clavier global.
+
+    ## Ce qui a coincé
+
+    - Laisser passer les clics à travers une fenêtre Qt : il a fallu
+      redescendre jusqu'à l'API Win32.
+    - Choisir entre la légèreté du C et la richesse de Qt : la première
+      version reste dans l'historique du dépôt.
+en:
+  title: Performance Overlay
+  summary: >-
+    A see-through dashboard laid over the Windows screen: processor, graphics
+    card, memory, disks and network in real time, without getting in the way
+    of what is underneath.
+  role: Design and development
+  body: |
+    ## Context
+
+    I wanted to see how my machine was doing without opening the task
+    manager: an overlay always on top, letting clicks through.
+
+    ## Choices
+
+    - **A first version in plain C**, on the Win32 API, with no dependency at
+      all: a few megabytes of memory, next to nothing in processor time.
+    - **Then a rewrite in Qt 6** — the interface in QML, the measurements in
+      C++ — for a real cockpit: gauges, curves, a compact view, a task manager
+      and settings.
+    - **Eleven sources of measurements**, each in its own module: processor,
+      memory, graphics card, disks, network, volume, processes…
+    - **Interactive or click-through**, with a global keyboard shortcut.
+
+    ## What got stuck
+
+    - Letting clicks pass through a Qt window: it meant going back down to the
+      Win32 API.
+    - Choosing between the lightness of C and the richness of Qt: the first
+      version stays in the repository's history.

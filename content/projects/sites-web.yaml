@@ -1,0 +1,94 @@
+fr:
+  title: Sites web
+  coverAlt: "Les pages d'accueil des quatre sites, chacune dans sa fenêtre : Taxi Q.I.S.S et son simulateur de prix, TOP4CARS et sa dépanneuse, Website Maker en esthétique de terminal, Sunagakure et son village dans le désert."
+  chapter: dev
+  status: draft
+  cover: /media/projects/sites-web/cover.webp
+  order: 6
+  year: 2026
+  role: Conception, développement et mise en ligne
+  stack:
+    - Astro
+    - Next.js
+    - Tailwind CSS
+    - Three.js
+    - Supabase
+    - Leaflet
+  summary: >-
+    Quatre sites, quatre publics : un taxi à Tirlemont, un dépanneur auto, une
+    communauté de jeu de rôle, et ma propre vitrine de création de sites.
+  body: |
+    ## Contexte
+
+    Des sites vitrines, pour des clients et pour une communauté : chacun avec
+    ses langues, son public et sa contrainte forte.
+
+    ## Les sites
+
+    - **[Taxi Q.I.S.S](https://taxi-qissi.vercel.app)** — un service de taxi à
+      Tirlemont. Site statique trilingue (néerlandais, français, anglais) en
+      Astro, presque sans JavaScript. Son simulateur de prix calcule le vrai
+      trajet entre deux adresses, entièrement dans le navigateur : aucune
+      adresse, aucun nom ne passe par un serveur. La réservation part sur
+      WhatsApp, déjà rédigée.
+    - **[TOP4CARS](https://top4cars-website.vercel.app)** — dépannage et
+      remorquage dans toute la Belgique. Next.js en quatre langues (français,
+      néerlandais, anglais, allemand), une carte de la zone d'intervention
+      chargée à la demande, un bouton d'appel toujours sous le pouce sur
+      mobile, et le référencement local en données structurées.
+    - **[Website Maker](https://webmaker.elmzn.be)** — ma vitrine de création
+      de sites, dans une esthétique de terminal, avec une demande de devis
+      intégrée (Supabase pour les données, Resend pour les e-mails).
+    - **[Sunagakure](https://solve-rpsuna-empire.vercel.app)** — le portail
+      d'une communauté de jeu de rôle Naruto : hiérarchie interactive,
+      divisions, codex des lois, et des transitions de sable en WebGL entre les
+      pages. En pause, pas terminé.
+
+    ## Ce qui a coincé
+
+    - Taxi Q.I.S.S : quand chaque prix vient d'un vrai calcul d'itinéraire,
+      chaque estimation coûte une requête — d'où une pause avant de chercher
+      pendant la frappe, un cache de session, et un quota journalier plafonné
+      avant la mise en ligne.
+    - Garder les copies de travail, sur leurs domaines de test, hors des
+      moteurs de recherche.
+en:
+  title: Websites
+  coverAlt: "The home pages of the four sites, each in its window: Taxi Q.I.S.S and its fare estimator, TOP4CARS and its tow truck, Website Maker in a terminal aesthetic, Sunagakure and its desert village."
+  summary: >-
+    Four sites, four audiences: a taxi in Tienen, a car recovery company, a
+    role-playing community, and my own web-design showcase.
+  role: Design, development and launch
+  body: |
+    ## Context
+
+    Showcase sites, for clients and for a community: each with its languages,
+    its audience and its one hard constraint.
+
+    ## The sites
+
+    - **[Taxi Q.I.S.S](https://taxi-qissi.vercel.app)** — a taxi service in
+      Tienen. A static, trilingual site (Dutch, French, English) built with
+      Astro, almost free of JavaScript. Its fare estimator works out the real
+      route between two addresses entirely in the browser: no address, no name
+      ever goes through a server. The booking leaves on WhatsApp, already
+      written.
+    - **[TOP4CARS](https://top4cars-website.vercel.app)** — breakdown and
+      towing across Belgium. Next.js in four languages (French, Dutch, English,
+      German), a map of the service area loaded on demand, a call button always
+      under the thumb on mobile, and local search markup.
+    - **[Website Maker](https://webmaker.elmzn.be)** — my web-design showcase,
+      in a terminal aesthetic, with a built-in quote request (Supabase for the
+      data, Resend for the e-mails).
+    - **[Sunagakure](https://solve-rpsuna-empire.vercel.app)** — the portal of
+      a Naruto role-playing community: an interactive hierarchy, divisions, a
+      codex of laws, and sand transitions in WebGL between pages. Paused, not
+      finished.
+
+    ## What got stuck
+
+    - Taxi Q.I.S.S: when every fare comes from a real route calculation, every
+      estimate costs a request — hence a pause before searching while typing,
+      a session cache, and a capped daily quota before going live.
+    - Keeping the working copies, on their test domains, out of search
+      engines.

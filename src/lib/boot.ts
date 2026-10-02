@@ -24,7 +24,7 @@ import { locales } from "@/i18n/config";
  */
 
 /** Real project folders, in the order the label takes them. */
-export const BOOT_NAMES = ["mytgc", "schooltrack", "omniroute", "dexteeer-labo"] as const;
+export const BOOT_NAMES = ["mytcg", "schooltrack", "watchlist", "dexteeer-labo"] as const;
 
 /** Every time in milliseconds from the first paint. */
 export const bootTimeline = {

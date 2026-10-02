@@ -1,0 +1,70 @@
+fr:
+  title: Watch List
+  chapter: dev
+  status: draft
+  order: 3
+  year: 2026
+  role: Conception, développement et hébergement
+  stack:
+    - React
+    - Vite
+    - FastAPI
+    - PostgreSQL
+    - Docker
+  links:
+    - kind: site
+      url: https://watchlist.elmzn.be
+  summary: >-
+    Savoir où j'en suis dans mes séries, épisode par épisode, sur une
+    application que j'héberge moi-même — une liste privée pour chaque personne
+    de la famille.
+  body: |
+    ## Contexte
+
+    Les applications de suivi de séries vivent de la publicité ou de nos
+    données. J'en voulais une à moi, pour la famille : chacun sa liste, aucun
+    compte public.
+
+    ## Les choix
+
+    - **Pas d'inscription publique.** Les comptes sont créés par
+      l'administrateur ; mots de passe hachés en argon2, session dans un
+      cookie inaccessible au JavaScript, nombre de tentatives limité.
+    - **Un seul point d'entrée.** nginx sert l'application et relaie l'API
+      vers FastAPI, à la même origine ; la base de données n'est jamais
+      exposée.
+    - **Les séries viennent de TVmaze**, interrogée côté serveur à l'ajout,
+      pour remplir un catalogue partagé par tous.
+    - **Déployée toute seule** sur le homelab dès que la CI est verte.
+
+    ## Ce qui a coincé
+
+    - Garder la configuration de développement — le port de la base ouvert,
+      les cookies non sécurisés — strictement hors de la production.
+en:
+  title: Watch List
+  summary: >-
+    Knowing where I am in my series, episode by episode, on an app I host
+    myself — a private list for each person in the family.
+  role: Design, development and hosting
+  body: |
+    ## Context
+
+    Series-tracking apps live off advertising or off our data. I wanted one of
+    my own, for the family: everyone their own list, no public account.
+
+    ## Choices
+
+    - **No public sign-up.** Accounts are created by the administrator;
+      passwords hashed with argon2, the session in a cookie JavaScript cannot
+      read, sign-in attempts limited.
+    - **A single entry point.** nginx serves the app and passes the API on to
+      FastAPI, on the same origin; the database is never exposed.
+    - **Series come from TVmaze**, queried server-side when one is added, to
+      fill a catalogue everyone shares.
+    - **Deployed on its own** to the homelab as soon as CI is green.
+
+    ## What got stuck
+
+    - Keeping the development settings — the database port open, insecure
+      cookies — strictly out of production.

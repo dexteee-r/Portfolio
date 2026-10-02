@@ -1,0 +1,77 @@
+fr:
+  title: Outil de contenu IA
+  chapter: dev
+  status: draft
+  order: 4
+  year: 2026
+  role: Conception et développement (en cours)
+  stack:
+    - TypeScript
+    - Remotion
+    - Gemini
+    - Claude
+    - SQLite
+    - FFmpeg
+  links:
+    - kind: repo
+      url: https://github.com/dexteee-r/outil-contenu
+  summary: >-
+    Je dépose mes rushs bruts ; il rend une vidéo verticale montée, sa
+    miniature et ses légendes, pour chaque compte — un pipeline où travaillent
+    plusieurs IA, chacune vérifiée.
+  body: |
+    ## Contexte
+
+    Filmer, c'est la partie que j'aime ; dérusher, monter, sous-titrer et
+    préparer une miniature pour chaque réseau, beaucoup moins. Cet outil prend
+    le relais : un dossier de rushs entre, un contenu prêt à publier sort.
+
+    ## Les choix
+
+    - **Un pipeline par étapes**, chacune reprenable : indexation, repérage des
+      plans par Gemini, liste de montage par Claude, rendu vidéo avec Remotion,
+      légendes, miniature, contrôle qualité, livraison.
+    - **Les IA tenues par des contrats.** Chaque sortie de modèle est validée
+      par un schéma ; une liste de montage incohérente est renvoyée jusqu'à
+      trois fois avant d'être refusée.
+    - **Une marque, une configuration** : chaque compte a son ton, ses prompts
+      et sa charte de miniatures.
+    - **Tout est journalisé** : chaque étape, chaque appel d'API et son coût.
+
+    ## Ce qui a coincé
+
+    - Obtenir des modèles des réponses structurées et vérifiables, pas du
+      texte libre.
+    - Le projet est en cours : le squelette tourne de bout en bout, les étapes
+      s'affinent.
+en:
+  title: AI content tool
+  summary: >-
+    I drop in my raw footage; it hands back an edited vertical video, its
+    thumbnail and its captions, for each account — a pipeline where several
+    AIs work, each one checked.
+  role: Design and development (in progress)
+  body: |
+    ## Context
+
+    Filming is the part I love; logging, editing, captioning and making a
+    thumbnail for each network, much less. This tool takes over: a folder of
+    footage goes in, content ready to post comes out.
+
+    ## Choices
+
+    - **A pipeline in steps**, each one resumable: ingest, shot tagging by
+      Gemini, an edit decision list by Claude, video rendering with Remotion,
+      captions, thumbnail, quality check, delivery.
+    - **AIs held to contracts.** Every model output is validated against a
+      schema; an inconsistent edit list is sent back up to three times before
+      it is refused.
+    - **One brand, one configuration**: each account has its tone, its
+      prompts and its thumbnail guidelines.
+    - **Everything logged**: every step, every API call and its cost.
+
+    ## What got stuck
+
+    - Getting structured, checkable answers out of the models, not free text.
+    - The project is in progress: the skeleton runs end to end, the steps are
+      being refined.
