@@ -1,7 +1,9 @@
 fr:
   title: Performance Overlay
+  coverAlt: "Deux vues de Performance Overlay : le cockpit avec les jauges du processeur et de la carte graphique, la sphère de points du flux de charge et le stockage, et devant lui les réglages, dont le mode passif qui laisse passer les clics."
   chapter: dev
   status: published
+  cover: /media/projects/performance-overlay/cover.webp
   order: 7
   year: 2025
   role: Conception et développement
@@ -42,6 +44,7 @@ fr:
       version reste dans l'historique du dépôt.
 en:
   title: Performance Overlay
+  coverAlt: "Two views of Performance Overlay: the cockpit with the processor and graphics card gauges, the dot sphere of the load flow and the storage, and in front of it the settings, among them the passive mode that lets clicks through."
   summary: >-
     A see-through dashboard laid over the Windows screen: processor, graphics
     card, memory, disks and network in real time, without getting in the way
