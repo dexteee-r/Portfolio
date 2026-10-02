@@ -2,7 +2,7 @@ fr:
   title: MyTCG
   coverAlt: "Deux écrans de MyTCG : la recherche dans le catalogue des cartes One Piece et, devant elle, le classeur avec ses 461 cartes rangées, ses intercalaires en cours et les dernières cartes rangées."
   chapter: dev
-  status: draft
+  status: published
   cover: /media/projects/mytcg/cover.webp
   order: 2
   year: 2026

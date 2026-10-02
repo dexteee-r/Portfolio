@@ -2,7 +2,7 @@ fr:
   title: Watch List
   coverAlt: "Deux écrans de Watch List : Découvrir, avec sa recherche, ses filtres et les affiches des séries et, devant lui, Ma liste, avec l'avancement de chaque série."
   chapter: dev
-  status: draft
+  status: published
   cover: /media/projects/watchlist/cover.webp
   order: 3
   year: 2026

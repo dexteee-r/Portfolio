@@ -2,7 +2,7 @@ fr:
   title: SchoolTrack
   coverAlt: "Le tableau de bord web de SchoolTrack, sur la vue d'ensemble des voyages, et deux écrans de l'application mobile : les voyages prêts hors ligne et le scan d'un bracelet NFC."
   chapter: dev
-  status: draft
+  status: published
   cover: /media/projects/schooltrack/cover.webp
   order: 1
   year: 2026

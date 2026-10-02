@@ -2,7 +2,7 @@ fr:
   title: elmzn.be — ce portfolio
   coverAlt: "Deux pages d'elmzn.be en ligne : le bureau d'accueil avec son globe tramé et ses dossiers, et devant lui le chapitre Infrastructure avec sa carte du réseau."
   chapter: dev
-  status: draft
+  status: published
   cover: /media/projects/portfolio/cover.webp
   order: 5
   year: 2026

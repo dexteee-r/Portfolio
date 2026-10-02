@@ -2,7 +2,7 @@ fr:
   title: Sites web
   coverAlt: "Les pages d'accueil des quatre sites, chacune dans sa fenêtre : Taxi Q.I.S.S et son simulateur de prix, TOP4CARS et sa dépanneuse, Website Maker en esthétique de terminal, Sunagakure et son village dans le désert."
   chapter: dev
-  status: draft
+  status: published
   cover: /media/projects/sites-web/cover.webp
   order: 6
   year: 2026
