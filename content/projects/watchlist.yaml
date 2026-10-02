@@ -1,7 +1,9 @@
 fr:
   title: Watch List
+  coverAlt: "Deux écrans de Watch List : Découvrir, avec sa recherche, ses filtres et les affiches des séries et, devant lui, Ma liste, avec l'avancement de chaque série."
   chapter: dev
   status: draft
+  cover: /media/projects/watchlist/cover.webp
   order: 3
   year: 2026
   role: Conception, développement et hébergement
@@ -43,6 +45,7 @@ fr:
       les cookies non sécurisés — strictement hors de la production.
 en:
   title: Watch List
+  coverAlt: "Two screens of Watch List: Discover, with its search, its filters and the series' posters and, in front of it, My list, with how far along each series is."
   summary: >-
     Knowing where I am in my series, episode by episode, on an app I host
     myself — a private list for each person in the family.

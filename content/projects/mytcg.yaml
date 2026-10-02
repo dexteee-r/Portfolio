@@ -1,7 +1,9 @@
 fr:
   title: MyTCG
+  coverAlt: "Deux écrans de MyTCG : la recherche dans le catalogue des cartes One Piece et, devant elle, le classeur avec ses 461 cartes rangées, ses intercalaires en cours et les dernières cartes rangées."
   chapter: dev
   status: draft
+  cover: /media/projects/mytcg/cover.webp
   order: 2
   year: 2026
   role: Conception et développement
@@ -56,6 +58,7 @@ fr:
       sans perdre ses derniers bits.
 en:
   title: MyTCG
+  coverAlt: "Two screens of MyTCG: the search through the One Piece card catalogue and, in front of it, the binder with its 461 cards filed, its dividers in progress and the latest cards filed."
   summary: >-
     My One Piece card collection on my phone: I point the camera at a card,
     the app recognises it, in its English or Japanese edition, and tracks its
