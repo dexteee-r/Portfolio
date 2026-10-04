@@ -1,0 +1,86 @@
+fr:
+  title: Carnet d'atelier, 2024–2026
+  coverAlt: "Un iPhone ouvert devant un clavier rétroéclairé, l'écran relevé comme la couverture d'un livre, la batterie à nu."
+  chapter: repair
+  status: draft
+  cover: /media/projects/carnet-atelier/cover.webp
+  preview: /media/projects/carnet-atelier/preview.mp4
+  order: 6
+  role: Écrans d'iPhone, alimentation de PC
+  scan:
+    - label: Écran
+      x: 1
+      y: 27
+      w: 62
+      h: 20
+  summary: >-
+    Les interventions plus courtes, de 2024 à 2026 : cinq écrans d'iPhone
+    remplacés, et un PC remis en route par un nouveau bloc d'alimentation.
+  body: |
+    ## 15 mars 2024 — écran d'iPhone
+
+    ![Un iPhone ouvert sur le tapis de travail, et une main qui tient son nouvel écran](/media/projects/carnet-atelier/2024-03-15.webp "Le nouvel écran, prêt à poser.")
+
+    ## 19 mars 2024 — écran d'iPhone
+
+    L'écran relevé, la batterie à nu : c'est la photo en tête de cette page.
+
+    ## 25 juin 2024 — écran d'iPhone
+
+    ![L'iPhone ouvert sur un support, un écran posé à côté sur une boîte d'embouts, les outils autour](/media/projects/carnet-atelier/2024-06-25.webp "Ouvert sur le support.")
+
+    ## 4 juillet 2024 — PC, bloc d'alimentation
+
+    Un PC en panne : le bloc d'alimentation est remplacé, et la machine
+    repart.
+
+    ![Le PC ouvert sur un bureau, côté alimentation, les câbles gainés à nu](/media/projects/carnet-atelier/2024-07-04.webp "Le PC ouvert.")
+
+    ## 9 février 2025 — écran d'iPhone
+
+    ![Un iPhone ouvert sur un linge, le tapis de vis et les outils sur la table derrière lui](/media/projects/carnet-atelier/2025-02-09.webp "L'iPhone ouvert, l'écran déposé.")
+
+    ## 29 août 2026 — écran d'iPhone
+
+    ![Un écran d'iPhone éclaté, la vitre fêlée en étoile depuis le coin supérieur](/media/projects/carnet-atelier/2026-08-29.webp "Avant : la vitre éclatée.")
+en:
+  title: Workshop log, 2024–2026
+  coverAlt: "An iPhone opened in front of a backlit keyboard, its screen lifted like a book's cover, the battery bare."
+  role: iPhone screens, PC power supply
+  scan:
+    - label: Screen
+      x: 1
+      y: 27
+      w: 62
+      h: 20
+  summary: >-
+    The shorter jobs, from 2024 to 2026: five iPhone screens replaced, and a PC
+    brought back to life with a new power supply.
+  body: |
+    ## 15 March 2024 — iPhone screen
+
+    ![An iPhone open on the work mat, and a hand holding its new screen](/media/projects/carnet-atelier/2024-03-15.webp "The new screen, ready to fit.")
+
+    ## 19 March 2024 — iPhone screen
+
+    The screen lifted, the battery bare: that is the photo at the top of this
+    page.
+
+    ## 25 June 2024 — iPhone screen
+
+    ![The iPhone open in a stand, a screen beside it on a bit case, tools around](/media/projects/carnet-atelier/2024-06-25.webp "Open in the stand.")
+
+    ## 4 July 2024 — PC, power supply
+
+    A PC that had broken down: its power supply is replaced, and the machine
+    runs again.
+
+    ![The PC open on a desk, power supply side, its sleeved cables bare](/media/projects/carnet-atelier/2024-07-04.webp "The PC open.")
+
+    ## 9 February 2025 — iPhone screen
+
+    ![An iPhone open on a cloth, the screw mat and tools on the table behind it](/media/projects/carnet-atelier/2025-02-09.webp "The iPhone open, its screen off.")
+
+    ## 29 August 2026 — iPhone screen
+
+    ![A shattered iPhone screen, the glass cracked in a star from the top corner](/media/projects/carnet-atelier/2026-08-29.webp "Before: the shattered glass.")

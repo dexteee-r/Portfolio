@@ -1,5 +1,59 @@
 fr:
   title: iPhone 14 — caméra et flash
+  coverAlt: "Un iPhone 14 ouvert par l'arrière sur l'établi, la vitre arrière relevée, le module photo et la batterie à nu, entouré d'outils d'ouverture."
   chapter: repair
   status: draft
+  cover: /media/projects/iphone-14-camera-flash/cover.webp
+  preview: /media/projects/iphone-14-camera-flash/preview.mp4
   order: 2
+  year: 2026
+  device: iPhone 14
+  role: Réparation de la caméra arrière et du flash
+  scan:
+    - label: Caméra arrière
+      x: 36
+      y: 52
+      w: 14
+      h: 9
+  summary: >-
+    La caméra arrière d'un iPhone 14 à remettre en état. Son dos s'ouvre comme
+    une trappe : le module photo s'atteint sans démonter l'écran, puis tout se
+    vérifie en photo et en vidéo.
+  body: |
+    ## Pendant
+
+    L'iPhone 14 s'ouvre par l'arrière : une fois la vitre relevée, le module
+    photo est accessible directement, sans toucher à l'écran.
+
+    ## L'essai
+
+    ![L'iPhone 14 réparé, l'appareil photo ouvert, pointé vers l'établi et ses outils](/media/projects/iphone-14-camera-flash/essai.webp "L'essai, sur l'établi.")
+
+    Remonté, le téléphone passe l'essai sur place : photo, puis vidéo,
+    pointées sur l'établi.
+en:
+  title: iPhone 14 — camera and flash
+  coverAlt: "An iPhone 14 opened from the back on the workbench, its back glass lifted, the camera module and battery bare, surrounded by opening tools."
+  role: Rear camera and flash repair
+  scan:
+    - label: Rear camera
+      x: 36
+      y: 52
+      w: 14
+      h: 9
+  summary: >-
+    An iPhone 14's rear camera to bring back. Its back opens like a hatch: the
+    camera module is reached without taking the screen off, then everything is
+    checked in photo and video.
+  body: |
+    ## During
+
+    The iPhone 14 opens from the back: with the glass lifted, the camera
+    module is right there, without touching the screen.
+
+    ## The test
+
+    ![The repaired iPhone 14, its camera open, aimed at the workbench and its tools](/media/projects/iphone-14-camera-flash/essai.webp "The test, on the workbench.")
+
+    Put back together, the phone is tested on the spot: a photo, then a
+    video, aimed at the workbench.

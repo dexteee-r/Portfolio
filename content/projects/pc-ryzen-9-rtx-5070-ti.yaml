@@ -1,0 +1,120 @@
+fr:
+  title: PC Ryzen 9 · RTX 5070 Ti
+  coverAlt: "Les boîtes des composants posées sur une table devant le boîtier : carte graphique ASUS TUF RTX 5070 Ti, watercooling Arctic Liquid Freezer III, carte mère MSI B850 Tomahawk, Ryzen 9, SSD Samsung 990 Pro et mémoire Kingston FURY."
+  chapter: repair
+  status: draft
+  cover: /media/projects/pc-ryzen-9-rtx-5070-ti/cover.webp
+  preview: /media/projects/pc-ryzen-9-rtx-5070-ti/preview.mp4
+  order: 4
+  year: 2026
+  device: PC Ryzen 9 · RTX 5070 Ti
+  role: Montage complet
+  stack:
+    - Ryzen 9
+    - ASUS TUF RTX 5070 Ti
+    - MSI B850 Tomahawk
+    - Liquid Freezer III 280
+    - Kingston FURY Beast
+    - Samsung 990 Pro
+  scan:
+    - label: RTX 5070 Ti
+      x: 1
+      y: 25
+      w: 54
+      h: 23
+    - label: Liquid Freezer III 280
+      x: 35
+      y: 2
+      w: 30
+      h: 21
+    - label: Carte mère B850 Tomahawk
+      x: 57
+      y: 48
+      w: 38
+      h: 20
+    - label: Ryzen 9
+      x: 56
+      y: 69
+      w: 17
+      h: 25
+    - label: SSD Samsung 990 Pro
+      x: 27
+      y: 60
+      w: 14
+      h: 19
+    - label: Kingston FURY 64 Go
+      x: 42
+      y: 72
+      w: 13
+      h: 21
+  summary: >-
+    Un PC de jeu monté de A à Z, des cartons à l'allumage : Ryzen 9, RTX 5070
+    Ti, watercooling de 280 mm et 64 Go de DDR5.
+  body: |
+    ## Les pièces
+
+    - **Processeur** : AMD Ryzen 9, sur une carte mère MSI MAG B850 Tomahawk
+      Max WiFi.
+    - **Carte graphique** : ASUS TUF Gaming GeForce RTX 5070 Ti, 16 Go.
+    - **Refroidissement** : watercooling Arctic Liquid Freezer III Pro 280
+      A-RGB.
+    - **Mémoire** : 64 Go de DDR5 Kingston FURY Beast, en deux barrettes de
+      32 Go.
+    - **Stockage** : un SSD NVMe Samsung 990 Pro de 2 To, et un disque dur.
+    - **Alimentation** : MSI, certifiée ATX 3.1.
+
+    ## Monté
+
+    ![Le PC monté et allumé, vu à travers sa vitre : les ventilateurs du watercooling et la carte graphique éclairés en vert et en violet](/media/projects/pc-ryzen-9-rtx-5070-ti/allume.webp "Monté, allumé.")
+en:
+  title: PC Ryzen 9 · RTX 5070 Ti
+  coverAlt: "The parts' boxes on a table in front of the case: an ASUS TUF RTX 5070 Ti graphics card, an Arctic Liquid Freezer III liquid cooler, an MSI B850 Tomahawk motherboard, a Ryzen 9, a Samsung 990 Pro SSD and Kingston FURY memory."
+  role: Full build
+  scan:
+    - label: RTX 5070 Ti
+      x: 1
+      y: 25
+      w: 54
+      h: 23
+    - label: Liquid Freezer III 280
+      x: 35
+      y: 2
+      w: 30
+      h: 21
+    - label: B850 Tomahawk motherboard
+      x: 57
+      y: 48
+      w: 38
+      h: 20
+    - label: Ryzen 9
+      x: 56
+      y: 69
+      w: 17
+      h: 25
+    - label: Samsung 990 Pro SSD
+      x: 27
+      y: 60
+      w: 14
+      h: 19
+    - label: Kingston FURY 64 GB
+      x: 42
+      y: 72
+      w: 13
+      h: 21
+  summary: >-
+    A gaming PC built from scratch, from the boxes to the first boot: a Ryzen
+    9, an RTX 5070 Ti, a 280 mm liquid cooler and 64 GB of DDR5.
+  body: |
+    ## The parts
+
+    - **Processor**: AMD Ryzen 9, on an MSI MAG B850 Tomahawk Max WiFi
+      motherboard.
+    - **Graphics card**: ASUS TUF Gaming GeForce RTX 5070 Ti, 16 GB.
+    - **Cooling**: Arctic Liquid Freezer III Pro 280 A-RGB liquid cooler.
+    - **Memory**: 64 GB of Kingston FURY Beast DDR5, in two 32 GB sticks.
+    - **Storage**: a 2 TB Samsung 990 Pro NVMe SSD, and a hard drive.
+    - **Power supply**: MSI, ATX 3.1 certified.
+
+    ## Built
+
+    ![The PC built and switched on, seen through its glass: the liquid cooler's fans and the graphics card lit green and purple](/media/projects/pc-ryzen-9-rtx-5070-ti/allume.webp "Built, switched on.")

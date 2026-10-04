@@ -313,12 +313,18 @@ test.describe("every chapter on the smallest phones (320px)", () => {
       expect(await horizontalOverflow(page)).toEqual([]);
     });
   }
+});
 
-  test("a two-part title wraps after its slash, never mid-word", async ({ page }) => {
-    for (const [path, parts] of [
-      ["/fr/repair", ["Réparation", "Montage"]],
-      ["/en/repair", ["Repair", "Build"]],
-    ] as const) {
+test.describe("a two-part chapter title", () => {
+  // On a phone the title is too wide for one line; on a wide screen too, it is that large.
+  for (const [path, parts, width] of [
+    ["/fr/repair", ["Réparation", "Montage"], 320],
+    ["/en/repair", ["Repair", "Build"], 320],
+    ["/fr/repair", ["Réparation", "Montage"], 1024],
+    ["/fr/repair", ["Réparation", "Montage"], 1440],
+  ] as const) {
+    test(`${path} @${width}px: a two-part title wraps after its slash, never mid-word`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
       await page.goto(path);
       const lines = await page.getByRole("heading", { level: 1 }).evaluate((h1, words: string[]) => {
         const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
@@ -331,9 +337,9 @@ test.describe("every chapter on the smallest phones (320px)", () => {
         }
         return rows;
       }, [...parts]);
-      for (const word of parts) expect(lines[word], `${path} ${word}`).toBe(1);
-    }
-  });
+      for (const word of parts) expect(lines[word], word).toBe(1);
+    });
+  }
 });
 
 test.describe("chapter page without JavaScript", () => {

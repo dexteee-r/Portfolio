@@ -1,5 +1,68 @@
 fr:
   title: iPhone 16 Pro Max — vitre arrière
+  coverAlt: "Le dos d'un iPhone 16 Pro Max blanc, la vitre arrière fissurée sur toute sa hauteur, en éventail depuis le bloc photo."
   chapter: repair
   status: draft
+  cover: /media/projects/iphone-16-pro-max-vitre-arriere/cover.webp
   order: 1
+  year: 2026
+  device: iPhone 16 Pro Max
+  role: Remplacement de la vitre arrière
+  scan:
+    - label: Vitre arrière
+      x: 22
+      y: 6
+      w: 52
+      h: 84
+  summary: >-
+    Une vitre arrière éclatée sur toute sa hauteur. Sur ce modèle, le dos se
+    remplace seul, sans toucher à l'écran : dépose, nouvelle vitre, et le
+    téléphone retrouve un dos intact.
+  body: |
+    ## Avant
+
+    La vitre arrière est fissurée de haut en bas : les fêlures partent du bloc
+    photo et s'ouvrent en éventail jusqu'au bas du téléphone.
+
+    ## Pendant
+
+    ![La vitre arrière fissurée soulevée, le téléphone maintenu sur un support, entouré d'outils d'ouverture](/media/projects/iphone-16-pro-max-vitre-arriere/pendant.webp "La vitre se dépose par l'arrière, sans démonter l'écran.")
+
+    Sur l'iPhone 16 Pro Max, le dos s'ouvre de son côté : la vitre se décolle
+    et se dépose sans démonter l'écran. Le téléphone reste maintenu sur un
+    support le temps de l'opération.
+
+    ## Après
+
+    ![Le même iPhone tenu en main, le dos blanc intact](/media/projects/iphone-16-pro-max-vitre-arriere/apres.webp "Le dos neuf.")
+en:
+  title: iPhone 16 Pro Max — back glass
+  coverAlt: "The back of a white iPhone 16 Pro Max, its back glass cracked from top to bottom, fanning out from the camera bump."
+  role: Back glass replacement
+  scan:
+    - label: Back glass
+      x: 22
+      y: 6
+      w: 52
+      h: 84
+  summary: >-
+    A back glass shattered from top to bottom. On this model the back is
+    replaced on its own, without touching the screen: off it comes, a new
+    glass goes on, and the phone has an intact back again.
+  body: |
+    ## Before
+
+    The back glass is cracked from top to bottom: the cracks start at the
+    camera bump and fan out down to the bottom of the phone.
+
+    ## During
+
+    ![The cracked back glass lifted, the phone held in a stand, surrounded by opening tools](/media/projects/iphone-16-pro-max-vitre-arriere/pendant.webp "The glass comes off from the back, with the screen left in place.")
+
+    On the iPhone 16 Pro Max the back opens on its own side: the glass is
+    unglued and removed without taking the screen off. The phone stays held
+    in a stand throughout.
+
+    ## After
+
+    ![The same iPhone held in hand, its white back intact](/media/projects/iphone-16-pro-max-vitre-arriere/apres.webp "The new back.")

@@ -1,0 +1,57 @@
+fr:
+  title: iPhone XR — écran
+  coverAlt: "Un iPhone XR corail à l'écran détruit : vitre fêlée, dalle zébrée de lignes et de taches noires, l'écran de verrouillage à peine lisible."
+  chapter: repair
+  status: draft
+  cover: /media/projects/iphone-xr-ecran/cover.webp
+  order: 3
+  year: 2026
+  device: iPhone XR
+  role: Remplacement de l'écran
+  scan:
+    - label: "Écran : vitre et dalle LCD"
+      x: 24
+      y: 10
+      w: 54
+      h: 79
+  summary: >-
+    Un écran détruit : vitre fêlée, dalle LCD zébrée de lignes et de taches
+    noires, plus rien de lisible. Un nouvel écran, et le téléphone redevient
+    utilisable.
+  body: |
+    ## Avant
+
+    La vitre est fêlée et la dalle LCD ne s'affiche plus que par bandes, entre
+    des lignes et des taches noires : le téléphone n'est plus utilisable.
+
+    ## Pendant
+
+    ![L'iPhone XR ouvert sur la table, l'ancien écran déposé à côté du châssis, le nouvel écran dans son emballage, les outils autour](/media/projects/iphone-xr-ecran/pendant.webp "L'ancien écran déposé, le nouveau prêt à poser.")
+
+    L'écran se dépose par l'avant et se remplace d'un bloc : sur ce modèle, la
+    vitre et la dalle ne forment qu'une pièce.
+en:
+  title: iPhone XR — screen
+  coverAlt: "A coral iPhone XR with a wrecked screen: cracked glass, an LCD panel streaked with lines and black patches, the lock screen barely readable."
+  role: Screen replacement
+  scan:
+    - label: "Screen: glass and LCD panel"
+      x: 24
+      y: 10
+      w: 54
+      h: 79
+  summary: >-
+    A wrecked screen: cracked glass, an LCD panel streaked with lines and black
+    patches, nothing left to read. A new screen, and the phone is usable again.
+  body: |
+    ## Before
+
+    The glass is cracked and the LCD panel only shows in strips, between
+    lines and black patches: the phone can no longer be used.
+
+    ## During
+
+    ![The iPhone XR open on the table, the old screen removed beside the frame, the new screen in its packaging, tools around](/media/projects/iphone-xr-ecran/pendant.webp "The old screen off, the new one ready to fit.")
+
+    The screen comes off from the front and is replaced as one block: on this
+    model the glass and the panel are a single part.

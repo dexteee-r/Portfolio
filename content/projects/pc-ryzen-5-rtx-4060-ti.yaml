@@ -1,0 +1,148 @@
+fr:
+  title: PC Ryzen 5 · RTX 4060 Ti
+  coverAlt: "Les boîtes des composants empilées devant et sur le boîtier ouvert : alimentation MSI A850GL, ventirad Thermalright Assassin X 120, carte mère Gigabyte B650 Eagle AX, Ryzen 5, mémoire Corsair Vengeance RGB, carte graphique Gigabyte RTX 4060, SSD Crucial BX500 et disque dur Seagate."
+  chapter: repair
+  status: draft
+  cover: /media/projects/pc-ryzen-5-rtx-4060-ti/cover.webp
+  preview: /media/projects/pc-ryzen-5-rtx-4060-ti/preview.mp4
+  order: 5
+  year: 2025
+  device: PC Ryzen 5 · RTX 4060 Ti
+  role: Montage, puis passage à une RTX 4060 Ti
+  stack:
+    - Ryzen 5
+    - Gigabyte B650 Eagle AX
+    - RTX 4060
+    - RTX 4060 Ti
+    - Corsair Vengeance RGB
+    - Assassin X 120
+    - MSI A850GL
+    - Crucial BX500
+  scan:
+    - label: Alimentation MSI A850GL
+      x: 25
+      y: 10
+      w: 31
+      h: 20
+    - label: Ventirad Assassin X 120
+      x: 58
+      y: 2
+      w: 24
+      h: 23
+    - label: Carte mère B650 Eagle AX
+      x: 1
+      y: 48
+      w: 36
+      h: 38
+    - label: Ryzen 5
+      x: 46
+      y: 47
+      w: 13
+      h: 12
+    - label: DDR5 Vengeance RGB 32 Go
+      x: 60
+      y: 42
+      w: 16
+      h: 14
+    - label: RTX 4060
+      x: 39
+      y: 59
+      w: 24
+      h: 11
+  summary: >-
+    Un PC monté en avril 2025 autour d'un Ryzen 5 et d'une RTX 4060, puis
+    repris en septembre 2026 : la carte graphique laisse place à une RTX
+    4060 Ti, pilotes effacés avant l'échange.
+  body: |
+    ## Le montage, avril 2025
+
+    - **Processeur** : AMD Ryzen 5, sur une carte mère Gigabyte B650 Eagle AX,
+      sous un ventirad Thermalright Assassin X 120 Refined SE.
+    - **Carte graphique** : Gigabyte GeForce RTX 4060 Windforce OC, 8 Go.
+    - **Mémoire** : 32 Go de DDR5 Corsair Vengeance RGB.
+    - **Stockage** : un SSD Crucial BX500 et un disque dur Seagate BarraCuda.
+    - **Alimentation** : MSI MAG A850GL, prête pour l'ATX 3.1 et le PCIe 5.1.
+
+    ![Le PC monté et allumé, vitre ouverte : le ventirad blanc et la mémoire éclairés en violet](/media/projects/pc-ryzen-5-rtx-4060-ti/allume.webp "Monté, allumé.")
+
+    ## La mise à niveau, septembre 2026
+
+    La RTX 4060 laisse place à une RTX 4060 Ti.
+
+    - **Les pilotes d'abord.** Avant de toucher au matériel, Display Driver
+      Uninstaller efface les pilotes de l'ancienne carte, pour que la nouvelle
+      reparte d'une installation propre.
+    - **L'échange.** L'ancienne carte sort du boîtier ; la nouvelle, une MSI,
+      est dépoussiérée à la soufflette avant d'y entrer.
+
+    ![Display Driver Uninstaller ouvert sur l'écran, le curseur sur « Nettoyer et éteindre »](/media/projects/pc-ryzen-5-rtx-4060-ti/ddu.webp "Display Driver Uninstaller : nettoyer, puis éteindre pour changer de carte.")
+
+    ![Une main retire la carte graphique du boîtier ouvert, au-dessus de l'alimentation MSI A850GL](/media/projects/pc-ryzen-5-rtx-4060-ti/demontage.webp "L'ancienne carte sort.")
+
+    ![Une carte graphique MSI à deux ventilateurs posée sur le bureau, dépoussiérée à la soufflette électrique](/media/projects/pc-ryzen-5-rtx-4060-ti/nettoyage.webp "La nouvelle, dépoussiérée avant le montage.")
+en:
+  title: PC Ryzen 5 · RTX 4060 Ti
+  coverAlt: "The parts' boxes stacked in front of and on the open case: an MSI A850GL power supply, a Thermalright Assassin X 120 cooler, a Gigabyte B650 Eagle AX motherboard, a Ryzen 5, Corsair Vengeance RGB memory, a Gigabyte RTX 4060 graphics card, a Crucial BX500 SSD and a Seagate hard drive."
+  role: Build, then an upgrade to an RTX 4060 Ti
+  scan:
+    - label: MSI A850GL power supply
+      x: 25
+      y: 10
+      w: 31
+      h: 20
+    - label: Assassin X 120 cooler
+      x: 58
+      y: 2
+      w: 24
+      h: 23
+    - label: B650 Eagle AX motherboard
+      x: 1
+      y: 48
+      w: 36
+      h: 38
+    - label: Ryzen 5
+      x: 46
+      y: 47
+      w: 13
+      h: 12
+    - label: Vengeance RGB DDR5 32 GB
+      x: 60
+      y: 42
+      w: 16
+      h: 14
+    - label: RTX 4060
+      x: 39
+      y: 59
+      w: 24
+      h: 11
+  summary: >-
+    A PC built in April 2025 around a Ryzen 5 and an RTX 4060, then taken up
+    again in September 2026: the graphics card makes way for an RTX 4060 Ti,
+    drivers wiped before the swap.
+  body: |
+    ## The build, April 2025
+
+    - **Processor**: AMD Ryzen 5, on a Gigabyte B650 Eagle AX motherboard,
+      under a Thermalright Assassin X 120 Refined SE cooler.
+    - **Graphics card**: Gigabyte GeForce RTX 4060 Windforce OC, 8 GB.
+    - **Memory**: 32 GB of Corsair Vengeance RGB DDR5.
+    - **Storage**: a Crucial BX500 SSD and a Seagate BarraCuda hard drive.
+    - **Power supply**: MSI MAG A850GL, ready for ATX 3.1 and PCIe 5.1.
+
+    ![The PC built and switched on, its glass off: the white cooler and the memory lit purple](/media/projects/pc-ryzen-5-rtx-4060-ti/allume.webp "Built, switched on.")
+
+    ## The upgrade, September 2026
+
+    The RTX 4060 makes way for an RTX 4060 Ti.
+
+    - **Drivers first.** Before touching the hardware, Display Driver
+      Uninstaller wipes the old card's drivers, so the new one starts from a
+      clean install.
+    - **The swap.** The old card comes out of the case; the new one, an MSI,
+      is dusted off with a blower before it goes in.
+
+    ![Display Driver Uninstaller open on screen, the cursor on "Clean and shut down"](/media/projects/pc-ryzen-5-rtx-4060-ti/ddu.webp "Display Driver Uninstaller: clean, then shut down to change cards.")
+
+    ![A hand takes the graphics card out of the open case, above the MSI A850GL power supply](/media/projects/pc-ryzen-5-rtx-4060-ti/demontage.webp "The old card comes out.")
+
+    ![A two-fan MSI graphics card on the desk, dusted off with an electric blower](/media/projects/pc-ryzen-5-rtx-4060-ti/nettoyage.webp "The new one, dusted off before it goes in.")
