@@ -324,9 +324,23 @@ test.describe("a clip in a project's text", () => {
 test.describe("a clip in a project's text, without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("is in the HTML, with its controls", async ({ page }) => {
+  test("is in the HTML, with its controls and its poster's blurred preview behind it", async ({ page }) => {
     await page.goto("/fr/repair/ecran-fixture");
     await expect(page.locator("figure > video")).toHaveAttribute("controls", "");
+    expect(await page.locator("figure > video").getAttribute("style")).toContain("data:image/webp;base64,");
+  });
+});
+
+test.describe("blurred previews on a project page, without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the cover and the text's images each have one, straight from the HTML", async ({ page }) => {
+    await page.goto("/fr/dev/alpha-app");
+    const images = page.locator("main img");
+    expect(await images.count()).toBeGreaterThan(1);
+    for (const style of await images.evaluateAll((imgs) => imgs.map((img) => img.getAttribute("style") ?? ""))) {
+      expect(style).toContain("data:image/webp;base64,");
+    }
   });
 });
 

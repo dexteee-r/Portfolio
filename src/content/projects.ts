@@ -235,6 +235,8 @@ export interface LocalizedProject {
   /** Language the body is actually written in. */
   bodyLang: Locale;
   cover?: string;
+  /** The cover's blurred preview, drawn at build time by the page that shows it (content/media). */
+  coverBlur?: string;
   /** Written in `lang`, like the rest of the card. */
   coverAlt: string;
   year?: number;

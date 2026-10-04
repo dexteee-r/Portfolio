@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { inspectMarkdown } from "@/content/markdown";
-import { readDimensions } from "@/content/media";
+import { readDimensions, readImages, readPlaceholders } from "@/content/media";
 import { ContentError, loadProjects, mediaOf, parseProject } from "@/content/projects";
 import { PREVIEW_MAX_BYTES } from "@/content/schema";
 
@@ -159,5 +159,36 @@ describe("readDimensions", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("readPlaceholders", () => {
+  const sources = ["/media/fixtures/alpha-shot.png", "/media/fixtures/alpha-cover.webp"];
+
+  it("draws each image as a tiny WebP, a few hundred bytes inlined in the page", async () => {
+    const blurs = await readPlaceholders(sources, PUBLIC);
+    expect(Object.keys(blurs)).toEqual(sources);
+    for (const blur of Object.values(blurs)) {
+      expect(blur).toMatch(/^data:image\/webp;base64,[A-Za-z0-9+/]+=*$/);
+      expect(blur.length).toBeLessThan(1000);
+    }
+  });
+
+  it("returns nothing for nothing", async () => {
+    expect(await readPlaceholders([], PUBLIC)).toEqual({});
+  });
+
+  it("fails clearly on a missing or unreadable file", async () => {
+    await expect(readPlaceholders(["/media/fixtures/none.png"], PUBLIC)).rejects.toThrow(
+      /cannot read image \/media\/fixtures\/none\.png/,
+    );
+  });
+});
+
+describe("readImages", () => {
+  it("gives each image its size and its blurred preview", async () => {
+    const images = await readImages(["/media/fixtures/alpha-cover.webp"], PUBLIC);
+    expect(images["/media/fixtures/alpha-cover.webp"]).toMatchObject({ width: 1600, height: 1000 });
+    expect(images["/media/fixtures/alpha-cover.webp"]!.blur).toMatch(/^data:image\/webp;base64,/);
   });
 });

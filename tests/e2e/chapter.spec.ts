@@ -66,6 +66,13 @@ test.describe("chapter page, loaded directly", () => {
     await expect.poll(() => cover.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   });
 
+  test("lets go of the blurred preview once the cover has loaded", async ({ page }) => {
+    await page.goto("/fr/dev");
+    const cover = page.getByRole("img", { name: "Dégradé indigo, image de test." });
+    await expect.poll(() => cover.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect.poll(() => cover.evaluate((img) => getComputedStyle(img).backgroundImage)).toBe("none");
+  });
+
   test("marks a French fallback on the English page", async ({ page }) => {
     await page.goto("/en/dev");
     const beta = page.locator('[data-station="beta-tool"]');
@@ -349,6 +356,15 @@ test.describe("chapter page without JavaScript", () => {
     await page.goto("/fr/repair");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Réparation/Montage");
     await expect(page.getByText("Montage de PC, réparation de PC et de téléphones", { exact: false })).toBeVisible();
+  });
+
+  test("draws each cover's blurred preview in its place, straight from the HTML", async ({ page }) => {
+    await page.goto("/fr/dev");
+    const covers = page.locator("[data-station] img, [data-folder] img");
+    expect(await covers.count()).toBeGreaterThan(1);
+    for (const style of await covers.evaluateAll((imgs) => imgs.map((img) => img.getAttribute("style") ?? ""))) {
+      expect(style).toContain("data:image/webp;base64,");
+    }
   });
 
   test("links from the desk still work", async ({ page }) => {

@@ -54,6 +54,11 @@ const renderScan = (props: Partial<Parameters<typeof DiagnosticScan>[0]> = {}) =
   ).container.querySelector<HTMLElement>("[data-scan]")!;
 
 describe("DiagnosticScan", () => {
+  it("stands the photo's blurred preview in its place until it loads", () => {
+    const blur = "data:image/webp;base64,UklGRhIAAABXRUJQVlA4IAYAAAAwAQCdASo=";
+    expect(renderScan({ size: { ...SIZE, blur } }).querySelector("img")!.getAttribute("style")).toContain(blur);
+  });
+
   it("keeps the photo's own proportions, so the boxes land where they were drawn", () => {
     const frame = renderScan().querySelector<HTMLElement>("img")!.parentElement!;
     expect(frame.style.aspectRatio).toBe("1200 / 900");

@@ -7,6 +7,7 @@ import type { ScanMarker } from "@/content/schema";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { interpolate } from "@/lib/interpolate";
+import { blurPlaceholder } from "./placeholder";
 
 /** A box this close to the top gets its label inside, not above and cut off. */
 export const LABEL_INSIDE_BELOW = 8;
@@ -96,6 +97,7 @@ export function DiagnosticScan({
           className="object-cover"
           loading="eager"
           fetchPriority="high"
+          {...blurPlaceholder(size.blur)}
         />
 
         <div

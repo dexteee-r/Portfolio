@@ -12,6 +12,7 @@ import { DiagnosticScan } from "./DiagnosticScan";
 import { Floppy } from "./Floppy";
 import { ProjectBody } from "./ProjectBody";
 import { hasTicket, RepairTicket } from "./RepairTicket";
+import { blurPlaceholder } from "./placeholder";
 import { SiteFooter } from "./SiteFooter";
 import { SkipLink } from "./SkipLink";
 import { SpecSheet } from "./SpecSheet";
@@ -175,6 +176,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
                   duration={project.duration}
                   cover={project.cover}
                   coverSizes={COVER_SIZES}
+                  coverBlur={project.cover ? images[project.cover]?.blur : undefined}
                   className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
                 />
                 <SpecSheet
@@ -242,6 +244,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
                 className="object-cover"
                 loading="eager"
                 fetchPriority="high"
+                {...blurPlaceholder(images[project.cover]?.blur)}
               />
             </div>
           )}

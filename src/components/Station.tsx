@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { projectPath } from "@/i18n/paths";
 import { FolderGlyph } from "./FolderGlyph";
+import { blurPlaceholder } from "./placeholder";
 import { StationPreview } from "./StationPreview";
 
 interface StationProps {
@@ -44,6 +45,7 @@ export function Station({ locale, dict, project, index }: StationProps) {
             className="object-cover"
             loading={first ? "eager" : "lazy"}
             fetchPriority={first ? "high" : "auto"}
+            {...blurPlaceholder(project.coverBlur)}
           />
         ) : (
           <div aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center gap-4">

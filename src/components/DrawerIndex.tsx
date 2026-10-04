@@ -5,6 +5,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { projectPath } from "@/i18n/paths";
 import { FolderGlyph } from "./FolderGlyph";
+import { blurPlaceholder } from "./placeholder";
 
 /** With fewer projects, the stations below say it all: no index. */
 export const DRAWER_MIN_PROJECTS = 2;
@@ -82,6 +83,7 @@ export function DrawerIndex({ locale, dict, projects }: DrawerIndexProps) {
                         fill
                         sizes="(min-width: 768px) 40vw, 7rem"
                         className="object-cover transition-transform duration-(--duration-slow) ease-standard group-hover/folder:scale-[1.03]"
+                        {...blurPlaceholder(project.coverBlur)}
                       />
                     ) : (
                       <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">

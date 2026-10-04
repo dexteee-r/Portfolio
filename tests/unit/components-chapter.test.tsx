@@ -10,6 +10,8 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/fr/dev" }));
 
 const fr = getDictionary("fr");
 const en = getDictionary("en");
+/** A blurred preview, as the build draws it. */
+const BLUR = "data:image/webp;base64,UklGRhIAAABXRUJQVlA4IAYAAAAwAQCdASo=";
 
 function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
   return {
@@ -139,6 +141,12 @@ describe("DrawerIndex (the drawer, open)", () => {
     expect(tabPlacement(3)).toEqual(tabPlacement(0));
   });
 
+  it("stands each cover's blurred preview in its place until it loads", () => {
+    const blurred = [project({ coverBlur: BLUR }), project({ slug: "gamma-thing", title: "Gamma", coverBlur: BLUR })];
+    const { container } = render(<DrawerIndex locale="fr" dict={fr} projects={blurred} />);
+    for (const img of container.querySelectorAll("[data-folder] img")) expect(img.getAttribute("style")).toContain(BLUR);
+  });
+
   it("shows a strip of the cover, as decoration, or the project's folder when there is none", () => {
     const { container } = render(<DrawerIndex locale="fr" dict={fr} projects={three} />);
     const [alpha, beta] = [...container.querySelectorAll("[data-folder]")];
@@ -173,6 +181,16 @@ describe("Station", () => {
   it("shows the cover with its description", () => {
     render(<Station locale="fr" dict={fr} project={project()} index={0} />);
     expect(screen.getByRole("img", { name: "Dégradé indigo." })).toBeInTheDocument();
+  });
+
+  it("stands its blurred preview in the cover's place until the cover loads", () => {
+    const { container } = render(<Station locale="fr" dict={fr} project={project({ coverBlur: BLUR })} index={0} />);
+    expect(container.querySelector("img")!.getAttribute("style")).toContain(BLUR);
+  });
+
+  it("shows no preview when it has none, rather than an empty frame", () => {
+    const { container } = render(<Station locale="fr" dict={fr} project={project()} index={0} />);
+    expect(container.querySelector("img")!.getAttribute("style")).not.toContain("background-image");
   });
 
   it("loads the first cover eagerly and the others lazily", () => {

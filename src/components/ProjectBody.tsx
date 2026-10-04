@@ -5,6 +5,7 @@ import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { clipPoster, isClip } from "@/content/markdown";
 import type { Dimensions } from "@/content/media";
+import { blurPlaceholder } from "./placeholder";
 
 interface ProjectBodyProps {
   markdown: string;
@@ -70,7 +71,11 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
             loop
             playsInline
             preload="none"
-            style={fitScreen(size)}
+            style={{
+              ...fitScreen(size),
+              // The poster's blurred preview, behind it until it loads.
+              ...(size.blur && { backgroundImage: `url("${size.blur}")`, backgroundSize: "cover" }),
+            }}
             className="block h-auto rounded-sm bg-chapter-surface"
           />
         );
@@ -86,6 +91,7 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
           sizes="(min-width: 768px) 40rem, 100vw"
           style={fitScreen(size)}
           className="block h-auto rounded-sm bg-chapter-surface"
+          {...blurPlaceholder(size.blur)}
         />
       );
     },

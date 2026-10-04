@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Locale } from "@/i18n/config";
 import { formatDuration } from "@/lib/time";
 import { Barcode } from "./Barcode";
+import { blurPlaceholder } from "./placeholder";
 
 /** A sunset cut by bars, the chapter's own box art when a project has no cover. */
 function Sunset() {
@@ -32,6 +33,8 @@ interface VhsJacketProps {
   cover?: string;
   /** The page cover's own `sizes`: the browser then fetches one file for both. */
   coverSizes: string;
+  /** The cover's blurred preview, shown until the box art loads. */
+  coverBlur?: string;
   className?: string;
 }
 
@@ -57,6 +60,7 @@ export function VhsJacket({
   duration,
   cover,
   coverSizes,
+  coverBlur,
   className = "",
 }: VhsJacketProps) {
   const running = duration === undefined ? undefined : formatDuration(duration, locale);
@@ -79,7 +83,15 @@ export function VhsJacket({
           </div>
           <div className="vhs-art relative min-h-0 flex-1 overflow-hidden bg-chapter-bg">
             {cover ? (
-              <Image src={cover} alt="" fill sizes={coverSizes} loading="eager" className="object-cover" />
+              <Image
+                src={cover}
+                alt=""
+                fill
+                sizes={coverSizes}
+                loading="eager"
+                className="object-cover"
+                {...blurPlaceholder(coverBlur)}
+              />
             ) : (
               <Sunset />
             )}

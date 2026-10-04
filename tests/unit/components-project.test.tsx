@@ -16,6 +16,8 @@ const fr = getDictionary("fr");
 const en = getDictionary("en");
 const SHOT = "/media/fixtures/alpha-shot.png";
 const sizes = { [SHOT]: { width: 1200, height: 900 } };
+/** A blurred preview, as the build draws it. */
+const BLUR = "data:image/webp;base64,UklGRhIAAABXRUJQVlA4IAYAAAAwAQCdASo=";
 
 function project(overrides: Partial<LocalizedProject> = {}): LocalizedProject {
   return {
@@ -51,6 +53,11 @@ describe("ProjectBody", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Contexte" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "Écrit en niveau 1" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+  });
+
+  it("stands an image's blurred preview in its place until it loads", () => {
+    render(<ProjectBody markdown={`![Capture](${SHOT})`} images={{ [SHOT]: { width: 1200, height: 900, blur: BLUR } }} />);
+    expect(screen.getByRole("img", { name: "Capture" }).getAttribute("style")).toContain(BLUR);
   });
 
   it("serves images through the pipeline at their real size", () => {
@@ -134,6 +141,15 @@ describe("ProjectBody", () => {
       expect(video).toHaveAccessibleName("Le téléphone réparé, l'écran d'accueil qui défile");
     });
 
+    it("shows its poster's blurred preview behind it until the poster loads", () => {
+      const { container } = render(
+        <ProjectBody markdown={`![Le téléphone réparé](${CLIP})`} images={{ [POSTER]: { width: 720, height: 1280, blur: BLUR } }} />,
+      );
+      const video = container.querySelector("video")!;
+      expect(video.style.backgroundImage).toContain(BLUR);
+      expect(video.style.backgroundSize).toBe("cover");
+    });
+
     it("never stands taller than most of the screen: a vertical clip narrows instead", () => {
       const { container } = renderClip(`![Le téléphone réparé](${CLIP})`);
       // 720 × 1280: at 80 % of the viewport's height, 45vh wide at most.
@@ -196,6 +212,12 @@ describe("ProjectView", () => {
   it("shows the cover, described", () => {
     render(<ProjectView locale="fr" dict={fr} project={project()} images={sizes} />);
     expect(screen.getByRole("img", { name: "Dégradé indigo." })).toHaveAttribute("loading", "eager");
+  });
+
+  it("stands the cover's blurred preview in its place until it loads", () => {
+    const cover = project().cover!;
+    render(<ProjectView locale="fr" dict={fr} project={project()} images={{ ...sizes, [cover]: { width: 1600, height: 1000, blur: BLUR } }} />);
+    expect(screen.getByRole("img", { name: "Dégradé indigo." }).getAttribute("style")).toContain(BLUR);
   });
 
   it("stays whole without a cover, a body, links or a year", () => {
@@ -556,6 +578,10 @@ describe("VhsJacket", () => {
   it("reads its spine upwards in French, downwards in English, as on each language's shelves", () => {
     expect(renderJacket().querySelector("[data-vhs-spine]")).toHaveClass("[writing-mode:vertical-rl]", "rotate-180");
     expect(renderJacket({ locale: "en" }).querySelector("[data-vhs-spine]")).not.toHaveClass("rotate-180");
+  });
+
+  it("stands the cover's blurred preview in the box art's place until it loads", () => {
+    expect(renderJacket({ coverBlur: BLUR }).querySelector("img")!.getAttribute("style")).toContain(BLUR);
   });
 
   it("shows the cover as box art, asking for the very file the page's cover uses", () => {

@@ -4,7 +4,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ProjectView, type SiblingLink } from "@/components/ProjectView";
 import { chapterFromSlug, chapterSlugs } from "@/content/chapters";
 import { inspectMarkdown } from "@/content/markdown";
-import { readDimensions } from "@/content/media";
+import { readImages } from "@/content/media";
 import { loadProjects, localizeProject, projectsOf, visibleProjects } from "@/content/projects";
 import type { Project } from "@/content/schema";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -80,7 +80,8 @@ export default async function ProjectPage({ params }: PageProps<"/[locale]/[chap
   const path = projectPath(locale, project.chapter, project.slug);
 
   const localized = localizeProject(project, locale);
-  const images = readDimensions([
+  // Their sizes, so nothing shifts, and their blurred previews, so nothing is blank while they load.
+  const images = await readImages([
     ...inspectMarkdown(localized.body).images.map((image) => image.url),
     // The diagnostic scan draws the cover at its own proportions.
     ...(localized.cover ? [localized.cover] : []),

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ChapterView } from "@/components/ChapterView";
 import { JsonLd } from "@/components/JsonLd";
 import { chapterFromSlug, chapterIds, chapterSlugs } from "@/content/chapters";
+import { readPlaceholders } from "@/content/media";
 import { loadNetwork } from "@/content/network";
 import {
   countByChapter,
@@ -68,7 +69,10 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
   const path = chapterPath(locale, chapter);
 
   const all = loadProjects();
-  const stations = visibleProjects(projectsOf(all, chapter)).map((p) => localizeProject(p, locale));
+  const localized = visibleProjects(projectsOf(all, chapter)).map((p) => localizeProject(p, locale));
+  // Each cover's blurred preview, shown in its place — on its station and its folder — until it loads.
+  const blurs = await readPlaceholders(localized.flatMap((p) => (p.cover ? [p.cover] : [])));
+  const stations = localized.map((p) => (p.cover ? { ...p, coverBlur: blurs[p.cover] } : p));
 
   const structured = graph(
     breadcrumbLd([
