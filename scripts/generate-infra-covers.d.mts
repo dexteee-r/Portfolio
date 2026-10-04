@@ -2,4 +2,4 @@
 export const WIDTH: number;
 export const HEIGHT: number;
 /** Each infra project's cover, as an SVG document. */
-export const covers: Record<"homelab" | "supervision" | "acces-distant", () => string>;
+export const covers: Record<"machines" | "supervision" | "acces-distant", () => string>;

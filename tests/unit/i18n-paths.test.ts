@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { chapterFromSlug, chapterIds, chapterSlugRedirects, chapterSlugs, formerChapterSlugs } from "@/content/chapters";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  chapterFromSlug,
+  chapterIds,
+  chapterSlugRedirects,
+  chapterSlugs,
+  formerChapterSlugs,
+  movedProjectRedirects,
+  movedProjects,
+} from "@/content/chapters";
 import nextConfig from "../../next.config";
 import { locales } from "@/i18n/config";
 import {
@@ -65,6 +75,34 @@ describe("a chapter's former address", () => {
 
   it("is wired into next.config", async () => {
     expect(await nextConfig.redirects!()).toEqual(expect.arrayContaining(chapterSlugRedirects()));
+  });
+});
+
+describe("a project's former address", () => {
+  it("goes straight to its new one, from the chapter's current segment and its former ones", () => {
+    expect(movedProjectRedirects()).toEqual(
+      expect.arrayContaining([
+        { source: "/fr/homelab/homelab", destination: "/fr/homelab/machines", permanent: true },
+        { source: "/en/homelab/homelab", destination: "/en/homelab/machines", permanent: true },
+        { source: "/fr/infra/homelab", destination: "/fr/homelab/machines", permanent: true },
+        { source: "/en/infra/homelab", destination: "/en/homelab/machines", permanent: true },
+      ]),
+    );
+  });
+
+  it("points at a project that exists, under a name no project uses any more", () => {
+    for (const { chapter, from, to } of movedProjects) {
+      const moved = join(__dirname, "..", "..", "content", "projects", `${to}.yaml`);
+      expect(existsSync(moved), to).toBe(true);
+      expect(readFileSync(moved, "utf8")).toMatch(new RegExp(`^\\s+chapter: ${chapter}$`, "m"));
+      expect(existsSync(join(__dirname, "..", "..", "content", "projects", `${from}.yaml`)), from).toBe(false);
+    }
+  });
+
+  it("is matched before the chapter's own redirect, so an old link takes one hop, not two", async () => {
+    const sources = (await nextConfig.redirects!()).map((r) => r.source);
+    expect(sources.indexOf("/fr/infra/homelab")).toBeGreaterThanOrEqual(0);
+    expect(sources.indexOf("/fr/infra/homelab")).toBeLessThan(sources.indexOf("/fr/infra/:project"));
   });
 });
 

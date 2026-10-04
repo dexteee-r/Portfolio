@@ -13,7 +13,7 @@ const infraPalette = [...tokens.matchAll(/--infra-[\w-]+:\s*(#[0-9a-f]{6})/gi)].
 
 describe("the infra covers (scripts/generate-infra-covers.mjs)", () => {
   it("draws one cover per infra project, at the stations' 16:10", () => {
-    expect(Object.keys(covers).sort()).toEqual(["acces-distant", "homelab", "supervision"]);
+    expect(Object.keys(covers).sort()).toEqual(["acces-distant", "machines", "supervision"]);
     expect(WIDTH / HEIGHT).toBe(16 / 10);
     for (const draw of Object.values(covers)) {
       expect(draw()).toContain(`viewBox="0 0 ${WIDTH} ${HEIGHT}"`);
@@ -40,7 +40,7 @@ describe("the infra covers (scripts/generate-infra-covers.mjs)", () => {
   });
 
   it("states only facts from the homelab's documentation", () => {
-    const homelab = covers.homelab();
+    const homelab = covers.machines();
     for (const fact of ["Beelink S12", "i7-6700", "ZimaOS", "EXTRANET", "INTRANET"]) expect(homelab).toContain(fact);
   });
 

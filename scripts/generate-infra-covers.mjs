@@ -205,7 +205,7 @@ function remoteAccess() {
   return frame("VPN", svg);
 }
 
-export const covers = { homelab, supervision, "acces-distant": remoteAccess };
+export const covers = { machines: homelab, supervision, "acces-distant": remoteAccess };
 
 async function main() {
   const browser = await chromium.launch();

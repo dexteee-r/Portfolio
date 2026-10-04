@@ -3,7 +3,7 @@ fr:
   coverAlt: "Dessin des trois machines du homelab reliées à la box : l'extranet, un mini-PC Beelink S12 ; l'intranet, une tour i7-6700 avec 4 To de stockage ZFS ; le NAS sous ZimaOS."
   chapter: infra
   status: published
-  cover: /media/projects/homelab/cover.webp
+  cover: /media/projects/machines/cover.webp
   order: 1
   year: 2025
   role: Conception, installation et exploitation

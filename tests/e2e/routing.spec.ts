@@ -34,6 +34,18 @@ test.describe("locale routing", () => {
     expect((await request.get("/fr/infra/homelab-fixture")).status()).toBe(200);
   });
 
+  test("sends the homelab project's former address to /machines in one hop", async ({ request }) => {
+    for (const [from, to] of [
+      ["/fr/homelab/homelab", "/fr/homelab/machines"],
+      ["/en/homelab/homelab", "/en/homelab/machines"],
+      ["/fr/infra/homelab", "/fr/homelab/machines"],
+    ]) {
+      const response = await request.get(from!, noFollow);
+      expect(response.status(), from).toBe(308);
+      expect(new URL(response.headers()["location"]!, "http://x").pathname, from).toBe(to);
+    }
+  });
+
   test("prefixes paths without a locale and keeps the query string", async ({ request }) => {
     const response = await request.get("/dev/mytgc?ref=instagram", noFollow);
     expect(response.status()).toBe(307);

@@ -25,14 +25,39 @@ export const formerChapterSlugs: Partial<Record<ChapterId, string[]>> = {
   infra: ["infra"],
 };
 
-export interface ChapterRedirect {
+/**
+ * Projects renamed after publication: the homelab's own project lived at
+ * /fr/homelab/homelab until it became /fr/homelab/machines. Old links keep working.
+ */
+export const movedProjects: ReadonlyArray<{ chapter: ChapterId; from: string; to: string }> = [
+  { chapter: "infra", from: "homelab", to: "machines" },
+];
+
+export interface PathRedirect {
   source: string;
   destination: string;
   permanent: true;
 }
 
+/**
+ * Permanent redirects from a moved project's former name, under its chapter's
+ * current segment and each former one — straight to the new address, in one hop.
+ */
+export function movedProjectRedirects(): PathRedirect[] {
+  return movedProjects.flatMap(({ chapter, from, to }) =>
+    locales.flatMap((locale) => {
+      const current = chapterSlugs[chapter][locale];
+      return [current, ...(formerChapterSlugs[chapter] ?? [])].map((segment) => ({
+        source: `/${locale}/${segment}/${from}`,
+        destination: `/${locale}/${current}/${to}`,
+        permanent: true as const,
+      }));
+    }),
+  );
+}
+
 /** Permanent redirects from a chapter's former segments, for it and its projects. */
-export function chapterSlugRedirects(): ChapterRedirect[] {
+export function chapterSlugRedirects(): PathRedirect[] {
   return chapterIds.flatMap((chapter) =>
     (formerChapterSlugs[chapter] ?? []).flatMap((former) =>
       locales.flatMap((locale) => {

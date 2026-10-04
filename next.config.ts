@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { chapterSlugRedirects } from "./src/content/chapters";
+import { chapterSlugRedirects, movedProjectRedirects } from "./src/content/chapters";
 import { pageSlugRedirects } from "./src/content/pages";
 
 const isE2EBuild = process.env.NEXT_DIST_DIR === ".next-e2e";
@@ -22,10 +22,12 @@ const nextConfig: NextConfig = {
   // served by `next start`.
   output: isE2EBuild ? undefined : "standalone",
   // A frame page's slug under the wrong language (`/en/mentions-legales`)
-  // goes to that language's own slug; see src/content/pages.ts. A chapter's
-  // former segment (`/fr/infra`) goes to its current one; see src/content/chapters.ts.
+  // goes to that language's own slug; see src/content/pages.ts. A renamed
+  // project, then a chapter's former segment (`/fr/infra`), go to their
+  // current address; see src/content/chapters.ts. The first rule that matches
+  // wins: moved projects come first, so an old link takes a single hop.
   async redirects() {
-    return [...pageSlugRedirects(), ...chapterSlugRedirects()];
+    return [...pageSlugRedirects(), ...movedProjectRedirects(), ...chapterSlugRedirects()];
   },
   // The commit an image was built from, on every response: the deployment
   // checks that the site really serves the new version (deploy/wait-for-version.sh).
