@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { inspectMarkdown } from "@/content/markdown";
 import { readDimensions } from "@/content/media";
 import { ContentError, loadProjects, mediaOf, parseProject } from "@/content/projects";
+import { PREVIEW_MAX_BYTES } from "@/content/schema";
 
 const ROOT = join(__dirname, "..", "..");
 const PUBLIC = join(ROOT, "public");
@@ -22,7 +23,21 @@ describe("inspectMarkdown", () => {
   });
 
   it("treats a reference without definition as plain text, not an image", () => {
-    expect(inspectMarkdown("![x][nope]")).toEqual({ images: [], problems: [] });
+    expect(inspectMarkdown("![x][nope]")).toEqual({ images: [], videos: [], problems: [] });
+  });
+
+  it("takes a silent clip written like an image, its poster beside it under the same name", () => {
+    const { images, videos, problems } = inspectMarkdown('![Le téléphone réparé](/media/p/apres.mp4 "Après")');
+    expect(videos).toEqual([{ url: "/media/p/apres.mp4", alt: "Le téléphone réparé", poster: "/media/p/apres.webp" }]);
+    // The poster is an image like any other: sized, and checked on disk.
+    expect(images).toEqual([{ url: "/media/p/apres.webp", alt: "Le téléphone réparé" }]);
+    expect(problems).toEqual([]);
+  });
+
+  it("refuses a clip without description", () => {
+    expect(inspectMarkdown("![](/media/p/apres.webm)").problems).toEqual([
+      'clip "/media/p/apres.webm" has no description (alt text)',
+    ]);
   });
 
   it("follows reference-style images to their definition", () => {
@@ -94,6 +109,30 @@ describe("project texts at load time", () => {
       writeFileSync(join(dir, "content", "projects", "x.yaml"), "chapter: dev\nfr:\n  body: '![a](/media/gone.png)'\n");
       expect(() => loadProjects(join(dir, "content"), join(dir, "public"))).toThrow(
         /x\.yaml: image \/media\/gone\.png does not exist/,
+      );
+    });
+
+    const clipProject = "chapter: repair\nfr:\n  body: '![Le téléphone réparé](/media/apres.mp4)'\n";
+
+    it("fail the build when a text shows a clip without its poster, or a poster without its clip", () => {
+      writeFileSync(join(dir, "content", "projects", "x.yaml"), clipProject);
+      writeFileSync(join(dir, "public", "media", "apres.mp4"), "clip");
+      expect(() => loadProjects(join(dir, "content"), join(dir, "public"))).toThrow(
+        /x\.yaml: image \/media\/apres\.webp does not exist/,
+      );
+      rmSync(join(dir, "public", "media", "apres.mp4"));
+      writeFileSync(join(dir, "public", "media", "apres.webp"), "poster");
+      expect(() => loadProjects(join(dir, "content"), join(dir, "public"))).toThrow(
+        /x\.yaml: clip \/media\/apres\.mp4 does not exist/,
+      );
+    });
+
+    it("refuse a clip heavier than a station's preview", () => {
+      writeFileSync(join(dir, "content", "projects", "x.yaml"), clipProject);
+      writeFileSync(join(dir, "public", "media", "apres.webp"), "poster");
+      writeFileSync(join(dir, "public", "media", "apres.mp4"), Buffer.alloc(PREVIEW_MAX_BYTES + 1));
+      expect(() => loadProjects(join(dir, "content"), join(dir, "public"))).toThrow(
+        /x\.yaml: clip \/media\/apres\.mp4 weighs 4\.0 MB — 4 MB at most/,
       );
     });
   });

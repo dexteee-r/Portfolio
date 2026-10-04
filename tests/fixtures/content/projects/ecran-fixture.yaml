@@ -24,6 +24,10 @@ fr:
       y: 4
       w: 25
       h: 20
+  body: |
+    ## Après
+
+    ![Le téléphone réparé, son écran d'accueil qui défile](/media/fixtures/film-preview.webm "L'écran neuf répond au doigt.")
 en:
   title: Test screen
   summary: A test repair.

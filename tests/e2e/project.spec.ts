@@ -296,6 +296,40 @@ test.describe("the diagnostic scan without JavaScript", () => {
   });
 });
 
+test.describe("a clip in a project's text", () => {
+  const clip = (page: Page) => page.locator("figure > video");
+
+  test("plays only when asked: silent, with controls, its poster showing until then", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    await expect(clip(page)).toHaveAttribute("poster", "/media/fixtures/film-preview.webp");
+    await expect(clip(page)).toHaveAttribute("controls", "");
+    await expect(clip(page)).toHaveAccessibleName("Le téléphone réparé, son écran d'accueil qui défile");
+    await expect(page.locator("figure:has(> video) figcaption")).toHaveText("L'écran neuf répond au doigt.");
+    await page.waitForTimeout(500);
+    expect(await clip(page).evaluate((v: HTMLVideoElement) => ({ paused: v.paused, muted: v.muted }))).toEqual({
+      paused: true,
+      muted: true,
+    });
+    await clip(page).evaluate((v: HTMLVideoElement) => v.play());
+    await expect.poll(() => clip(page).evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(0.1);
+  });
+
+  test("holds its place before anything loads: its poster's proportions", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    const box = (await clip(page).boundingBox())!;
+    expect(box.height / box.width).toBeCloseTo(200 / 320, 1);
+  });
+});
+
+test.describe("a clip in a project's text, without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("is in the HTML, with its controls", async ({ page }) => {
+    await page.goto("/fr/repair/ecran-fixture");
+    await expect(page.locator("figure > video")).toHaveAttribute("controls", "");
+  });
+});
+
 test.describe("the creative chapter's VHS jacket", () => {
   const box = (page: Page) => page.locator("[data-vhs] .vhs-case");
   const transform = (page: Page) => box(page).evaluate((el) => getComputedStyle(el).transform);

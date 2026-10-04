@@ -131,7 +131,29 @@ export function parseProject(slug: string, source: string, file = `${slug}.yaml`
   return project;
 }
 
-/** Every image a project uses: its cover and the images of each text. */
+/** Every clip a project's texts show, once. */
+export function clipsOf(project: Project): string[] {
+  const urls = new Set<string>();
+  for (const fields of Object.values(project.translations)) {
+    if (!fields?.body.trim()) continue;
+    for (const { url } of inspectMarkdown(fields.body).videos) urls.add(url);
+  }
+  return [...urls];
+}
+
+/** A video file must exist and stay as light as a station's preview. */
+function checkVideo(file: string, media: string, src: string, what: string) {
+  const video = path.join(media, src);
+  if (!existsSync(video)) throw new ContentError(`${file}: ${what} ${src} does not exist in public/`);
+  const size = statSync(video).size;
+  if (size > PREVIEW_MAX_BYTES) {
+    throw new ContentError(
+      `${file}: ${what} ${src} weighs ${(size / 1024 / 1024).toFixed(1)} MB — ${PREVIEW_MAX_BYTES / 1024 / 1024} MB at most`,
+    );
+  }
+}
+
+/** Every image a project uses: its cover and the images of each text (a clip's poster included). */
 export function mediaOf(project: Project): string[] {
   const urls = new Set<string>();
   if (project.cover) urls.add(project.cover);
@@ -174,16 +196,8 @@ export function loadProjects(root: string = contentRoot(), media: string = publi
         throw new ContentError(`${file}: image ${src} does not exist in public/`);
       }
     }
-    if (project.preview) {
-      const video = path.join(media, project.preview);
-      if (!existsSync(video)) throw new ContentError(`${file}: preview ${project.preview} does not exist in public/`);
-      const size = statSync(video).size;
-      if (size > PREVIEW_MAX_BYTES) {
-        throw new ContentError(
-          `${file}: preview ${project.preview} weighs ${(size / 1024 / 1024).toFixed(1)} MB — ${PREVIEW_MAX_BYTES / 1024 / 1024} MB at most`,
-        );
-      }
-    }
+    if (project.preview) checkVideo(file, media, project.preview, "preview");
+    for (const clip of clipsOf(project)) checkVideo(file, media, clip, "clip");
     projects.push(project);
   }
 

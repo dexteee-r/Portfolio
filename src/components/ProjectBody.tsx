@@ -3,12 +3,22 @@ import Image from "next/image";
 import Link from "next/link";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { clipPoster, isClip } from "@/content/markdown";
 import type { Dimensions } from "@/content/media";
 
 interface ProjectBodyProps {
   markdown: string;
   /** Intrinsic size of every image the text shows, read at build time. */
   images: Record<string, Dimensions>;
+}
+
+/** A photo or clip in a text never stands taller than this share of the screen, like the scanned cover. */
+const MAX_HEIGHT_VH = 80;
+
+/** Full width, unless that would make it taller than the screen allows: a vertical one narrows instead. */
+function fitScreen({ width, height }: Dimensions) {
+  const widest = Math.round(((MAX_HEIGHT_VH * width) / height) * 100) / 100;
+  return { width: `min(100%, ${widest}vh)` };
 }
 
 /** The only child of a paragraph, ignoring whitespace — an image standing alone. */
@@ -42,6 +52,29 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
       ),
 
     img: ({ src, alt }) => {
+      if (typeof src === "string" && isClip(src)) {
+        // A silent clip: it plays only when asked, its poster standing in
+        // until then and giving it its size, so the page never shifts.
+        const poster = clipPoster(src);
+        const size = images[poster];
+        if (!size) return null;
+        return (
+          <video
+            src={src}
+            poster={poster}
+            width={size.width}
+            height={size.height}
+            aria-label={alt ?? ""}
+            controls
+            muted
+            loop
+            playsInline
+            preload="none"
+            style={fitScreen(size)}
+            className="block h-auto rounded-sm bg-chapter-surface"
+          />
+        );
+      }
       const size = typeof src === "string" ? images[src] : undefined;
       if (typeof src !== "string" || !size) return null;
       return (
@@ -51,7 +84,8 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
           width={size.width}
           height={size.height}
           sizes="(min-width: 768px) 40rem, 100vw"
-          className="h-auto w-full rounded-sm bg-chapter-surface"
+          style={fitScreen(size)}
+          className="block h-auto rounded-sm bg-chapter-surface"
         />
       );
     },

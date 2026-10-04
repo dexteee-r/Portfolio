@@ -61,6 +61,13 @@ describe("ProjectBody", () => {
     expect(img).toHaveAttribute("height", "900");
   });
 
+  it("keeps a vertical photo within the screen's height, a wide one at full width", () => {
+    const TALL = "/media/fixtures/tall.webp";
+    render(<ProjectBody markdown={`![Haute](${TALL}) ![Large](${SHOT})`} images={{ ...sizes, [TALL]: { width: 1000, height: 2000 } }} />);
+    expect(screen.getByRole("img", { name: "Haute" }).style.width).toBe("min(100%, 40vh)");
+    expect(screen.getByRole("img", { name: "Large" }).style.width).toBe("min(100%, 106.67vh)");
+  });
+
   it("turns an image alone in its paragraph into a figure, with its title as caption", () => {
     const { container } = renderBody(`![Capture](${SHOT} "La légende")`);
     const figure = container.querySelector("figure")!;
@@ -103,6 +110,47 @@ describe("ProjectBody", () => {
   it("drops an image whose size is unknown rather than render it unsized", () => {
     renderBody("![Ailleurs](/media/unknown.png)");
     expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  describe("a clip", () => {
+    const CLIP = "/media/fixtures/apres.mp4";
+    const POSTER = "/media/fixtures/apres.webp";
+    const renderClip = (markdown: string) =>
+      render(<ProjectBody markdown={markdown} images={{ ...sizes, [POSTER]: { width: 720, height: 1280 } }} />);
+
+    it("plays only when asked: silent, looping, with controls, sized and shown by its poster", () => {
+      const { container } = renderClip(`![Le téléphone réparé, l'écran d'accueil qui défile](${CLIP} "Après.")`);
+      const video = container.querySelector("video")!;
+      expect(video).toHaveAttribute("src", CLIP);
+      expect(video).toHaveAttribute("poster", POSTER);
+      expect(video).toHaveAttribute("controls");
+      expect(video).toHaveAttribute("playsinline");
+      expect(video).toHaveAttribute("loop");
+      expect(video).toHaveAttribute("preload", "none");
+      expect(video).not.toHaveAttribute("autoplay");
+      expect(video.muted).toBe(true);
+      expect(video).toHaveAttribute("width", "720");
+      expect(video).toHaveAttribute("height", "1280");
+      expect(video).toHaveAccessibleName("Le téléphone réparé, l'écran d'accueil qui défile");
+    });
+
+    it("never stands taller than most of the screen: a vertical clip narrows instead", () => {
+      const { container } = renderClip(`![Le téléphone réparé](${CLIP})`);
+      // 720 × 1280: at 80 % of the viewport's height, 45vh wide at most.
+      expect(container.querySelector("video")!.style.width).toBe("min(100%, 45vh)");
+    });
+
+    it("stands as a figure, its title as caption, like a lone image", () => {
+      const { container } = renderClip(`![Le téléphone réparé](${CLIP} "Après.")`);
+      expect(container.querySelector("figure > video")).not.toBeNull();
+      expect(container.querySelector("figure figcaption")).toHaveTextContent("Après.");
+      expect(container.querySelector("p")).toBeNull();
+    });
+
+    it("is dropped when its poster's size is unknown, rather than shift the page as it loads", () => {
+      const { container } = renderBody(`![Le téléphone réparé](${CLIP})`);
+      expect(container.querySelector("video")).toBeNull();
+    });
   });
 });
 

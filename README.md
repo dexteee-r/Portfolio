@@ -286,6 +286,15 @@ seule dans son paragraphe devient une figure légendée. Le build refuse : une
 image sans description, hors de `/media`, en JPEG ou distante ; un lien qui
 n'est ni `http(s)`, ni `mailto:`, ni un chemin du site ; tout HTML brut.
 
+Un **extrait vidéo** s'insère de la même façon, en `.mp4` ou `.webm` :
+`![description](/media/projects/<slug>/apres.mp4 "légende")`. Il est muet,
+avec ses contrôles, et ne se lance jamais seul. Son image d'attente est le
+`.webp` du même nom, posé à côté (`apres.webp`) : elle s'affiche jusqu'à la
+lecture et donne ses proportions à l'extrait, pour que la page ne bouge pas au
+chargement. Le build échoue sans elle, sans l'extrait, ou si l'extrait dépasse
+4 Mo. Avant de publier un extrait de réparation, vérifier image par image
+qu'il ne montre rien du client : contacts, numéros, messages, visages.
+
 Un projet `published` doit avoir au minimum `fr.title` et `fr.summary` (et
 `fr.coverAlt` s'il a une couverture), sinon le build échoue. Une couverture qui
 pointe vers un fichier absent fait aussi échouer le build. Sans couverture, la
