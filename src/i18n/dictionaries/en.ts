@@ -2,10 +2,10 @@ import type { Dictionary } from "./index";
 
 export const en: Dictionary = {
   meta: {
-    title: "ELMZN — development, infrastructure, repair, film",
+    title: "ELMZN — development, homelab, repair and builds, film",
     description:
-      "Full-stack and infrastructure developer, based in Belgium. I also repair devices and shoot video.",
-    jobTitle: "Full-stack and infrastructure developer",
+      "Digital tinkerer based in Belgium: apps and websites, a homelab, PCs built and repaired, phones brought back to life. And I shoot video too.",
+    jobTitle: "Digital tinkerer",
   },
   skipLink: "Skip to content",
   topBar: {
@@ -22,7 +22,7 @@ export const en: Dictionary = {
   },
   desk: {
     identity:
-      "Full-stack and infrastructure developer, based in Belgium. I also repair devices and shoot video.",
+      "Digital tinkerer based in Belgium: apps and websites, a homelab, PCs built and repaired, phones brought back to life. And I shoot video too.",
     chaptersLabel: "Chapters",
   },
   chapters: {
@@ -31,12 +31,12 @@ export const en: Dictionary = {
       description: "Apps, websites and tools I designed and built.",
     },
     infra: {
-      name: "Infrastructure",
-      description: "Servers, networking and monitoring: the infrastructure I build and look after.",
+      name: "Homelab",
+      description: "Servers, networking and remote access: the homelab I build and look after.",
     },
     repair: {
-      name: "Repair",
-      description: "Phone and PC repair: diagnosis, teardown, restoration.",
+      name: "Repair/Build",
+      description: "PC builds, PC and phone repair: diagnosis, teardown, restoration.",
     },
     creative: {
       name: "Creative",

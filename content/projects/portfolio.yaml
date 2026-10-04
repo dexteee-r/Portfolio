@@ -1,6 +1,6 @@
 fr:
   title: elmzn.be — ce portfolio
-  coverAlt: "Deux pages d'elmzn.be en ligne : le bureau d'accueil avec son globe tramé et ses dossiers, et devant lui le chapitre Infrastructure avec sa carte du réseau."
+  coverAlt: "Deux pages d'elmzn.be en ligne : le bureau d'accueil avec son globe tramé et ses dossiers, et devant lui le chapitre Homelab avec sa carte du réseau."
   chapter: dev
   status: published
   cover: /media/projects/portfolio/cover.webp
@@ -25,7 +25,7 @@ fr:
   body: |
     ## Contexte
 
-    Quatre univers sans rapport — le développement, l'infrastructure, la
+    Quatre univers sans rapport — le développement, le homelab, la
     réparation, la vidéo — et un seul site pour les montrer. Le lien n'est pas
     un thème, c'est un geste : chacun de mes projets a commencé par un dossier
     à son nom. D'où le bureau.
@@ -33,9 +33,9 @@ fr:
     ## Les choix
 
     - **Un bureau, quatre chapitres.** Chaque chapitre a sa couleur et son
-      objet : une disquette pour le développement, le schéma du homelab pour
-      l'infrastructure, un ticket et un scan de diagnostic pour la réparation,
-      une cassette VHS pour la création.
+      objet : une disquette pour le développement, le schéma du réseau pour
+      le homelab, un ticket et un scan de diagnostic pour la réparation, une
+      cassette VHS pour la création.
     - **Du vrai texte, partout.** Tout est rendu côté serveur, lisible sans
       JavaScript, en français et en anglais, et l'accessibilité (WCAG AA) est
       vérifiée à chaque commit.
@@ -57,7 +57,7 @@ fr:
       chargement de la page.
 en:
   title: elmzn.be — this portfolio
-  coverAlt: "Two live pages of elmzn.be: the home desk with its dithered globe and folders, and in front of it the Infrastructure chapter with its network map."
+  coverAlt: "Two live pages of elmzn.be: the home desk with its dithered globe and folders, and in front of it the Homelab chapter with its network map."
   summary: >-
     The site you are reading: a desk, four folders, and behind them a CMS,
     over a thousand tests and automatic deployment to my homelab.
@@ -65,15 +65,15 @@ en:
   body: |
     ## Context
 
-    Four unrelated worlds — development, infrastructure, repair, video — and
+    Four unrelated worlds — development, the homelab, repair, video — and
     one site to show them. The link is not a theme, it is a habit: every one of
     my projects started as a folder with its name. Hence the desk.
 
     ## Choices
 
     - **A desk, four chapters.** Each chapter has its colour and its object: a
-      floppy disk for development, the homelab's map for infrastructure, a
-      ticket and a diagnostic scan for repair, a VHS tape for creative work.
+      floppy disk for development, the network map for the homelab, a ticket
+      and a diagnostic scan for repair, a VHS tape for creative work.
     - **Real text, everywhere.** Everything is rendered on the server,
       readable without JavaScript, in French and English, and accessibility
       (WCAG AA) is checked on every commit.

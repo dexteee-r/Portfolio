@@ -1,4 +1,4 @@
-import { act, render, screen, within } from "@testing-library/react";
+import { act, getDefaultNormalizer, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { Clock } from "@/components/Clock";
@@ -32,14 +32,22 @@ describe("ChapterMarks", () => {
   it("names each chapter with its real project count, pluralised per language", () => {
     render(<ChapterMarks locale="fr" dict={fr} counts={counts} />);
     expect(screen.getByRole("link", { name: "Développement 4 projets" })).toHaveAttribute("href", "/fr/dev");
-    expect(screen.getByRole("link", { name: "Infrastructure 1 projet" })).toHaveAttribute("href", "/fr/infra");
-    expect(screen.getByRole("link", { name: "Réparation 0 projet" })).toHaveAttribute("href", "/fr/repair");
+    expect(screen.getByRole("link", { name: "Homelab 1 projet" })).toHaveAttribute("href", "/fr/homelab");
+    expect(screen.getByRole("link", { name: "Réparation/Montage 0 projet" })).toHaveAttribute("href", "/fr/repair");
     expect(screen.getByRole("link", { name: "Création 2 projets" })).toHaveAttribute("href", "/fr/creatif");
+  });
+
+  it("lets a two-part name wrap after its slash, and only there", () => {
+    const { container } = render(<ChapterMarks locale="fr" dict={fr} counts={counts} />);
+    const repair = container.querySelector('[data-chapter-mark="repair"]')!;
+    expect(repair.querySelectorAll("wbr")).toHaveLength(1);
+    expect(repair.querySelector("wbr")!.previousSibling?.textContent).toBe("/");
+    expect(container.querySelector('[data-chapter-mark="dev"] wbr')).toBeNull();
   });
 
   it("uses translated slugs and English plurals in English", () => {
     render(<ChapterMarks locale="en" dict={en} counts={counts} />);
-    expect(screen.getByRole("link", { name: "Repair 0 projects" })).toHaveAttribute("href", "/en/repair");
+    expect(screen.getByRole("link", { name: "Repair/Build 0 projects" })).toHaveAttribute("href", "/en/repair");
     expect(screen.getByRole("link", { name: "Creative 2 projects" })).toHaveAttribute("href", "/en/creative");
   });
 
@@ -110,7 +118,9 @@ describe("Desk", () => {
   it("shows name and identity on first render, with no interaction", () => {
     render(<Desk locale="fr" dict={fr} counts={counts} />);
     expect(screen.getByRole("heading", { level: 1, name: site.ownerName })).toBeInTheDocument();
-    expect(screen.getByText(fr.desk.identity)).toBeInTheDocument();
+    // Word for word, its no-break space included.
+    const exact = { normalizer: getDefaultNormalizer({ collapseWhitespace: false }) };
+    expect(screen.getByText(fr.desk.identity, exact)).toBeInTheDocument();
   });
 
   it("has ELMZN on the left of the top bar, linking home", () => {

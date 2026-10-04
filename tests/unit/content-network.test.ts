@@ -75,6 +75,12 @@ describe("the homelab file", () => {
     expect(loadNetwork(join(ROOT, "content"), false) !== null).toBe(network.status === "published");
   });
 
+  it("draws only what runs today: nothing stopped, unused or still being set up", () => {
+    const labels = parseNetwork(readFileSync(join(ROOT, "content", NETWORK_FILE), "utf8")).nodes.map((n) => n.label);
+    const unfinished = /grafana|prometheus|checkmk|vaultwarden|home assistant|pi-hole|poste\.io|n8n|ollama/i;
+    for (const label of labels) expect(label, label).not.toMatch(unfinished);
+  });
+
   it("names every kind in every language", () => {
     for (const locale of locales) {
       expect(Object.keys(getDictionary(locale).network.kinds).sort()).toEqual([...networkKinds].sort());

@@ -1,7 +1,8 @@
-# The homelab, as the infra chapter draws it — edited in the CMS (Homelab).
+# The homelab, as the Homelab chapter draws it — edited in the CMS (Homelab).
 # Drawn from github.com/dexteee-r/elmzn_homelab (README, 2026-09-30): only
-# what runs today — nothing stopped (n8n, Ollama) or still being set up
-# (Vaultwarden, Checkmk, Home Assistant, Pi-hole, Poste.io).
+# what runs today — nothing stopped (n8n, Ollama), unused (Grafana and
+# Prometheus, left unfinished; taken off on 2026-10-04 at its owner's request)
+# or still being set up (Vaultwarden, Checkmk, Home Assistant, Pi-hole, Poste.io).
 # Names only, never an address or a port: the build refuses them.
 # Published by its owner on 2026-10-01.
 status: published
@@ -63,10 +64,6 @@ nodes:
     parent: pve-intranet
   - id: immich
     label: Immich
-    kind: service
-    parent: vm-intranet
-  - id: grafana
-    label: Grafana · Prometheus
     kind: service
     parent: vm-intranet
   - id: minecraft

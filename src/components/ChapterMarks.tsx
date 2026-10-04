@@ -2,6 +2,7 @@ import { chapterIds, type ChapterId } from "@/content/chapters";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { chapterPath } from "@/i18n/paths";
+import { ChapterName } from "./ChapterName";
 import { FolderGlyph } from "./FolderGlyph";
 import { SiteLink } from "./SiteLink";
 
@@ -56,7 +57,7 @@ export function ChapterMarks({ locale, dict, counts, plain = false }: ChapterMar
               />
               <span className="flex flex-col gap-1">
                 <span className="text-base font-medium leading-snug text-chapter-ink">
-                  {dict.chapters[id].name}
+                  <ChapterName name={dict.chapters[id].name} />
                 </span>{" "}
                 <span className="font-mono text-2xs uppercase tracking-label text-chapter-muted">
                   {formatCount(locale, counts[id], dict.projectCount)}

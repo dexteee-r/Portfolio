@@ -140,7 +140,7 @@ describe("structured data", () => {
   });
 
   it("describes the owner with the facts the site states, and only known profiles", () => {
-    const person = personLd("Développeur full-stack et infrastructure");
+    const person = personLd("Bricoleur du numérique");
     expect(person).toMatchObject({
       "@type": "Person",
       name: site.ownerName,

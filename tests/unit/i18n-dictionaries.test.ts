@@ -33,10 +33,48 @@ describe("dictionaries", () => {
     expect(other).toContain("{count}");
   });
 
-  it("carries the identity line from the brief, word for word", () => {
+  it("carries the identity line, word for word", () => {
     expect(getDictionary("fr").desk.identity).toBe(
-      "Développeur full-stack et infrastructure, en Belgique. Je répare et je filme aussi.",
+      "Bricoleur du numérique en Belgique : des applis et des sites, un homelab, des PC montés et réparés, des téléphones remis en état. Et je filme aussi.",
     );
+  });
+
+  it("never lets the identity line start a row with its colon: a no-break space holds it, as French wants", () => {
+    expect(getDictionary("fr").desk.identity).not.toMatch(/ :/);
+    expect(getDictionary("fr").meta.description).not.toMatch(/ :/);
+  });
+
+  it("introduces its owner as a digital tinkerer, never as a full-stack developer", () => {
+    expect(getDictionary("fr").meta.jobTitle).toBe("Bricoleur du numérique");
+    expect(getDictionary("en").meta.jobTitle).toBe("Digital tinkerer");
+    for (const locale of ["fr", "en"] as const) {
+      const { meta, desk } = getDictionary(locale);
+      for (const text of [meta.title, meta.description, meta.jobTitle, desk.identity]) {
+        expect(text, text).not.toMatch(/full[- ]?stack|développeur|developer/i);
+      }
+    }
+  });
+
+  it("names the repair chapter for both its trades: building PCs, and repairing PCs and phones", () => {
+    expect(getDictionary("fr").chapters.repair.name).toBe("Réparation/Montage");
+    expect(getDictionary("en").chapters.repair.name).toBe("Repair/Build");
+    expect(getDictionary("fr").chapters.repair.description).toMatch(/^Montage de PC, réparation de PC et de téléphones/);
+    expect(getDictionary("en").chapters.repair.description).toMatch(/^PC builds, PC and phone repair/);
+  });
+
+  it("shows on the homelab only what runs: no monitoring in its description", () => {
+    for (const locale of ["fr", "en"] as const) {
+      expect(getDictionary(locale).chapters.infra.description).not.toMatch(/supervision|monitoring/i);
+    }
+  });
+
+  it("calls the infra chapter the homelab, everywhere a visitor reads it", () => {
+    for (const locale of ["fr", "en"] as const) {
+      const dict = getDictionary(locale);
+      expect(dict.chapters.infra.name).toBe("Homelab");
+      const visible = [dict.meta.title, dict.meta.description, dict.meta.jobTitle, dict.desk.identity, dict.chapters.infra.description];
+      for (const text of visible) expect(text, text).not.toMatch(/infrastructure/i);
+    }
   });
 });
 

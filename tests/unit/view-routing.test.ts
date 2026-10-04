@@ -59,7 +59,7 @@ describe("transitionFor", () => {
   it("leaves every other navigation ordinary", () => {
     expect(transitionFor("frame", "/fr")).toBeNull(); // desk → desk
     expect(transitionFor("frame", "/en")).toBeNull(); // language switch
-    expect(transitionFor("chapter", "/fr/infra")).toBeNull(); // chapter → chapter
+    expect(transitionFor("chapter", "/fr/homelab")).toBeNull(); // chapter → chapter
     expect(transitionFor("chapter", "/fr/dev/mytgc")).toBeNull(); // station → project
     expect(transitionFor("project", "/fr/dev")).toBeNull(); // project → its chapter
     expect(transitionFor("chapter", "/fr/nope")).toBeNull();
@@ -76,7 +76,7 @@ describe("isQuietMove", () => {
 
   it("leaves out everything else", () => {
     expect(isQuietMove("/fr/dev", "/fr/dev")).toBe(false); // no move
-    expect(isQuietMove("/fr/dev", "/fr/infra")).toBe(false); // another chapter
+    expect(isQuietMove("/fr/dev", "/fr/homelab")).toBe(false); // another chapter
     expect(isQuietMove("/fr/dev/mytgc", "/en/dev/mytgc")).toBe(false); // language switch
     expect(isQuietMove("/fr", "/fr/dev")).toBe(false); // the drawer's job
     expect(isQuietMove("/fr/dev", "/fr")).toBe(false);

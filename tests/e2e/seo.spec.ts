@@ -63,7 +63,7 @@ test.describe("for crawlers", () => {
       "/fr/creatif",
       "/en/creative",
       "/fr/dev/alpha-app",
-      "/en/infra/homelab-fixture",
+      "/en/homelab/homelab-fixture",
     ]) {
       expect(xml).toContain(`<loc>https://elmzn.be${path}</loc>`);
     }
@@ -110,10 +110,10 @@ test.describe("structured data", () => {
 
 test.describe("link previews", () => {
   const pages = [
-    { path: "/fr", title: "ELMZN — développement, infrastructure, réparation, création", locale: "fr_BE", type: "website" },
-    { path: "/en", title: "ELMZN — development, infrastructure, repair, film", locale: "en_GB", type: "website" },
+    { path: "/fr", title: "ELMZN — développement, homelab, réparation et montage, création", locale: "fr_BE", type: "website" },
+    { path: "/en", title: "ELMZN — development, homelab, repair and builds, film", locale: "en_GB", type: "website" },
     { path: "/fr/dev", title: "Développement — ELMZN", locale: "fr_BE", type: "website" },
-    { path: "/fr/repair", title: "Réparation — ELMZN", locale: "fr_BE", type: "website" },
+    { path: "/fr/repair", title: "Réparation/Montage — ELMZN", locale: "fr_BE", type: "website" },
     { path: "/en/creative/film-test", title: "Test film — ELMZN", locale: "en_GB", type: "article" },
     { path: "/fr/dev/alpha-app", title: "Alpha — ELMZN", locale: "fr_BE", type: "article" },
     { path: "/fr/mentions-legales", title: "Mentions légales — ELMZN", locale: "fr_BE", type: "website" },

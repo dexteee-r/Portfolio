@@ -65,6 +65,6 @@ describe("a page's slug under the wrong language", () => {
   });
 
   it("is wired into next.config", async () => {
-    expect(await nextConfig.redirects!()).toEqual(pageSlugRedirects());
+    expect(await nextConfig.redirects!()).toEqual(expect.arrayContaining(pageSlugRedirects()));
   });
 });

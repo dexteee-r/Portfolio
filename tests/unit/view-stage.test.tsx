@@ -71,7 +71,7 @@ const Desk = () => (
       <a href="/fr/dev" data-chapter-mark="dev" id="mark-dev">
         Dev
       </a>
-      <a href="/fr/infra" data-chapter-mark="infra">
+      <a href="/fr/homelab" data-chapter-mark="infra">
         Infra
       </a>
     </nav>
@@ -86,7 +86,7 @@ const Chapter = ({ id = "dev" }: { id?: string }) => (
       {id}
     </h1>
     <a href="/fr">back</a>
-    <a href="/fr/infra">other chapter</a>
+    <a href="/fr/homelab">other chapter</a>
     <article data-station="first-project">
       <h2>
         <a href={`/fr/${id}/first-project`}>first station</a>
@@ -227,7 +227,7 @@ describe("ordinary navigations stay ordinary", () => {
   it.each([
     ["a language switch", "/fr", <Desk key="d" />, 'a[href="/en"]'],
     ["an anchor", "/fr", <Desk key="d" />, 'a[href="#content"]'],
-    ["another chapter", "/fr/dev", <Chapter key="c" />, 'a[href="/fr/infra"]'],
+    ["another chapter", "/fr/dev", <Chapter key="c" />, 'a[href="/fr/homelab"]'],
     ["a station", "/fr/dev", <Chapter key="c" />, 'a[href="/fr/dev/some-project"]'],
   ])("%s", (_, path, view, selector) => {
     nav.pathname = path;
@@ -571,7 +571,7 @@ describe("robustness", () => {
   it("runs one drawer at a time", () => {
     render(stage(<Desk />));
     fireEvent.click(document.getElementById("mark-dev")!);
-    const second = fireEvent.click(document.querySelector('a[href="/fr/infra"]')!);
+    const second = fireEvent.click(document.querySelector('a[href="/fr/homelab"]')!);
     expect(second).toBe(false);
     expect(push).toHaveBeenCalledOnce();
     expect(document.querySelectorAll("[data-stage-leaving]")).toHaveLength(1);

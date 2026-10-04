@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { chapterPath } from "@/i18n/paths";
 import { site } from "@/site";
+import { ChapterName } from "./ChapterName";
 import { DiagnosticScan } from "./DiagnosticScan";
 import { Floppy } from "./Floppy";
 import { ProjectBody } from "./ProjectBody";
@@ -108,7 +109,7 @@ export function ProjectView({ locale, dict, project, images, previous, next, pla
           <header className={layout?.header ?? "max-w-content"}>
             <div className={layout?.text}>
               <p className="font-mono text-2xs uppercase tracking-label text-chapter-muted">
-                {dict.chapters[project.chapter].name}
+                <ChapterName name={dict.chapters[project.chapter].name} />
                 {project.year !== undefined && <> · {project.year}</>}
               </p>
               <div lang={other(project.lang)}>

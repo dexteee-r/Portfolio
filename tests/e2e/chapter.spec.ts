@@ -165,7 +165,7 @@ test.describe("the drawer, open", () => {
 
 test.describe("the infra chapter's network map", () => {
   test("draws the homelab under the title: every machine named, then traced once seen", async ({ page }) => {
-    await page.goto("/fr/infra");
+    await page.goto("/fr/homelab");
     const map = page.locator("[data-network]");
     await expect(map.getByText("Le homelab, tel qu'il tourne")).toBeVisible();
     const drawing = map.locator("svg:visible");
@@ -186,7 +186,7 @@ test.describe("the infra chapter's network map", () => {
   });
 
   test("speaks the page's language", async ({ page }) => {
-    await page.goto("/en/infra");
+    await page.goto("/en/homelab");
     await expect(page.getByText("The homelab, as it runs")).toBeVisible();
     await expect(page.locator("[data-network] svg:visible").getByText("Hypervisor").first()).toBeVisible();
   });
@@ -196,7 +196,7 @@ test.describe("the network map without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("is simply there, drawn", async ({ page }) => {
-    await page.goto("/fr/infra");
+    await page.goto("/fr/homelab");
     const map = page.locator("[data-network]");
     await expect(map).not.toHaveAttribute("data-armed", "");
     await expect(map.locator("svg:visible").getByText("host-fixture", { exact: true })).toBeVisible();
@@ -307,12 +307,33 @@ test.describe("the creative stations' video preview, tracked", () => {
 test.describe("every chapter on the smallest phones (320px)", () => {
   test.use({ viewport: { width: 320, height: 640 } });
 
-  for (const path of ["/fr/dev", "/fr/infra", "/fr/repair", "/fr/creatif", "/en/dev", "/en/infra", "/en/repair", "/en/creative"]) {
+  for (const path of ["/fr/dev", "/fr/homelab", "/fr/repair", "/fr/creatif", "/en/dev", "/en/homelab", "/en/repair", "/en/creative"]) {
     test(`${path}: the whole title fits, nothing sticks out`, async ({ page }) => {
       await page.goto(path);
       expect(await horizontalOverflow(page)).toEqual([]);
     });
   }
+
+  test("a two-part title wraps after its slash, never mid-word", async ({ page }) => {
+    for (const [path, parts] of [
+      ["/fr/repair", ["Réparation", "Montage"]],
+      ["/en/repair", ["Repair", "Build"]],
+    ] as const) {
+      await page.goto(path);
+      const lines = await page.getByRole("heading", { level: 1 }).evaluate((h1, words: string[]) => {
+        const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT);
+        const rows: Record<string, number> = {};
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (!words.includes(node.textContent!)) continue;
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          rows[node.textContent!] = new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+        }
+        return rows;
+      }, [...parts]);
+      for (const word of parts) expect(lines[word], `${path} ${word}`).toBe(1);
+    }
+  });
 });
 
 test.describe("chapter page without JavaScript", () => {
@@ -320,8 +341,8 @@ test.describe("chapter page without JavaScript", () => {
 
   test("is complete in the HTML — the repair text reads before any script", async ({ page }) => {
     await page.goto("/fr/repair");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Réparation");
-    await expect(page.getByText("Réparation de téléphones et de PC", { exact: false })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Réparation/Montage");
+    await expect(page.getByText("Montage de PC, réparation de PC et de téléphones", { exact: false })).toBeVisible();
   });
 
   test("links from the desk still work", async ({ page }) => {
@@ -333,7 +354,7 @@ test.describe("chapter page without JavaScript", () => {
 });
 
 test.describe("accessibility of every grade (axe, WCAG 2.1 AA)", () => {
-  for (const path of ["/fr/dev", "/fr/infra", "/fr/repair", "/fr/creatif", "/en/dev", "/en/creative"]) {
+  for (const path of ["/fr/dev", "/fr/homelab", "/fr/repair", "/fr/creatif", "/en/dev", "/en/creative"]) {
     test(`${path} has no violations`, async ({ page }) => {
       await page.goto(path);
       // Read the page as it stays, not a frame caught mid-animation.

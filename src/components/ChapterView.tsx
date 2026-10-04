@@ -5,6 +5,7 @@ import type { LocalizedProject } from "@/content/projects";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
+import { ChapterName } from "./ChapterName";
 import { DrawerIndex } from "./DrawerIndex";
 import { NetworkMap } from "./NetworkMap";
 import { SiteFooter } from "./SiteFooter";
@@ -50,7 +51,7 @@ export function ChapterView({ locale, dict, chapter, stations, publishedCount, n
             tabIndex={-1}
             className="mt-3 text-3xl font-semibold leading-tight tracking-display text-chapter-accent hyphens-auto wrap-break-word md:text-4xl"
           >
-            {copy.name}
+            <ChapterName name={copy.name} />
           </h1>
           <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">{copy.description}</p>
         </header>

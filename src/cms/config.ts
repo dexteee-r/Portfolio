@@ -323,11 +323,11 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
       {
         name: "homelab",
         label: "Homelab",
-        description: "Le schéma réseau dessiné en tête du chapitre infra.",
+        description: "Le schéma réseau dessiné en tête du chapitre Homelab.",
         files: [
           {
             name: "network",
-            label: "Schéma réseau (chapitre infra)",
+            label: "Schéma réseau (chapitre Homelab)",
             file: `content/${NETWORK_FILE.split(/[\\/]/).join("/")}`,
             format: "yaml",
             fields: [

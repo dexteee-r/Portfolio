@@ -172,7 +172,7 @@ forme qu'écrit le CMS : tous les champs dans `fr:`, les traductions dans `en:`.
 ```yaml
 fr:
   title: MyTGC
-  chapter: dev          # dev | infra | repair | creative
+  chapter: dev          # dev | infra (le Homelab, /fr/homelab) | repair | creative
   status: draft         # draft (invisible en production) | published
   order: 1              # position dans le chapitre
   year: 2025            # facultatif

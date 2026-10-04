@@ -5,8 +5,8 @@ import { horizontalOverflow } from "./helpers";
 /** Fixture content: dev 2 published + 1 draft, infra 1, repair 1, creative 1. */
 const FR_MARKS = [
   { name: "Développement 2 projets", href: "/fr/dev" },
-  { name: "Infrastructure 1 projet", href: "/fr/infra" },
-  { name: "Réparation 1 projet", href: "/fr/repair" },
+  { name: "Homelab 1 projet", href: "/fr/homelab" },
+  { name: "Réparation/Montage 1 projet", href: "/fr/repair" },
   { name: "Création 1 projet", href: "/fr/creatif" },
 ];
 
@@ -19,7 +19,7 @@ test.describe("desk", () => {
     await page.goto("/fr");
     const name = page.getByRole("heading", { level: 1 });
     const identity = page.getByText(
-      "Développeur full-stack et infrastructure, en Belgique. Je répare et je filme aussi.",
+      "Bricoleur du numérique en Belgique : des applis et des sites, un homelab, des PC montés et réparés, des téléphones remis en état. Et je filme aussi.",
     );
     await expect(name).toBeInViewport();
     await expect(identity).toBeInViewport();
@@ -55,6 +55,28 @@ test.describe("desk", () => {
     }
   });
 
+  test("on the smallest phones (320px), each folder's name stays in its own column", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    for (const path of ["/fr", "/en"]) {
+      await page.goto(path);
+      const boxes = await page.locator("[data-chapter-mark]").evaluateAll((links) =>
+        links.map((link) => {
+          const name = link.querySelector("span > span")!.getBoundingClientRect();
+          const own = link.getBoundingClientRect();
+          return { name: link.textContent, left: name.left, right: name.right, top: name.top, bottom: name.bottom, ownRight: own.right };
+        }),
+      );
+      for (const box of boxes) expect(box.right, `${path} ${box.name}`).toBeLessThanOrEqual(box.ownRight + 0.5);
+      for (const a of boxes) {
+        for (const b of boxes) {
+          if (a === b) continue;
+          const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+          expect(overlap, `${path}: ${a.name} / ${b.name}`).toBe(false);
+        }
+      }
+    }
+  });
+
   test("declares every language version to search engines", async ({ page }) => {
     await page.goto("/en");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://elmzn.be/en");
@@ -70,10 +92,10 @@ test.describe("desk", () => {
     await page.getByRole("navigation", { name: "Langue" }).getByRole("link", { name: /EN/ }).click();
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByText("Full-stack and infrastructure developer", { exact: false })).toBeVisible();
+    await expect(page.getByText("Digital tinkerer based in Belgium: apps and websites, a homelab", { exact: false })).toBeVisible();
     const links = await marks(page);
     await expect(links.nth(3)).toHaveAttribute("href", "/en/creative");
-    await expect(links.nth(2)).toHaveAccessibleName("Repair 1 project");
+    await expect(links.nth(2)).toHaveAccessibleName("Repair/Build 1 project");
   });
 
   test("shows the local time once hydrated", async ({ page }) => {
@@ -140,7 +162,7 @@ test.describe("desk without JavaScript", () => {
   test("is complete: name, activity and the four links are in the HTML", async ({ page }) => {
     await page.goto("/fr");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByText("Je répare et je filme aussi.", { exact: false })).toBeVisible();
+    await expect(page.getByText("des PC montés et réparés", { exact: false })).toBeVisible();
     await expect(await marks(page)).toHaveCount(4);
   });
 });

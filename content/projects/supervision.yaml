@@ -2,7 +2,7 @@ fr:
   title: Supervision
   coverAlt: "Illustration d'un tableau de bord de supervision : quatre panneaux — processeur, mémoire, stockage ZFS, conteneurs Docker —, chacun avec sa courbe."
   chapter: infra
-  status: published
+  status: draft
   cover: /media/projects/supervision/cover.webp
   order: 2
   year: 2025

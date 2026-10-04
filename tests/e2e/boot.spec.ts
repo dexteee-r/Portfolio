@@ -264,7 +264,7 @@ test.describe("skipping", () => {
     expect(await bootState(page)).toBe("play");
     await page.locator('[data-chapter-mark="infra"]').click();
     expect(await bootState(page)).toBeNull();
-    await expect(page).toHaveURL(/\/fr\/infra$/);
+    await expect(page).toHaveURL(/\/fr\/homelab$/);
   });
 
   test("skipping mid-flight leaves a clean desk", async ({ page }) => {

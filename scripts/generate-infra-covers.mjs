@@ -48,7 +48,7 @@ function frame(label, content) {
   <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.bg}"/>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#dots)"/>
   ${brackets(56, 56, WIDTH - 112, HEIGHT - 112, 40, 3)}
-  ${text(104, 112, `ELMZN / INFRA / ${label}`, { size: 20, fill: C.muted, spacing: 4 })}
+  ${text(104, 112, `ELMZN / HOMELAB / ${label}`, { size: 20, fill: C.muted, spacing: 4 })}
   ${content}
 </svg>`;
 }
@@ -108,7 +108,7 @@ function homelab() {
     svg += text(cx, ground + 64, m.name, { size: 26, anchor: "middle", spacing: 3 });
     svg += text(cx, ground + 102, m.spec, { size: 19, fill: C.muted, anchor: "middle", spacing: 1 });
   }
-  return frame("HOMELAB", svg);
+  return frame("MACHINES", svg);
 }
 
 /** A smooth, seeded curve: an illustration's line, not a measurement. */

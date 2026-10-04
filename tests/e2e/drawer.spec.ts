@@ -180,7 +180,7 @@ test.describe("drawer: chapter → desk", () => {
     await open(page, "/fr");
     await page.locator('[data-chapter-mark="infra"]').focus();
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/\/fr\/infra$/);
+    await expect(page).toHaveURL(/\/fr\/homelab$/);
     await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(page.locator('[data-chapter-mark="infra"]')).toBeFocused();
@@ -223,8 +223,8 @@ test.describe("drawer: edge cases", () => {
   test("the 404's folders lead to their chapter (a separate document: a full load)", async ({ page }) => {
     await open(page, "/fr/nothing-here");
     await page.locator('[data-chapter-mark="infra"]').click();
-    await expect(page).toHaveURL(/\/fr\/infra$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Infrastructure");
+    await expect(page).toHaveURL(/\/fr\/homelab$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Homelab");
     await expect(page.locator("[data-stage-leaving]")).toHaveCount(0);
   });
 

@@ -1,4 +1,5 @@
-import type { Locale } from "@/i18n/config";
+// Relative import: next.config.ts reads this file, without the "@/" alias.
+import { locales, type Locale } from "../i18n/config";
 
 /**
  * The four chapters. Their ids match `data-chapter` in tokens.css, so this
@@ -11,10 +12,39 @@ export type ChapterId = (typeof chapterIds)[number];
 /** URL segment of each chapter, per locale. `/fr/creatif`, `/en/creative`. */
 export const chapterSlugs: Record<ChapterId, Record<Locale, string>> = {
   dev: { fr: "dev", en: "dev" },
-  infra: { fr: "infra", en: "infra" },
+  infra: { fr: "homelab", en: "homelab" },
   repair: { fr: "repair", en: "repair" },
   creative: { fr: "creatif", en: "creative" },
 };
+
+/**
+ * Segments a chapter was once published under: the infra chapter lived at
+ * `/fr/infra` until it took the homelab's name. Old links keep working.
+ */
+export const formerChapterSlugs: Partial<Record<ChapterId, string[]>> = {
+  infra: ["infra"],
+};
+
+export interface ChapterRedirect {
+  source: string;
+  destination: string;
+  permanent: true;
+}
+
+/** Permanent redirects from a chapter's former segments, for it and its projects. */
+export function chapterSlugRedirects(): ChapterRedirect[] {
+  return chapterIds.flatMap((chapter) =>
+    (formerChapterSlugs[chapter] ?? []).flatMap((former) =>
+      locales.flatMap((locale) => {
+        const current = chapterSlugs[chapter][locale];
+        return [
+          { source: `/${locale}/${former}`, destination: `/${locale}/${current}`, permanent: true as const },
+          { source: `/${locale}/${former}/:project`, destination: `/${locale}/${current}/:project`, permanent: true as const },
+        ];
+      }),
+    ),
+  );
+}
 
 export function isChapterId(value: string): value is ChapterId {
   return (chapterIds as readonly string[]).includes(value);

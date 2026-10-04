@@ -93,7 +93,7 @@ test.describe("project page, loaded directly", () => {
   });
 
   test("drafts, wrong chapters and wrong-language slugs are 404s", async ({ request }) => {
-    for (const path of ["/fr/dev/gamma-draft", "/fr/infra/alpha-app", "/en/creatif/film-test", "/fr/dev/nope"]) {
+    for (const path of ["/fr/dev/gamma-draft", "/fr/homelab/alpha-app", "/en/creatif/film-test", "/fr/dev/nope"]) {
       expect((await request.get(path)).status(), path).toBe(404);
     }
     expect((await request.get("/en/creative/film-test")).status()).toBe(200);
@@ -188,7 +188,7 @@ test.describe("the dev chapter's floppy disk", () => {
   });
 
   test("is the dev chapter's object only", async ({ page }) => {
-    for (const path of ["/fr/creatif/film-test", "/fr/infra/homelab-fixture", "/fr/repair/ecran-fixture"]) {
+    for (const path of ["/fr/creatif/film-test", "/fr/homelab/homelab-fixture", "/fr/repair/ecran-fixture"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-floppy]"), path).toHaveCount(0);
@@ -196,7 +196,7 @@ test.describe("the dev chapter's floppy disk", () => {
   });
 
   test("an infra project keeps a plain spec sheet under its title — the chapter's effect is its map", async ({ page }) => {
-    await page.goto("/fr/infra/homelab-fixture");
+    await page.goto("/fr/homelab/homelab-fixture");
     const sheet = page.getByRole("region", { name: "Fiche technique" });
     await expect(sheet.getByRole("term")).toHaveText(["Rôle", "Stack"]);
     await expect(sheet.getByRole("listitem")).toHaveText(["Proxmox VE", "Docker"]);
@@ -376,7 +376,7 @@ test.describe("the creative chapter's VHS jacket", () => {
   });
 
   test("is the creative chapter's object only", async ({ page }) => {
-    for (const path of ["/fr/dev/alpha-app", "/fr/infra/homelab-fixture", "/fr/repair/ecran-fixture"]) {
+    for (const path of ["/fr/dev/alpha-app", "/fr/homelab/homelab-fixture", "/fr/repair/ecran-fixture"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-vhs]"), path).toHaveCount(0);
@@ -463,7 +463,7 @@ test.describe("the repair chapter's ticket", () => {
   });
 
   test("is the repair chapter's object only", async ({ page }) => {
-    for (const path of ["/fr/dev/alpha-app", "/fr/creatif/film-test", "/fr/infra/homelab-fixture"]) {
+    for (const path of ["/fr/dev/alpha-app", "/fr/creatif/film-test", "/fr/homelab/homelab-fixture"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.locator("[data-ticket]"), path).toHaveCount(0);
@@ -492,7 +492,7 @@ test.describe("accessibility of project pages (axe, WCAG 2.1 AA)", () => {
     "/en/dev/alpha-app",
     "/en/dev/beta-tool",
     "/fr/creatif/film-test",
-    "/fr/infra/homelab-fixture",
+    "/fr/homelab/homelab-fixture",
     "/fr/repair/ecran-fixture",
     "/en/repair/ecran-fixture",
   ]) {

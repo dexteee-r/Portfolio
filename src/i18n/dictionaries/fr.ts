@@ -5,10 +5,10 @@
  */
 export const fr = {
   meta: {
-    title: "ELMZN — développement, infrastructure, réparation, création",
+    title: "ELMZN — développement, homelab, réparation et montage, création",
     description:
-      "Développeur full-stack et infrastructure, en Belgique. Je répare et je filme aussi.",
-    jobTitle: "Développeur full-stack et infrastructure",
+      "Bricoleur du numérique en Belgique : des applis et des sites, un homelab, des PC montés et réparés, des téléphones remis en état. Et je filme aussi.",
+    jobTitle: "Bricoleur du numérique",
   },
   skipLink: "Aller au contenu",
   topBar: {
@@ -25,7 +25,7 @@ export const fr = {
   },
   desk: {
     identity:
-      "Développeur full-stack et infrastructure, en Belgique. Je répare et je filme aussi.",
+      "Bricoleur du numérique en Belgique : des applis et des sites, un homelab, des PC montés et réparés, des téléphones remis en état. Et je filme aussi.",
     chaptersLabel: "Chapitres",
   },
   chapters: {
@@ -34,12 +34,12 @@ export const fr = {
       description: "Applications, sites et outils que j'ai conçus et développés.",
     },
     infra: {
-      name: "Infrastructure",
-      description: "Serveurs, réseau et supervision : l'infrastructure que je monte et que j'entretiens.",
+      name: "Homelab",
+      description: "Serveurs, réseau et accès à distance : le homelab que je monte et que j'entretiens.",
     },
     repair: {
-      name: "Réparation",
-      description: "Réparation de téléphones et de PC : diagnostic, démontage, remise en état.",
+      name: "Réparation/Montage",
+      description: "Montage de PC, réparation de PC et de téléphones : diagnostic, démontage, remise en état.",
     },
     creative: {
       name: "Création",

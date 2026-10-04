@@ -5,7 +5,7 @@ import { NetworkMap } from "@/components/NetworkMap";
 import type { NetworkNode } from "@/content/network-layout";
 import { getDictionary } from "@/i18n/dictionaries";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/fr/infra" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/fr/homelab" }));
 
 const fr = getDictionary("fr");
 const en = getDictionary("en");

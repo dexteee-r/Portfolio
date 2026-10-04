@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { chapterFromSlug, chapterIds, chapterSlugs } from "@/content/chapters";
+import { chapterFromSlug, chapterIds, chapterSlugRedirects, chapterSlugs, formerChapterSlugs } from "@/content/chapters";
+import nextConfig from "../../next.config";
 import { locales } from "@/i18n/config";
 import {
   chapterPath,
@@ -13,7 +14,8 @@ import {
 describe("chapter slugs", () => {
   it("match the URLs decided in the brief", () => {
     expect(chapterPath("fr", "dev")).toBe("/fr/dev");
-    expect(chapterPath("fr", "infra")).toBe("/fr/infra");
+    expect(chapterPath("fr", "infra")).toBe("/fr/homelab");
+    expect(chapterPath("en", "infra")).toBe("/en/homelab");
     expect(chapterPath("fr", "repair")).toBe("/fr/repair");
     expect(chapterPath("fr", "creative")).toBe("/fr/creatif");
     expect(chapterPath("en", "creative")).toBe("/en/creative");
@@ -35,6 +37,34 @@ describe("chapter slugs", () => {
     }
     expect(chapterFromSlug("en", "creatif")).toBeNull();
     expect(chapterFromSlug("fr", "nope")).toBeNull();
+  });
+});
+
+describe("a chapter's former address", () => {
+  it("redirects for good to the current one, for the chapter and each of its projects", () => {
+    expect(chapterSlugRedirects()).toEqual(
+      expect.arrayContaining([
+        { source: "/fr/infra", destination: "/fr/homelab", permanent: true },
+        { source: "/en/infra", destination: "/en/homelab", permanent: true },
+        { source: "/fr/infra/:project", destination: "/fr/homelab/:project", permanent: true },
+        { source: "/en/infra/:project", destination: "/en/homelab/:project", permanent: true },
+      ]),
+    );
+  });
+
+  it("is no longer a chapter, never shadows a live one, and never loops", () => {
+    for (const locale of locales) {
+      const live = new Set(chapterIds.map((id) => chapterSlugs[id][locale]));
+      for (const former of Object.values(formerChapterSlugs).flat()) {
+        expect(chapterFromSlug(locale, former!), former).toBeNull();
+        expect(live.has(former!), former).toBe(false);
+      }
+    }
+    for (const redirect of chapterSlugRedirects()) expect(redirect.destination).not.toBe(redirect.source);
+  });
+
+  it("is wired into next.config", async () => {
+    expect(await nextConfig.redirects!()).toEqual(expect.arrayContaining(chapterSlugRedirects()));
   });
 });
 
