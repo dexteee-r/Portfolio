@@ -479,9 +479,14 @@ Sur srv1, un conteneur LXC Debian 12 dédié (Proxmox : cocher *nesting* et
    puis `usermod -aG docker github-runner` (le nom importe peu ; il doit
    seulement pouvoir lancer Docker et lire `/opt/elmzn`).
 3. **Le site** : créer `/opt/elmzn/`, y copier `deploy/compose.yaml`,
-   `deploy/deploy.sh` et `deploy/wait-for-version.sh` (`chmod +x` sur les deux
-   scripts), et un `.env` (`chmod 600`) avec les variables `CMS_GITHUB_*` (voir
-   « Le CMS ») ; puis `chown -R github-runner: /opt/elmzn`.
+   `deploy/deploy.sh`, `deploy/wait-for-version.sh` et `deploy/warm-cache.sh`
+   (`chmod +x` sur les trois scripts), et un `.env` (`chmod 600`) avec les
+   variables `CMS_GITHUB_*` (voir « Le CMS ») ; puis
+   `chown -R github-runner: /opt/elmzn`. `warm-cache.sh` remplit le cache des
+   images optimisées juste après chaque déploiement (ce cache vit en mémoire
+   et chaque redémarrage le vide) : sans lui, chaque image est fabriquée à la
+   première visite. Absent, le déploiement passe quand même, avec un
+   avertissement.
 4. **L'image** : le paquet `ghcr.io/dexteee-r/portfolio` est public. Lancer
    une première fois `sudo -u github-runner /opt/elmzn/deploy.sh`.
 5. **Le réglage GitHub** ci-dessus (approbation de tous les contributeurs
@@ -536,8 +541,8 @@ confidentialité promet qu'ils disparaissent au plus tard après 11 semaines
   secret, contrôle de santé), le verrouillage du conteneur, l'enchaînement de
   la CI et du déploiement — le runner du homelab n'est joignable que par
   `deploy.yml`, pour un push sur `main` de ce dépôt, sans jeton ni code du
-  dépôt —, et exécute réellement `deploy.sh` et `wait-for-version.sh` contre
-  de faux `docker` et `curl`.
+  dépôt —, et exécute réellement `deploy.sh`, `wait-for-version.sh` et
+  `warm-cache.sh` contre de faux `docker` et `curl`.
 - `deploy/smoke-test.sh` lance l'image en lecture seule, sans privilèges,
   derrière un faux proxy HTTPS, et contrôle pages, 404, redirections, images,
   CMS et connexion GitHub avant toute publication.

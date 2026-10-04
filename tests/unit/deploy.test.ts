@@ -165,12 +165,16 @@ describe("the deployment, on the homelab's own runner", () => {
     expect(JSON.stringify(deployment)).not.toMatch(/secrets\./);
   });
 
-  it("asks the server to pull the published image, then checks the site serves this very commit", () => {
+  it("asks the server to pull the published image, checks the site serves this very commit, then warms its image cache", () => {
     expect(job["runs-on"]).toEqual(["self-hosted", "portfolio"]);
-    expect(job.steps.map((step) => step.run)).toEqual([
-      "/opt/elmzn/deploy.sh",
-      '/opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120',
-    ]);
+    const [pull, check, warm] = job.steps.map((step) => step.run ?? "");
+    expect(job.steps).toHaveLength(3);
+    expect(pull).toBe("/opt/elmzn/deploy.sh");
+    expect(check).toBe('/opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120');
+    expect(warm).toContain("/opt/elmzn/warm-cache.sh http://127.0.0.1:3000");
+    // Until the script is copied onto the server, a warning — not a red deployment.
+    expect(warm).toContain("[ -x /opt/elmzn/warm-cache.sh ]");
+    expect(warm).toContain("::warning::");
     // The commit comes through the environment, never pasted into a script.
     expect(job.env).toEqual({ SHA: "${{ github.event.workflow_run.head_sha }}" });
     for (const step of job.steps) expect(step.run).not.toContain("${{");
@@ -274,6 +278,66 @@ describe.skipIf(!SH)("deploy.sh", () => {
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("container unhealthy");
     expect(fake.calls().some((call) => call.includes("prune"))).toBe(false);
+  });
+});
+
+describe.skipIf(!SH)("warm-cache.sh", () => {
+  const IMAGE_A = "/_next/image?url=%2Fmedia%2Fa.webp";
+  const page = [
+    `<img srcSet="${IMAGE_A}&amp;w=640&amp;q=75 640w, ${IMAGE_A}&amp;w=1080&amp;q=75 1080w" src="${IMAGE_A}&amp;w=1080&amp;q=75"/>`,
+    // The page's React payload repeats the same URLs, escaped.
+    `<script>self.__next_f.push([1,"\\"srcSet\\":\\"${IMAGE_A}\\u0026w=640\\u0026q=75 640w\\""])</script>`,
+  ].join("\n");
+  const sitemap = "<urlset><url><loc>https://elmzn.be/fr</loc></url><url><loc>https://elmzn.be/en/dev</loc></url></urlset>";
+
+  /** A site answering from files beside the fake curl; `failing` makes the images it matches fail, `down` the whole site. */
+  function site({ down = false, failing = "" } = {}) {
+    const fake = fakes({
+      curl: [
+        "for last; do :; done",
+        'here=$(dirname "$0")',
+        'case "$last" in',
+        `  */sitemap.xml) ${down ? "exit 22" : 'cat "$here/sitemap.xml"'} ;;`,
+        `  */_next/image*) case "$last" in *"${failing || "never"}"*) exit 22 ;; esac ;;`,
+        '  *) cat "$here/page.html" ;;',
+        "esac",
+      ].join("\n"),
+    });
+    writeFileSync(join(fake.dir, "sitemap.xml"), sitemap);
+    writeFileSync(join(fake.dir, "page.html"), page);
+    return fake;
+  }
+
+  it("asks the site, locally, for every image of every page in its sitemap — once each, never their escaped copies", () => {
+    const fake = site();
+    const result = run("deploy/warm-cache.sh", [], fake.dir);
+    expect(result.status, result.stderr).toBe(0);
+    const calls = fake.calls();
+    expect(calls[0]).toBe("curl --silent --fail --max-time 30 http://127.0.0.1:3000/sitemap.xml");
+    expect(calls.slice(1, 3)).toEqual([
+      "curl --silent --fail --max-time 30 http://127.0.0.1:3000/fr",
+      "curl --silent --fail --max-time 30 http://127.0.0.1:3000/en/dev",
+    ]);
+    const images = calls.filter((call) => call.includes("/_next/image"));
+    expect(images).toEqual([
+      `curl --silent --fail --max-time 60 --output /dev/null --header Accept: image/avif,image/webp,*/* http://127.0.0.1:3000${IMAGE_A}&w=1080&q=75`,
+      `curl --silent --fail --max-time 60 --output /dev/null --header Accept: image/avif,image/webp,*/* http://127.0.0.1:3000${IMAGE_A}&w=640&q=75`,
+    ]);
+    expect(result.stdout).toMatch(/image cache warmed — 2 ok, 0 failed, from 2 pages, in \d+s/);
+  });
+
+  it("counts an image that does not answer, skips it, and still lets the deployment succeed", () => {
+    const result = run("deploy/warm-cache.sh", ["http://127.0.0.1:3000"], site({ failing: "w=1080" }).dir);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("1 ok, 1 failed");
+  });
+
+  it("never fails a deployment: with the site unreachable, says so and stops", () => {
+    const fake = site({ down: true });
+    const result = run("deploy/warm-cache.sh", [], fake.dir);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("sitemap unreachable");
+    expect(fake.calls().some((call) => call.includes("/_next/image"))).toBe(false);
   });
 });
 

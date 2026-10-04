@@ -45,3 +45,13 @@ jobs:
 
       - name: Check the site serves this commit
         run: /opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120
+
+      # The deploy emptied the image cache: fill it again before visitors ask,
+      # so none waits for an image to be optimised. Never fails the deployment.
+      - name: Warm the image cache
+        run: |
+          if [ -x /opt/elmzn/warm-cache.sh ]; then
+            /opt/elmzn/warm-cache.sh http://127.0.0.1:3000
+          else
+            echo "::warning::/opt/elmzn/warm-cache.sh is missing: copy deploy/warm-cache.sh there (README, Hébergement)."
+          fi
