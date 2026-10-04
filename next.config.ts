@@ -48,8 +48,11 @@ const nextConfig: NextConfig = {
     globalNotFound: true,
   },
   images: {
-    // AVIF first, WebP as fallback — no raw JPEG ever reaches the visitor.
-    formats: ["image/avif", "image/webp"],
+    // WebP only — no raw JPEG ever reaches the visitor. Each image is encoded
+    // on its first request, and the cache is emptied by every deploy (it lives
+    // in memory, see deploy/compose.yaml): on the homelab's server AVIF took
+    // 0.52–0.71 s per cover, WebP 0.16–0.18 s, for files about twice as heavy.
+    formats: ["image/webp"],
   },
 };
 
