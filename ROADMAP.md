@@ -70,9 +70,10 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   par image sur le serveur), un aperçu flou en attendant chaque image, et le
   cache préchauffé juste après chaque déploiement (`deploy/warm-cache.sh`,
   installé sur le serveur le 2026-10-05).
-- Les koï du bureau (2026-10-05) : deux carpes, une claire et une sombre, en
-  yin-yang dans un bassin, même trame 1 bit, à la place du globe — comparées
-  sur un banc d'essai avant de remplacer.
+- Les koï du bureau (2026-10-05) : cinq carpes dans un bassin — un couple
+  clair et sombre en yin-yang, trois plus petites sur leurs propres boucles —
+  même trame 1 bit, à la place du globe (comparées sur un banc d'essai avant
+  de remplacer), sur un tiers de la largeur de l'écran.
 - Note de confidentialité (2026-10-05) : le courrier à `contact@elmzn.be`
   arrive chez OVHcloud, qui le fait suivre vers Gmail (Google).
 
