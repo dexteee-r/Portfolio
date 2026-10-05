@@ -72,19 +72,18 @@ dossier ouvre directement le chapitre ; si les animations ne tournent pas
 Pour la revoir : supprimer la clé `elmzn.boot` du stockage local du site, puis
 recharger le bureau.
 
-**Le globe du bureau** (à droite, sur grand écran avec souris seulement) : la
-Terre en trame 1 bit, éclairée comme le « chrome skull » du dossier
-d'inspiration, qui fait un tour en 40 s, la Belgique marquée. Choisi le
-2026-09-29 sur un banc d'essai, parmi un globe en points, une constellation,
-un dossier 3D et un portrait ASCII.
+**Les koï du bureau** (à droite, sur grand écran avec souris seulement) : deux
+carpes vues de dessus, une claire tachetée et une sombre, qui tournent en
+yin-yang dans un bassin, un tour en 36 s, en trame 1 bit, avec leurs ombres et
+des ronds dans l'eau. Elles remplacent le 2026-10-05 le globe tramé
+(2026-09-29), comparées sur un banc d'essai ; le globe reste dans l'historique
+git.
 
 - Rendu logiciel sans aucune couleur écrite (`src/lib/desk-art/`) : un
   tableau de gris, tramé en encre, peint dans l'encre du cadre lue sur la page.
 - Chargé seulement sur grand écran avec souris : un téléphone ne télécharge
   rien. Caché pendant la séquence de démarrage puis révélé en fondu, immobile
   sous `prefers-reduced-motion`, en pause hors écran ou onglet masqué.
-- Les continents viennent de Natural Earth (domaine public), échantillonnés
-  une fois par `scripts/generate-land-dots.mjs` (`land-dots.json`, 25 Ko).
 
 Les tests E2E partent d'un visiteur qui l'a déjà vue (`storageState` dans
 `playwright.config.ts`) ; `tests/e2e/boot.spec.ts` part d'un stockage vide.

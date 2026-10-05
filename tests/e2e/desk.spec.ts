@@ -124,14 +124,15 @@ test.describe("desk", () => {
   });
 });
 
-test.describe("the desk's globe", () => {
-  test("turns on the right of the desk, on a wide screen, decorative", async ({ page }, testInfo) => {
+test.describe("the desk's koi", () => {
+  test("swim on the right of the desk, on a wide screen, decorative", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "wide screens with a mouse only");
     await page.goto("/fr");
     const art = page.locator("[data-desk-art]");
     await expect(art).toBeVisible();
+    await expect(art).toHaveAttribute("data-desk-art", "koi");
     await expect(art).toHaveAttribute("aria-hidden", "true");
-    // It is drawn — ink on the canvas — and it turns.
+    // They are drawn — ink on the canvas — and they swim.
     const inked = () =>
       art.locator("canvas").evaluate((canvas: HTMLCanvasElement) => {
         const data = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -144,8 +145,8 @@ test.describe("the desk's globe", () => {
     await expect.poll(inked, { timeout: 5000 }).not.toBe(first);
     // Right of the name, never over it.
     const name = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
-    const globe = (await art.boundingBox())!;
-    expect(globe.x).toBeGreaterThan(name.x + name.width);
+    const koi = (await art.boundingBox())!;
+    expect(koi.x).toBeGreaterThan(name.x + name.width);
   });
 
   test("is not even loaded on a phone", async ({ page }, testInfo) => {

@@ -274,8 +274,8 @@ test.describe("skipping", () => {
     expect(await bootState(page)).toBeNull();
     await expect(overlay(page)).toBeHidden();
     expect(await opacity(page, '[data-chapter-mark="creative"] svg')).toBe(1);
-    // Nothing of the sequence still runs. Only the desk's globe may be fading
-    // in: it waits for the sequence to end, skipped or not.
+    // Nothing of the sequence still runs. Only the desk's koi may be fading
+    // in: they wait for the sequence to end, skipped or not.
     expect(
       await page.evaluate(
         () =>
@@ -288,7 +288,7 @@ test.describe("skipping", () => {
     ).toBe(0);
   });
 
-  test("the desk's globe waits for the sequence, then fades in", async ({ page }, testInfo) => {
+  test("the desk's koi wait for the sequence, then fade in", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop", "wide screens with a mouse only");
     await page.goto("/fr");
     await catchTheFlight(page);

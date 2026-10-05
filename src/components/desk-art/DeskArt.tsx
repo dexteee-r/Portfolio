@@ -2,18 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import { BOOT_ATTRIBUTE } from "@/lib/boot";
-import { renderDitheredGlobe } from "@/lib/desk-art/pixels";
+import { renderDitheredKoi } from "@/lib/desk-art/koi";
 
-/** Frames a second: plenty for a slow, stepped turn, easy on the battery. */
+/** Frames a second: plenty for a slow, stepped swim, easy on the battery. */
 export const DESK_ART_FPS = 20;
 /** Pixels across the canvas, before it is scaled up. */
 export const PIXELS = 128;
 
 /**
- * The desk's globe: the Earth under a 1-bit screen, lit like the chrome skull
- * of the inspiration board, turning once in 40 seconds, Belgium marked.
- * Painted in the element's own text colour — the frame's ink — on transparent
- * paper, so the desk's ground shows through.
+ * The desk's koi: a light one and a dark one circling a pond under a 1-bit
+ * screen, a lap every 36 seconds. Painted in the element's own text colour —
+ * the frame's ink — on transparent paper, so the desk's ground shows through.
  *
  * Decorative. Drawn once and held still under reduced motion; paused when off
  * screen or in a hidden tab. Hidden during the boot sequence and faded in once
@@ -29,7 +28,7 @@ export default function DeskArt() {
 
     const draw = (seconds: number) => {
       const [r, g, b] = (getComputedStyle(element).color.match(/\d+/g) ?? ["0", "0", "0"]).map(Number);
-      const mask = renderDitheredGlobe(PIXELS, seconds);
+      const mask = renderDitheredKoi(PIXELS, seconds);
       const image = context.createImageData(PIXELS, PIXELS);
       for (let i = 0; i < mask.length; i += 1) {
         if (mask[i]) image.data.set([r!, g!, b!, 255], i * 4);
@@ -49,8 +48,8 @@ export default function DeskArt() {
           });
     observer?.observe(element);
 
-    // While the boot sequence plays, the globe is hidden: it leaves the
-    // sequence the whole main thread, and starts turning once the desk is shown.
+    // While the boot sequence plays, the koi are hidden: they leave the
+    // sequence the whole main thread, and start swimming once the desk is shown.
     const booting = () => document.documentElement.getAttribute(BOOT_ATTRIBUTE) === "play";
 
     const start = performance.now();
@@ -68,7 +67,7 @@ export default function DeskArt() {
   }, []);
 
   return (
-    <div data-desk-art="globe" aria-hidden="true" className="size-full">
+    <div data-desk-art="koi" aria-hidden="true" className="size-full">
       <canvas
         ref={canvas}
         width={PIXELS}

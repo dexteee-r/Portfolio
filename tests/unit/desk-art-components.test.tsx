@@ -46,7 +46,7 @@ describe("DeskArtSlot", () => {
     expect(slot).toHaveClass("hidden", "lg:pointer-fine:block");
   });
 
-  it("loads the globe only where it shows — never on a phone", () => {
+  it("loads the koi only where they show — never on a phone", () => {
     const change = media(false);
     const { container } = render(<DeskArtSlot />);
     expect(container.querySelector("[data-loaded]")).toBeNull();
@@ -91,11 +91,11 @@ describe("DeskArt", () => {
   it("is decorative, hidden from screen readers", () => {
     const { container } = render(<DeskArt />);
     const art = container.querySelector("[data-desk-art]")!;
-    expect(art).toHaveAttribute("data-desk-art", "globe");
+    expect(art).toHaveAttribute("data-desk-art", "koi");
     expect(art).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("turns frame by frame — but leaves the boot sequence the whole main thread", () => {
+  it("swims frame by frame — but leaves the boot sequence the whole main thread", () => {
     const frames: FrameRequestCallback[] = [];
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => frames.push(callback));
     vi.stubGlobal("cancelAnimationFrame", () => {});
@@ -113,7 +113,7 @@ describe("DeskArt", () => {
 
     document.documentElement.removeAttribute("data-boot");
     tick(performance.now() + 2000);
-    expect(put).toHaveBeenCalledTimes(2); // the desk is shown: the globe turns
+    expect(put).toHaveBeenCalledTimes(2); // the desk is shown: the koi swim
 
     getContext.mockRestore();
     vi.unstubAllGlobals();

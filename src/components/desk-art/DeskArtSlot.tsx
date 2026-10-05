@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 // frames have nothing to render on the server, and a phone never downloads them.
 const DeskArt = dynamic(() => import("./DeskArt"), { ssr: false });
 
-/** Wide screens with a fine pointer: the desk's globe. Same threshold as `lg:`. */
+/** Wide screens with a fine pointer: the desk's koi. Same threshold as `lg:`. */
 export const DESK_ART_MEDIA = "(min-width: 64rem) and (pointer: fine)";
 
 function useMedia(query: string): boolean {
@@ -30,7 +30,7 @@ function useMedia(query: string): boolean {
 
 /**
  * The place on the right of the desk. Its box is in the server's HTML, so the
- * desk's layout never shifts; the globe inside is only loaded on wide screens
+ * desk's layout never shifts; the koi inside are only loaded on wide screens
  * with a fine pointer — never on a phone.
  */
 export function DeskArtSlot() {
