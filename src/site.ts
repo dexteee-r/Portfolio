@@ -70,11 +70,25 @@ export const site = {
    * rotation and this number together: the privacy note promises it.
    */
   serverLogRetentionWeeks: 11,
-  /** Receives the mail sent to `email` (the domain's MX records). */
+  /**
+   * Receives the mail sent to `email` (the domain's MX records). Its plan has
+   * no mailbox: a redirection forwards every message to `mailInbox`.
+   */
   mailHost: {
     name: "OVHcloud",
     country: "FR",
     url: "https://www.ovhcloud.com",
+  } satisfies Provider,
+  /**
+   * Where the redirection delivers: the publisher's own Gmail inbox. Google
+   * Ireland serves users in the EEA; Google may process mail outside the EU,
+   * and the privacy note says so. The inbox's address is never published.
+   */
+  mailInbox: {
+    name: "Google",
+    country: "IE",
+    url: "https://www.google.com/gmail/about/",
+    privacyPolicy: "https://policies.google.com/privacy",
   } satisfies Provider,
   /**
    * Messages sent to `email` are deleted this many months after the last
@@ -82,5 +96,5 @@ export const site = {
    */
   emailRetentionMonths: 12,
   /** When the legal notice and privacy note were last revised (ISO date). */
-  legalUpdated: "2026-09-28",
+  legalUpdated: "2026-10-05",
 } as const;

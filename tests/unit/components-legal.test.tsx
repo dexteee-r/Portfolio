@@ -98,6 +98,19 @@ describe("LegalView", () => {
     expect(screen.getByText(/deleted \d/).textContent).toContain(`${months} after the last exchange`);
   });
 
+  it("says who receives the mail and where it is forwarded — never the inbox's own address", () => {
+    const { unmount } = render(<LegalView locale="fr" dict={fr} business={null} />);
+    expect(screen.getByText(/sont supprimés/).textContent).toContain(
+      "Les messages arrivent chez OVHcloud (France), qui les fait suivre vers la messagerie de Google (Irlande), laquelle peut les traiter hors de l'Union européenne.",
+    );
+    unmount();
+    const { container } = render(<LegalView locale="en" dict={en} business={null} />);
+    expect(screen.getByText(/deleted \d/).textContent).toContain(
+      "Messages reach OVHcloud (France), which forwards them to Google's mail service (Ireland), which may process them outside the European Union.",
+    );
+    expect(container.textContent).not.toMatch(/@gmail\.com/);
+  });
+
   it("promises the server-log retention it is configured with", () => {
     const { unmount } = render(<LegalView locale="fr" dict={fr} business={null} />);
     expect(screen.getByText(/journaux :/).textContent).toContain(

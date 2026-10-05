@@ -68,7 +68,7 @@ describe("what the privacy note promises, the code keeps", () => {
   });
 
   it("names the remaining providers by their real, secure addresses", () => {
-    for (const url of [site.mailHost.url, site.sourceCode]) {
+    for (const url of [site.mailHost.url, site.mailInbox.url, site.mailInbox.privacyPolicy, site.sourceCode]) {
       expect(new URL(url).protocol, url).toBe("https:");
     }
   });

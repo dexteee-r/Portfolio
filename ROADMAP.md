@@ -52,43 +52,64 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   (2026-10-01) : un extrait muet par projet (**Aperçu vidéo** dans le CMS),
   joué au survol ou avec le bouton Aperçu ; en création, ce qui bouge est
   teinté et encadré, calculé en direct.
+- En ligne sur `https://elmzn.be` depuis le 2026-09-30 (serveur, domaine,
+  `www` en 301, HSTS) ; CMS en service sur `/admin` depuis le 2026-10-01.
+- Chapitre dev publié (2026-10-02) : 9 projets, couvertures en vraies images
+  (captures des sites, des apps, photos), sauf l'outil de contenu IA.
+- Vocabulaire (2026-10-04) : le chapitre infra s'appelle **Homelab**
+  (`/fr/homelab`, les anciennes adresses `/infra` redirigent), la réparation
+  **Réparation/Montage** ; le statut du bureau est « Bricoleur du numérique ».
+  Grafana et Prometheus, inutilisés, quittent le schéma ; le projet
+  Supervision repasse en brouillon.
+- Chapitre Réparation/Montage publié (2026-10-04) : 6 projets (trois iPhone,
+  deux montages PC, un carnet d'atelier), photos, scans, aperçus vidéo, et
+  la vidéo du XR réparé dans son texte.
+- Extraits vidéo muets dans le texte des projets ; photos et vidéos
+  verticales plafonnées à 80 % de la hauteur de l'écran (2026-10-04).
+- Images plus rapides (2026-10-05) : WebP seul (l'AVIF coûtait 0,5 à 0,7 s
+  par image sur le serveur), un aperçu flou en attendant chaque image, et le
+  cache préchauffé juste après chaque déploiement (`deploy/warm-cache.sh`,
+  installé sur le serveur le 2026-10-05).
+- Les koï du bureau (2026-10-05) : deux carpes, une claire et une sombre, en
+  yin-yang dans un bassin, même trame 1 bit, à la place du globe — comparées
+  sur un banc d'essai avant de remplacer.
+- Note de confidentialité (2026-10-05) : le courrier à `contact@elmzn.be`
+  arrive chez OVHcloud, qui le fait suivre vers Gmail (Google).
 
 ## À faire — V1
 
-- **Serveur** (préparé avec la session Claude du homelab) : conteneur LXC
-  sur srv1, Docker, runner GitHub Actions (label `portfolio`), minuteur de
-  rattrapage, NPM pour `elmzn.be` et la redirection de `www.elmzn.be`.
-  **Avant le runner** : exiger l'approbation de tous les contributeurs
-  externes (Settings → Actions → General). Puis la variable
-  `DEPLOY_ON_HOMELAB` = `true` — pas à pas dans le README, « Hébergement ».
-- **Domaine** : l'apex `elmzn.be` vers NPM ; la page d'accueil actuelle du
-  homelab déménage sur `home.elmzn.be` (brief, §16).
-- **Mise en service du CMS** : créer l'OAuth App GitHub et renseigner les
-  variables dans `/opt/elmzn/.env` (README, « Le CMS »).
-- **Boîte `contact@elmzn.be`** : le domaine reçoit bien le courrier (OVH),
-  mais l'adresse n'a jamais servi — envoyer un message de test avant la mise
-  en ligne. Si elle est redirigée ailleurs (Gmail…), le dire dans la note de
-  confidentialité (`site.mailHost`). Supprimer les messages de plus de
-  12 mois, comme la note le promet.
+- **Ancienne page d'accueil du homelab** : l'apex sert le portfolio depuis le
+  2026-09-30 ; vérifier qu'elle a bien déménagé sur `home.elmzn.be` (brief,
+  §16) — non vérifié depuis ce dépôt.
+- **Audit de sécurité complet** (demandé le 2026-10-01) : l'application, la
+  CI et le runner, le serveur, le compte GitHub — et le dépôt public
+  `elmzn_homelab`, dont le README décrit tout le réseau local.
+- **Boîte `contact@elmzn.be`** : redirigée par OVH (MX Plan « redirect »)
+  vers la boîte Gmail depuis le 2026-10-05, testée — les premiers messages
+  tombaient dans les spams (filtre Gmail « ne jamais envoyer dans le
+  spam »). Reste, au choix : répondre depuis `contact@` avec un alias d'envoi
+  Gmail (et Google dans le SPF du domaine). Supprimer les messages de plus
+  de 12 mois, comme la note le promet.
 - **Relire les mentions légales** avant la mise en ligne (orientation, pas
   avis juridique). Le jour où la réparation devient une activité rémunérée :
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
-- **Contenu** : les 13 projets sont en brouillon ; à rédiger et publier. Les
-  3 projets infra (homelab, supervision, accès distant) sont rédigés d'après
-  `dexteee-r/elmzn_homelab` et publiés (2026-10-01), en français et en anglais.
-  **Images** : les 3 couvertures infra sont dessinées (2026-10-01) ; les
-  10 autres projets attendent leurs images, à fournir — dev : captures des
-  apps en situation (MyTCG connecté, pas l'écran de connexion ; Taxi Qissi
-  avec l'accord du client) ; réparation : photos avant / pendant / après ;
-  création : plans du vlog, export de l'animation, sélection de photos.
-  Pour les projets dev, remplir aussi **Rôle ou intervention** et **Stack ou
-  matériel** : c'est la fiche technique sous le titre. Pour les réparations,
-  **Appareil**, **Rôle ou intervention** et **Durée** : c'est le ticket. Pour
-  la création, **Rôle ou intervention**, **Durée** et **Stack ou matériel** :
-  c'est le générique. Pour les réparations avec photo, poser aussi les
-  cadres du **Scan de diagnostic** sur les pièces réparées. Les projets filmés
-  gagnent un **Aperçu vidéo** (extrait muet, MP4, 4 Mo au plus).
+- **Contenu** :
+  - **Création** : les 3 brouillons (animation des trajets de vol, photos de
+    miniatures, vlog Malaisie) attendent leurs médias — plans du vlog, export
+    de l'animation, sélection de photos. Remplir **Rôle ou intervention**,
+    **Durée** et **Stack ou matériel** : c'est le générique.
+  - **Dev** : une couverture pour l'outil de contenu IA (pas d'image encore).
+  - **Réparation/Montage**, à confirmer ou compléter : le modèle de l'iPhone
+    XR (déduit de sa couleur corail), les modèles des iPhone du carnet, les
+    Ryzen exacts (les boîtes ne montrent que « 9 » et « 5 »), la carte MSI
+    dépoussiérée (écrite comme la nouvelle 4060 Ti) ; et, au choix, la durée
+    de chaque intervention (le ticket) et une ligne d'histoire (la panne, la
+    difficulté).
+  - **Homelab** : le projet Supervision revient quand la supervision tourne
+    vraiment (Checkmk) — sans Grafana.
+  Avant de publier une photo ou une vidéo de réparation : rien du client
+  (contacts, numéros, messages, visages, lieux), métadonnées retirées.
 - **Schéma du homelab** : `content/infra/network.yaml` est redessiné d'après
   `dexteee-r/elmzn_homelab` et publié (2026-10-01) ; le tenir à jour quand
   le homelab change (CMS, **Homelab**).
@@ -110,7 +131,7 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
     déjà le sien.
   Les objets (disquette, ticket, jaquette VHS) vont en tête des pages projet
   (choix du 2026-09-29).
-  Pas de police pixel (deux familles seulement) : le rendu pixel passe par
+- **Le bureau** : pas de police pixel (deux familles seulement) : le rendu pixel passe par
   DM Mono, l'ASCII et la trame.
 - V3 : données réelles du homelab, référencement local de la réparation
   (fiche Google Business, pages par ville, avis).

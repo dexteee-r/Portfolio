@@ -111,6 +111,8 @@ export function LegalView({ locale, dict, business = site.repairBusiness }: Lega
                 email: mail,
                 mailHost: site.mailHost.name,
                 mailCountry: countryName(locale, site.mailHost.country),
+                mailInbox: site.mailInbox.name,
+                inboxCountry: countryName(locale, site.mailInbox.country),
                 retention: formatCount(locale, site.emailRetentionMonths, copy.mailRetention),
               })}
             </p>

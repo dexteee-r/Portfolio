@@ -154,7 +154,7 @@ export const en: Dictionary = {
     },
     mailHeading: "If you write to me",
     mail:
-      "What you send to {email} — your address, your name, your message — is used only to reply and, for a repair, to follow it up, at your request. Messages are received by {mailHost}'s mail service ({mailCountry}), shared with no one else, and deleted {retention} after the last exchange.",
+      "What you send to {email} — your address, your name, your message — is used only to reply and, for a repair, to follow it up, at your request. Messages reach {mailHost} ({mailCountry}), which forwards them to {mailInbox}'s mail service ({inboxCountry}), which may process them outside the European Union. They are shared with no one else, and deleted {retention} after the last exchange.",
     mailRetention: {
       one: "{count} month",
       other: "{count} months",

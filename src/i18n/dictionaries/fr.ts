@@ -162,7 +162,7 @@ export const fr = {
     },
     mailHeading: "Si vous m'écrivez",
     mail:
-      "Ce que vous envoyez à {email} — votre adresse, votre nom, votre message — sert uniquement à vous répondre et, pour une réparation, à en assurer le suivi, à votre demande. Les messages sont reçus par la messagerie de {mailHost} ({mailCountry}), ne sont transmis à personne d'autre et sont supprimés {retention} après le dernier échange.",
+      "Ce que vous envoyez à {email} — votre adresse, votre nom, votre message — sert uniquement à vous répondre et, pour une réparation, à en assurer le suivi, à votre demande. Les messages arrivent chez {mailHost} ({mailCountry}), qui les fait suivre vers la messagerie de {mailInbox} ({inboxCountry}), laquelle peut les traiter hors de l'Union européenne. Ils ne sont transmis à personne d'autre et sont supprimés {retention} après le dernier échange.",
     mailRetention: {
       one: "{count} mois",
       other: "{count} mois",
