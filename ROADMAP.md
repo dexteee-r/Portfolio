@@ -74,6 +74,11 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   clair et sombre en yin-yang, trois plus petites sur leurs propres boucles —
   même trame 1 bit, à la place du globe (comparées sur un banc d'essai avant
   de remplacer), sur un tiers de la largeur de l'écran.
+- Chapitre Création (2026-10-06) : trois projets publiés — les pochettes
+  pour Mitch (du croquis à la pochette, sans Rotterdam ni Mephisto), la
+  vidéo de présentation PowerTrack (sans le son, sans un passage avec un
+  visage réel ni la fin au QR code), la miniature du hackathon et un fond
+  d'écran.
 - Note de confidentialité (2026-10-05) : le courrier à `contact@elmzn.be`
   arrive chez OVHcloud, qui le fait suivre vers Gmail (Google).
 
@@ -96,10 +101,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   l'enregistrer, puis remplir `site.repairBusiness` dans `src/site.ts` — les
   mentions et les données `LocalBusiness` de `/repair` s'adaptent d'elles-mêmes.
 - **Contenu** :
-  - **Création** : les 3 brouillons (animation des trajets de vol, photos de
-    miniatures, vlog Malaisie) attendent leurs médias — plans du vlog, export
-    de l'animation, sélection de photos. Remplir **Rôle ou intervention**,
-    **Durée** et **Stack ou matériel** : c'est le générique.
+  - **Création** : le vlog Malaisie et l'animation des trajets de vol
+    attendent toujours leurs médias.
   - **Dev** : une couverture pour l'outil de contenu IA (pas d'image encore).
   - **Réparation/Montage**, à confirmer ou compléter : le modèle de l'iPhone
     XR (déduit de sa couleur corail), les modèles des iPhone du carnet, les

@@ -1,0 +1,43 @@
+fr:
+  title: Vidéo de présentation PowerTrack
+  coverAlt: "Le tableau de bord de l'application PowerTrack : la consommation en temps réel (heure, énergie en kWh, courant en ampères), les appareils favoris — lampe de chevet, chargeur de téléphone — et un bouton de contact."
+  chapter: creative
+  status: published
+  cover: /media/projects/video-powertrack/cover.webp
+  preview: /media/projects/video-powertrack/preview.mp4
+  order: 5
+  year: 2025
+  duration: 1
+  role: Réalisation de la vidéo
+  stack:
+    - Premiere Pro
+  summary: >-
+    Une minute pour présenter PowerTrack, une application qui suit la
+    consommation électrique, projet d'école en équipe. J'ai fait la vidéo.
+  body: |
+    ![La vidéo de présentation : le problème, une facture d'électricité qu'on ne comprend pas, puis l'application PowerTrack, sa consommation en temps réel, ses alertes, et une lampe de chevet allumée depuis l'application](/media/projects/video-powertrack/powertrack.mp4 "La vidéo, sans le son.")
+
+    La vidéo suit le fil d'une publicité. D'abord le problème : une facture
+    qu'on ne comprend pas, une consommation qu'on ne voit pas en temps réel.
+    Puis l'application : la consommation en direct, les alertes, les appareils
+    qu'on allume et éteint, jusqu'à la lampe de chevet qui s'allume au clic.
+
+    Elle est publiée ici sans le son, et sans sa fin, qui renvoyait vers un
+    QR code.
+en:
+  title: PowerTrack presentation video
+  coverAlt: "The PowerTrack app's dashboard: real-time consumption (time, energy in kWh, current in amps), favourite devices — bedside lamp, phone charger — and a contact button."
+  role: Made the video
+  summary: >-
+    One minute to present PowerTrack, an app that tracks electricity use, a
+    school team project. I made the video.
+  body: |
+    ![The presentation video: the problem, an electricity bill nobody understands, then the PowerTrack app, its real-time consumption, its alerts, and a bedside lamp switched on from the app](/media/projects/video-powertrack/powertrack.mp4 "The video, without sound.")
+
+    The video follows the thread of an advert. First the problem: a bill you
+    cannot read, consumption you cannot see in real time. Then the app: live
+    consumption, alerts, devices switched on and off, down to the bedside lamp
+    that lights up at a click.
+
+    It is shown here without sound, and without its ending, which pointed to a
+    QR code.

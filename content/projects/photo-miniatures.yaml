@@ -1,5 +1,39 @@
 fr:
   title: Photo et miniatures
+  coverAlt: "La miniature « Hackathon 2K25 » en jaquette de GTA : des cases colorées, un visage dans chacune, le titre au centre."
   chapter: creative
-  status: draft
+  status: published
+  cover: /media/projects/photo-miniatures/cover.webp
   order: 3
+  year: 2025
+  role: Miniature YouTube et fond d'écran
+  stack:
+    - Photoshop
+  summary: >-
+    Une miniature YouTube pour le hackathon 2025, en jaquette de GTA, et un fond
+    d'écran de téléphone en collage.
+  body: |
+    ## La miniature du hackathon
+
+    Le principe des jaquettes de GTA : des cases, un personnage dans chacune,
+    le titre au milieu.
+
+    ## Le fond d'écran
+
+    ![Un fond d'écran de téléphone en hauteur : un collage serré d'images d'anime et de films](/media/projects/photo-miniatures/fond-ecran.webp "Un fond d'écran de téléphone.")
+en:
+  title: Photos and thumbnails
+  coverAlt: "The “Hackathon 2K25” thumbnail as a GTA cover: coloured panels, a face in each, the title in the middle."
+  role: YouTube thumbnail and wallpaper
+  summary: >-
+    A YouTube thumbnail for the 2025 hackathon, styled as a GTA cover, and a
+    phone wallpaper made as a collage.
+  body: |
+    ## The hackathon thumbnail
+
+    The idea of the GTA covers: panels, a character in each, the title in the
+    middle.
+
+    ## The wallpaper
+
+    ![A portrait phone wallpaper: a tight collage of anime and film images](/media/projects/photo-miniatures/fond-ecran.webp "A phone wallpaper.")
