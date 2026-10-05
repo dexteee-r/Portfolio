@@ -31,12 +31,17 @@ function useMedia(query: string): boolean {
 /**
  * The place on the right of the desk. Its box is in the server's HTML, so the
  * desk's layout never shifts; the koi inside are only loaded on wide screens
- * with a fine pointer — never on a phone.
+ * with a fine pointer — never on a phone. A third of the width, raised towards
+ * the top bar and reaching into the space above the folders, never so tall
+ * that the folders leave the screen.
  */
 export function DeskArtSlot() {
   const wide = useMedia(DESK_ART_MEDIA);
   return (
-    <div data-desk-art-slot="" className="hidden size-[min(30vw,26rem)] shrink-0 lg:pointer-fine:block">
+    <div
+      data-desk-art-slot=""
+      className="-mt-14 -mb-20 hidden size-[min(33vw,44rem,calc(100dvh-26rem))] shrink-0 lg:pointer-fine:block"
+    >
       {wide && <DeskArt />}
     </div>
   );

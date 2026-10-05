@@ -6,12 +6,12 @@ import { renderDitheredKoi } from "@/lib/desk-art/koi";
 
 /** Frames a second: plenty for a slow, stepped swim, easy on the battery. */
 export const DESK_ART_FPS = 20;
-/** Pixels across the canvas, before it is scaled up. */
-export const PIXELS = 128;
+/** Pixels across the canvas, before it is scaled up: about three screen pixels each at full size. */
+export const PIXELS = 192;
 
 /**
- * The desk's koi: a light one and a dark one circling a pond under a 1-bit
- * screen, a lap every 36 seconds. Painted in the element's own text colour —
+ * The desk's koi: five of them in a pond under a 1-bit screen — a light and a
+ * dark one circling it, three smaller ones on their own loops. Painted in the element's own text colour —
  * the frame's ink — on transparent paper, so the desk's ground shows through.
  *
  * Decorative. Drawn once and held still under reduced motion; paused when off
