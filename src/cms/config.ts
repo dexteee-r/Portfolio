@@ -53,6 +53,7 @@ const LINK_LABELS: Record<(typeof linkKinds)[number], string> = {
   repo: "Code source",
   video: "Vidéo",
   download: "Téléchargement",
+  instagram: "Instagram",
 };
 
 export function cmsConfig(settings: CmsSettings): CmsConfig {

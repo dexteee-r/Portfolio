@@ -15,7 +15,7 @@ export const clipPoster = (url: string): string => url.replace(/\.(?:mp4|webm)$/
 export interface MarkdownReport {
   /** Every image the text shows, in order — a clip's poster included. */
   images: Array<{ url: string; alt: string }>;
-  /** Every silent clip the text shows, in order, with its poster. */
+  /** Every clip the text shows, in order, with its poster. */
   videos: Array<{ url: string; alt: string; poster: string }>;
   /** Everything that must be fixed before the text can be published. */
   problems: string[];

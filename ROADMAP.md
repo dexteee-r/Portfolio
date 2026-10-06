@@ -79,6 +79,11 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   vidéo de présentation PowerTrack (sans le son, sans un passage avec un
   visage réel ni la fin au QR code), la miniature du hackathon et un fond
   d'écran.
+- Retours sur la création (2026-10-06) : les pochettes deviennent
+  « Covers/pochettes », les pochettes finales seules (plus de croquis), avec un
+  lien vers la story à la une Instagram (nouveau type de lien `instagram`) ;
+  la vidéo PowerTrack retrouve son son (mêmes coupes). Un extrait dans le
+  texte garde désormais son son s'il en a un.
 - Note de confidentialité (2026-10-05) : le courrier à `contact@elmzn.be`
   arrive chez OVHcloud, qui le fait suivre vers Gmail (Google).
 

@@ -125,7 +125,7 @@ describe("ProjectBody", () => {
     const renderClip = (markdown: string) =>
       render(<ProjectBody markdown={markdown} images={{ ...sizes, [POSTER]: { width: 720, height: 1280 } }} />);
 
-    it("plays only when asked: silent, looping, with controls, sized and shown by its poster", () => {
+    it("plays only when asked, with its own sound: looping, with controls, sized and shown by its poster", () => {
       const { container } = renderClip(`![Le téléphone réparé, l'écran d'accueil qui défile](${CLIP} "Après.")`);
       const video = container.querySelector("video")!;
       expect(video).toHaveAttribute("src", CLIP);
@@ -135,7 +135,8 @@ describe("ProjectBody", () => {
       expect(video).toHaveAttribute("loop");
       expect(video).toHaveAttribute("preload", "none");
       expect(video).not.toHaveAttribute("autoplay");
-      expect(video.muted).toBe(true);
+      // Never muted by the page: a silent clip simply has no audio track
+      expect(video.muted).toBe(false);
       expect(video).toHaveAttribute("width", "720");
       expect(video).toHaveAttribute("height", "1280");
       expect(video).toHaveAccessibleName("Le téléphone réparé, l'écran d'accueil qui défile");

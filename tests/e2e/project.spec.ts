@@ -299,7 +299,7 @@ test.describe("the diagnostic scan without JavaScript", () => {
 test.describe("a clip in a project's text", () => {
   const clip = (page: Page) => page.locator("figure > video");
 
-  test("plays only when asked: silent, with controls, its poster showing until then", async ({ page }) => {
+  test("plays only when asked, with its own sound, with controls, its poster showing until then", async ({ page }) => {
     await page.goto("/fr/repair/ecran-fixture");
     await expect(clip(page)).toHaveAttribute("poster", "/media/fixtures/film-preview.webp");
     await expect(clip(page)).toHaveAttribute("controls", "");
@@ -308,9 +308,13 @@ test.describe("a clip in a project's text", () => {
     await page.waitForTimeout(500);
     expect(await clip(page).evaluate((v: HTMLVideoElement) => ({ paused: v.paused, muted: v.muted }))).toEqual({
       paused: true,
-      muted: true,
+      muted: false,
     });
-    await clip(page).evaluate((v: HTMLVideoElement) => v.play());
+    // Muted only here: the test browser refuses to start sound without a real gesture
+    await clip(page).evaluate((v: HTMLVideoElement) => {
+      v.muted = true;
+      return v.play();
+    });
     await expect.poll(() => clip(page).evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(0.1);
   });
 

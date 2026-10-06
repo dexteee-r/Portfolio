@@ -54,8 +54,9 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
 
     img: ({ src, alt }) => {
       if (typeof src === "string" && isClip(src)) {
-        // A silent clip: it plays only when asked, its poster standing in
-        // until then and giving it its size, so the page never shifts.
+        // A clip plays only when asked, with its own sound if it has any (a
+        // silent one is encoded without an audio track); its poster stands in
+        // until then and gives it its size, so the page never shifts.
         const poster = clipPoster(src);
         const size = images[poster];
         if (!size) return null;
@@ -67,7 +68,6 @@ export function ProjectBody({ markdown, images }: ProjectBodyProps) {
             height={size.height}
             aria-label={alt ?? ""}
             controls
-            muted
             loop
             playsInline
             preload="none"

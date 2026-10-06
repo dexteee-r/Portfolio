@@ -286,8 +286,9 @@ image sans description, hors de `/media`, en JPEG ou distante ; un lien qui
 n'est ni `http(s)`, ni `mailto:`, ni un chemin du site ; tout HTML brut.
 
 Un **extrait vidéo** s'insère de la même façon, en `.mp4` ou `.webm` :
-`![description](/media/projects/<slug>/apres.mp4 "légende")`. Il est muet,
-avec ses contrôles, et ne se lance jamais seul. Son image d'attente est le
+`![description](/media/projects/<slug>/apres.mp4 "légende")`. Il a ses
+contrôles, ne se lance jamais seul et garde son son s'il en a un (pour un
+extrait muet, encoder sans piste audio : `-an`). Son image d'attente est le
 `.webp` du même nom, posé à côté (`apres.webp`) : elle s'affiche jusqu'à la
 lecture et donne ses proportions à l'extrait, pour que la page ne bouge pas au
 chargement. Le build échoue sans elle, sans l'extrait, ou si l'extrait dépasse

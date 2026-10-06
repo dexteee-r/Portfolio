@@ -51,7 +51,7 @@ export const projectStatuses = ["draft", "published"] as const;
 export type ProjectStatus = (typeof projectStatuses)[number];
 
 /** Link labels are translated by the interface, not typed in each file. */
-export const linkKinds = ["site", "repo", "video", "download"] as const;
+export const linkKinds = ["site", "repo", "video", "download", "instagram"] as const;
 export type LinkKind = (typeof linkKinds)[number];
 
 export const localizedFieldsSchema = z

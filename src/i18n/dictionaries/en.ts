@@ -75,6 +75,7 @@ export const en: Dictionary = {
       repo: "Source code",
       video: "Watch the video",
       download: "Download",
+      instagram: "See on Instagram",
     },
     siblingsLabel: "More projects in this chapter",
     previous: "Previous project",

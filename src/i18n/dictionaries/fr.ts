@@ -78,6 +78,7 @@ export const fr = {
       repo: "Code source",
       video: "Voir la vidéo",
       download: "Télécharger",
+      instagram: "Voir sur Instagram",
     },
     siblingsLabel: "Autres projets du chapitre",
     previous: "Projet précédent",
