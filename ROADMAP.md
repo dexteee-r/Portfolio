@@ -90,11 +90,12 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
 ## À faire — V1
 
 - **Ancienne page d'accueil du homelab** : l'apex sert le portfolio depuis le
-  2026-09-30 ; vérifier qu'elle a bien déménagé sur `home.elmzn.be` (brief,
-  §16) — non vérifié depuis ce dépôt.
-- **Audit de sécurité complet** (demandé le 2026-10-01) : l'application, la
-  CI et le runner, le serveur, le compte GitHub — et le dépôt public
-  `elmzn_homelab`, dont le README décrit tout le réseau local.
+  2026-09-30 ; `home.elmzn.be` ne la sert pas encore correctement (constaté
+  le 2026-10-08).
+- **Suites de l'audit de sécurité** (fait le 2026-10-08 ; le rapport reste
+  hors du dépôt) : déjà corrigés ici, les versions de Next.js et de sharp,
+  les en-têtes de sécurité et l'origine du CMS. Restent le déploiement sans
+  runner, les réglages GitHub et le ménage côté serveur.
 - **Boîte `contact@elmzn.be`** : redirigée par OVH (MX Plan « redirect »)
   vers la boîte Gmail depuis le 2026-10-05, testée — les premiers messages
   tombaient dans les spams (filtre Gmail « ne jamais envoyer dans le

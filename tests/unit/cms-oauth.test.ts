@@ -38,6 +38,12 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** A request naming another host: through the proxy's X-Forwarded-Host, or straight to the server. */
+const FORGED_HOSTS: Array<Record<string, string>> = [
+  { host: "elmzn.be", "x-forwarded-host": "evil.example" },
+  { host: "evil.example" },
+];
+
 const request = (url: string, cookie?: string) =>
   new NextRequest(url, cookie ? { headers: { cookie } } : undefined);
 
@@ -237,6 +243,15 @@ describe("/api/cms/auth", () => {
     expect(new URL(response.headers.get("location")!).searchParams.get("scope")).toBe("repo");
   });
 
+  it("always asks GitHub to come back to this site, whatever host the request names", async () => {
+    configure();
+    for (const headers of FORGED_HOSTS) {
+      const response = await auth(new NextRequest("http://0.0.0.0:3000/api/cms/auth?provider=github", { headers }));
+      const redirect = new URL(response.headers.get("location")!).searchParams.get("redirect_uri");
+      expect(redirect, JSON.stringify(headers)).toBe("https://elmzn.be/api/cms/callback");
+    }
+  });
+
   it("does not require https for the cookie on a local server", async () => {
     configure();
     const response = await auth(request("http://localhost:3000/api/cms/auth?provider=github"));
@@ -357,14 +372,23 @@ describe("/admin", () => {
 
   it("serves the panel, never indexed, never framed, with this site as OAuth server", async () => {
     configure();
-    const response = admin(request("https://preview.example.dev/admin"));
+    const response = admin(request("https://elmzn.be/admin"));
     expect(response.status).toBe(200);
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     expect(response.headers.get("content-security-policy")).toBe("frame-ancestors 'none'");
     const html = await response.text();
-    expect(html).toContain('"base_url":"https://preview.example.dev"');
+    expect(html).toContain('"base_url":"https://elmzn.be"');
     expect(html).toContain('"repo":"owner/elmzn"');
     expect(html).not.toContain("secret-456");
+  });
+
+  it("never points its sign-in at a host a request names: a forged X-Forwarded-Host or Host changes nothing", async () => {
+    configure();
+    for (const headers of FORGED_HOSTS) {
+      const html = await admin(new NextRequest("http://0.0.0.0:3000/admin", { headers })).text();
+      expect(html, JSON.stringify(headers)).toContain('"base_url":"https://elmzn.be"');
+      expect(html).not.toContain("evil.example");
+    }
   });
 
   it("serves the pinned Sveltia bundle, cached for good", async () => {

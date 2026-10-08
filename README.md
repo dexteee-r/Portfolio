@@ -76,8 +76,8 @@ recharger le bureau.
 carpes vues de dessus, une claire tachetée et une sombre, qui tournent en
 yin-yang dans un bassin, un tour en 36 s, en trame 1 bit, avec leurs ombres et
 des ronds dans l'eau. Elles remplacent le 2026-10-05 le globe tramé
-(2026-09-29), comparées sur un banc d'essai ; le globe reste dans l'historique
-git.
+(2026-09-29), comparées sur un banc d'essai ; les fichiers du globe restent dans
+le dépôt (`src/lib/desk-art/globe.ts`, `pixels.ts`), inutilisés.
 
 - Rendu logiciel sans aucune couleur écrite (`src/lib/desk-art/`) : un
   tableau de gris, tramé en encre, peint dans l'encre du cadre lue sur la page.

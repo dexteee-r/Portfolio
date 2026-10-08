@@ -84,12 +84,12 @@ describe("the image", () => {
   it("comes from a standalone build that says which commit it is", async () => {
     expect(process.env.NEXT_DIST_DIR).toBeUndefined(); // a production build, as in the Dockerfile
     expect(nextConfig.output).toBe("standalone");
+    const version = async () =>
+      (await nextConfig.headers!()).flatMap((rule) => rule.headers).find((header) => header.key === "X-Elmzn-Version");
     vi.stubEnv("ELMZN_VERSION", "abc123");
-    expect(await nextConfig.headers!()).toEqual([
-      { source: "/:path*", headers: [{ key: "X-Elmzn-Version", value: "abc123" }] },
-    ]);
+    expect(await version()).toEqual({ key: "X-Elmzn-Version", value: "abc123" });
     vi.stubEnv("ELMZN_VERSION", "");
-    expect(await nextConfig.headers!()).toEqual([]);
+    expect(await version()).toBeUndefined();
     vi.unstubAllEnvs();
   });
 });

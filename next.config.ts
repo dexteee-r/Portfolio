@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { chapterSlugRedirects, movedProjectRedirects } from "./src/content/chapters";
 import { pageSlugRedirects } from "./src/content/pages";
+import { securityHeaderRules } from "./src/security-headers";
 
 const isE2EBuild = process.env.NEXT_DIST_DIR === ".next-e2e";
 
@@ -29,11 +30,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [...pageSlugRedirects(), ...movedProjectRedirects(), ...chapterSlugRedirects()];
   },
-  // The commit an image was built from, on every response: the deployment
-  // checks that the site really serves the new version (deploy/wait-for-version.sh).
+  // On every response: the security headers (src/security-headers.ts), and the
+  // commit the image was built from, so the deployment can check that the site
+  // really serves the new version (deploy/wait-for-version.sh).
   async headers() {
-    const version = process.env.ELMZN_VERSION?.trim();
-    return version ? [{ source: "/:path*", headers: [{ key: "X-Elmzn-Version", value: version }] }] : [];
+    return securityHeaderRules(process.env.ELMZN_VERSION?.trim() || undefined);
   },
   // Pages rendered on demand (the 404) read content/ at request time: ship it
   // with the server bundle, since file tracing cannot see dynamic fs reads.
