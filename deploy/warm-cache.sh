@@ -2,7 +2,7 @@
 # Warms the image-optimisation cache once the new version serves. The cache
 # lives in memory (compose.yaml) and every deploy empties it: without this,
 # each image would be encoded on its first visitor's request. Run on the
-# server by the homelab's runner, after wait-for-version.sh (deploy.yml).
+# server by deploy.sh, once the new version serves.
 #
 # Asks the site for every image every page of its sitemap shows, at every
 # width its srcset offers — once each, one at a time, so the site keeps

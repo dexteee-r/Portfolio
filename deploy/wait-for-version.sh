@@ -1,8 +1,8 @@
 #!/bin/sh
 # Waits until the site really serves the expected version — the commit sent
 # back in its X-Elmzn-Version header — so a deployment that silently failed
-# turns the Deploy workflow red instead of going unnoticed. Run on the server
-# by the homelab's runner (deploy.yml).
+# fails the deployment instead of going unnoticed. Run on the server by
+# deploy.sh, once a new image is up.
 #
 # Usage: wait-for-version.sh <page URL> <commit sha> [timeout in seconds]
 set -eu

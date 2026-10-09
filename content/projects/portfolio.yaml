@@ -48,10 +48,10 @@ fr:
 
     ## Ce qui a coincé
 
-    - Un runner GitHub Actions auto-hébergé, sur un dépôt public : par défaut,
-      n'importe quelle pull request pourrait exécuter son code chez moi. Il ne
-      répond qu'à la branche principale, sans jeton, et les contributions
-      extérieures attendent mon approbation.
+    - Un runner GitHub Actions auto-hébergé, sur un dépôt public : une seule
+      pull request approuvée par erreur, et son code tournait chez moi. Je
+      l'ai retiré : c'est le serveur qui va chercher chaque nouvelle image,
+      et plus rien de GitHub ne s'exécute chez moi.
     - Une séquence de démarrage de quatre secondes qui doit rester juste sur
       une machine lente : elle se mesure à sa première image, pas au
       chargement de la page.
@@ -86,9 +86,9 @@ en:
 
     ## What got stuck
 
-    - A self-hosted GitHub Actions runner on a public repository: by default,
-      any pull request could run its code at my place. It answers the main
-      branch alone, with no token, and outside contributions wait for my
-      approval.
+    - A self-hosted GitHub Actions runner on a public repository: one pull
+      request approved by mistake, and its code ran at my place. I removed
+      it: the server now fetches each new image itself, and nothing from
+      GitHub runs at my place any more.
     - A four-second boot sequence that has to stay accurate on a slow machine:
       it is timed from its first frame, not from the page load.

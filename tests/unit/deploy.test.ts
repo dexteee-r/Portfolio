@@ -9,8 +9,9 @@ import nextConfig from "../../next.config";
 
 /**
  * The way the site reaches the homelab: the image, how the server runs it,
- * CI, and the deployment on the homelab's own runner. The shell scripts run
- * for real, against fake `docker`, `curl` and `flock`.
+ * CI, and the deployment — the server pulling the published image on its own
+ * timer, with no runner and nothing from GitHub executed on it. The shell
+ * scripts run for real, against fake `docker`, `curl` and `flock`.
  */
 
 const ROOT = join(__dirname, "..", "..");
@@ -40,7 +41,7 @@ interface Workflow {
 }
 const workflow = (file: string) => parse(readFileSync(join(WORKFLOWS, file), "utf8")) as Workflow;
 const ci = workflow("ci.yml");
-const deployment = workflow("deploy.yml");
+const workflowFiles = readdirSync(WORKFLOWS).filter((name) => /\.ya?ml$/.test(name));
 
 describe("the image", () => {
   const dockerfile = read("Dockerfile");
@@ -124,9 +125,19 @@ describe("the server", () => {
     expect(web.logging).toEqual({ driver: "json-file", options: { "max-size": "10m", "max-file": "3" } });
   });
 
-  it("catches up hourly on a missed deployment, through the same script", () => {
-    expect(read("deploy/elmzn-deploy.service")).toContain("ExecStart=/opt/elmzn/deploy.sh");
-    expect(read("deploy/elmzn-deploy.timer")).toContain("OnUnitActiveSec=1h");
+  it("looks for a newly published image every two minutes, on its own timer", () => {
+    const service = read("deploy/elmzn-deploy.service");
+    expect(service).toContain("ExecStart=/opt/elmzn/deploy.sh");
+    expect(service).toContain("Type=oneshot");
+    expect(service).toMatch(/^TimeoutStartSec=/m);
+    const timer = read("deploy/elmzn-deploy.timer");
+    expect(timer).toContain("OnUnitActiveSec=2min");
+    expect(timer).toContain("OnBootSec=1min");
+    expect(timer).toContain("WantedBy=timers.target");
+  });
+
+  it("pulls the very image it runs", () => {
+    expect(read("deploy/deploy.sh")).toContain(`image=${web.image}`);
   });
 
   it("opens nothing to the internet but the site: no webhook, no deployment endpoint", () => {
@@ -136,63 +147,24 @@ describe("the server", () => {
   });
 });
 
-describe("the deployment, on the homelab's own runner", () => {
-  const job = deployment.jobs.deploy!;
+describe("no runner on the homelab", () => {
+  // The repository is public: a self-hosted runner is one approved pull request
+  // away from running a stranger's code on the server (2026-10-08 audit).
 
-  it("starts only when CI has finished a run on main", () => {
-    expect(deployment.on).toEqual({ workflow_run: { workflows: ["CI"], types: ["completed"], branches: ["main"] } });
-  });
-
-  it("runs only for a successful CI run of a push to main of this repository — never a pull request, never a fork", () => {
-    const guard = job.if!.replace(/\s+/g, " ");
-    expect(guard).toContain("github.event.workflow_run.conclusion == 'success'");
-    expect(guard).toContain("github.event.workflow_run.event == 'push'");
-    expect(guard).toContain("github.event.workflow_run.head_branch == 'main'");
-    // A fork's own branch may well be called main, too.
-    expect(guard).toContain("github.event.workflow_run.head_repository.full_name == github.repository");
-    expect(guard.match(/&&/g)).toHaveLength(4); // all five, not any of them
-    expect(guard).not.toContain("||");
-  });
-
-  it("is skipped, not left queued, until the homelab's runner is registered", () => {
-    expect(job.if!.trim().startsWith("vars.DEPLOY_ON_HOMELAB == 'true' &&")).toBe(true);
-  });
-
-  it("holds no token, and checks nothing out: no code from the repository runs on the runner", () => {
-    expect(deployment.permissions).toEqual({});
-    expect(job.permissions).toBeUndefined();
-    expect(job.steps.every((step) => step.uses === undefined)).toBe(true);
-    expect(JSON.stringify(deployment)).not.toMatch(/secrets\./);
-  });
-
-  it("asks the server to pull the published image, checks the site serves this very commit, then warms its image cache", () => {
-    expect(job["runs-on"]).toEqual(["self-hosted", "portfolio"]);
-    const [pull, check, warm] = job.steps.map((step) => step.run ?? "");
-    expect(job.steps).toHaveLength(3);
-    expect(pull).toBe("/opt/elmzn/deploy.sh");
-    expect(check).toBe('/opt/elmzn/wait-for-version.sh http://127.0.0.1:3000/fr "$SHA" 120');
-    expect(warm).toContain("/opt/elmzn/warm-cache.sh http://127.0.0.1:3000");
-    // Until the script is copied onto the server, a warning — not a red deployment.
-    expect(warm).toContain("[ -x /opt/elmzn/warm-cache.sh ]");
-    expect(warm).toContain("::warning::");
-    // The commit comes through the environment, never pasted into a script.
-    expect(job.env).toEqual({ SHA: "${{ github.event.workflow_run.head_sha }}" });
-    for (const step of job.steps) expect(step.run).not.toContain("${{");
-  });
-
-  it("deploys one at a time, never cutting a deployment short", () => {
-    expect(deployment.concurrency).toEqual({ group: "deploy", "cancel-in-progress": false });
-  });
-
-  it("is the only workflow that may reach the self-hosted runner", () => {
-    for (const file of readdirSync(WORKFLOWS).filter((name) => /\.ya?ml$/.test(name))) {
-      for (const [name, other] of Object.entries(workflow(file).jobs)) {
-        const labels = [other["runs-on"] ?? []].flat();
-        if (file === "deploy.yml") continue;
+  it("no workflow runs on a self-hosted runner", () => {
+    for (const file of workflowFiles) {
+      for (const [name, job] of Object.entries(workflow(file).jobs)) {
+        const labels = [job["runs-on"] ?? []].flat();
         expect(labels, `${file} › ${name}`).not.toContain("self-hosted");
         expect(labels, `${file} › ${name}`).not.toContain("portfolio");
+        expect(String(job["runs-on"]), `${file} › ${name}`).toMatch(/^ubuntu-/);
       }
     }
+  });
+
+  it("no workflow deploys: the old runner workflow is gone, and nothing follows CI", () => {
+    expect(workflowFiles).toEqual(["ci.yml"]);
+    for (const file of workflowFiles) expect(read(`.github/workflows/${file}`)).not.toMatch(/workflow_run|DEPLOY_ON_HOMELAB/);
   });
 });
 
@@ -213,11 +185,9 @@ describe("CI", () => {
     expect(runs.indexOf("deploy/smoke-test.sh")).toBeLessThan(runs.indexOf("docker push"));
   });
 
-  it("leaves deploying to the homelab's runner, and needs no deployment secret", () => {
+  it("leaves deploying to the server, and needs no deployment secret", () => {
     expect(Object.keys(ci.jobs)).toEqual(["check", "image"]);
-    expect(read(".github/workflows/ci.yml")).not.toMatch(/DEPLOY_|self-hosted/);
-    // deploy.yml follows CI by its name.
-    expect(read(".github/workflows/ci.yml")).toMatch(/^name: CI$/m);
+    expect(read(".github/workflows/ci.yml")).not.toMatch(/DEPLOY_|self-hosted|ssh /);
   });
 });
 
@@ -251,33 +221,111 @@ function run(script: string, args: string[], bin: string, env: Record<string, st
 }
 
 describe.skipIf(!SH)("deploy.sh", () => {
-  it("pulls, restarts only if needed and waits until healthy, then prunes this site's old images", () => {
-    const fake = fakes({ docker: "exit 0", flock: "exit 0" });
-    const result = run("deploy/deploy.sh", [], fake.dir);
+  const PRUNE =
+    "docker image prune --force --filter label=org.opencontainers.image.source=https://github.com/dexteee-r/Portfolio";
+
+  /**
+   * A server with an image `local` (none if empty), a registry offering
+   * `published`, built from commit `version`; the site serves `served`.
+   * `docker compose up` fails if `unhealthy`; the lock is taken if `busy`.
+   */
+  function server({
+    local = "sha256:old",
+    published = "sha256:old",
+    version = "abc123",
+    served = "abc123",
+    unhealthy = false,
+    busy = false,
+  } = {}) {
+    const fake = fakes({
+      docker: [
+        'here=$(dirname "$0")',
+        'case "$*" in',
+        '  "image inspect --format {{.Id}} "*) cat "$here/local" 2>/dev/null || exit 1 ;;',
+        `  "image inspect --format {{range"*) printf 'PATH=/usr/bin\\nELMZN_VERSION=%s\\n' "${version}" ;;`,
+        `  "compose pull --quiet web") echo "${published}" > "$here/local" ;;`,
+        `  "compose up "*) ${unhealthy ? 'echo "container unhealthy" >&2; exit 1' : "exit 0"} ;;`,
+        "esac",
+      ].join("\n"),
+      curl: [
+        'case "$*" in',
+        `  *--head*) printf 'HTTP/1.1 200 OK\\r\\nX-Elmzn-Version: %s\\r\\n\\r\\n' "${served}" ;;`,
+        "  *sitemap.xml) echo '<urlset></urlset>' ;;",
+        "esac",
+      ].join("\n"),
+      flock: busy ? "exit 1" : "exit 0",
+    });
+    if (local) writeFileSync(join(fake.dir, "local"), `${local}\n`);
+    return fake;
+  }
+
+  const deploy = (fake: ReturnType<typeof server>) =>
+    run("deploy/deploy.sh", [], fake.dir, { POLL_SECONDS: "0", VERSION_TIMEOUT: "1" });
+
+  it("with no new image: checks the site is up, touches nothing else, says nothing", () => {
+    const fake = server();
+    const result = deploy(fake);
     expect(result.status, result.stderr).toBe(0);
     expect(fake.calls()).toEqual([
-      "flock 9",
+      "flock -n 9",
+      "docker image inspect --format {{.Id}} ghcr.io/dexteee-r/portfolio:latest",
       "docker compose pull --quiet web",
+      "docker image inspect --format {{.Id}} ghcr.io/dexteee-r/portfolio:latest",
       "docker compose up --detach --wait --wait-timeout 120 web",
-      "docker image prune --force --filter label=org.opencontainers.image.source=https://github.com/dexteee-r/Portfolio",
     ]);
+    expect(result.stdout).toBe("");
   });
 
-  it("locks on itself, read-only: the runner's user and the timer's root share one lock", () => {
-    const script = read("deploy/deploy.sh");
-    expect(script).toContain('exec 9<"$0"');
-    expect(script).not.toMatch(/exec 9>/); // a lock file root created first would shut the runner out
+  it("with a new image: restarts on it, checks the site serves its commit, prunes old images, warms the cache", () => {
+    const fake = server({ published: "sha256:new" });
+    const result = deploy(fake);
+    expect(result.status, result.stderr).toBe(0);
+    const calls = fake.calls();
+    const at = (prefix: string) => calls.findIndex((call) => call.startsWith(prefix));
+    expect(at("docker compose up")).toBeGreaterThan(at("docker compose pull"));
+    expect(at("curl --silent --max-time 10 --head http://127.0.0.1:3000/fr")).toBeGreaterThan(at("docker compose up"));
+    expect(at(PRUNE)).toBeGreaterThan(at("curl --silent --max-time 10 --head"));
+    expect(at("curl --silent --fail --max-time 30 http://127.0.0.1:3000/sitemap.xml")).toBeGreaterThan(at(PRUNE));
+    expect(result.stdout).toContain("Live: http://127.0.0.1:3000/fr serves abc123");
+    expect(result.stdout).toContain("image cache warmed");
+    expect(result.stdout).toContain("elmzn: deployed abc123");
   });
 
-  it("stops at the first failure — a new image that never gets healthy is reported", () => {
-    const fake = fakes({
-      docker: 'case "$*" in *"up "*) echo "container unhealthy" >&2; exit 1 ;; esac',
-      flock: "exit 0",
-    });
-    const result = run("deploy/deploy.sh", [], fake.dir);
+  it("on a fresh server, with no image yet: deploys the published one", () => {
+    const fake = server({ local: "", published: "sha256:new" });
+    const result = deploy(fake);
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain("elmzn: deployed abc123");
+  });
+
+  it("fails, and keeps the old images, when a new image never gets healthy", () => {
+    const fake = server({ published: "sha256:new", unhealthy: true });
+    const result = deploy(fake);
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("container unhealthy");
-    expect(fake.calls().some((call) => call.includes("prune"))).toBe(false);
+    expect(fake.calls()).not.toContain(PRUNE);
+  });
+
+  it("fails, and keeps the old images, when the site never serves the new image's commit", () => {
+    const fake = server({ published: "sha256:new", served: "older" });
+    const result = deploy(fake);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Still serving 'older' instead of abc123");
+    expect(fake.calls()).not.toContain(PRUNE);
+  });
+
+  it("steps aside while a previous run still holds the lock", () => {
+    const fake = server({ published: "sha256:new", busy: true });
+    const result = deploy(fake);
+    expect(result.status).toBe(0);
+    expect(fake.calls()).toEqual(["flock -n 9"]);
+  });
+
+  it("locks on itself, read-only, without waiting", () => {
+    const script = read("deploy/deploy.sh");
+    expect(script).toContain('exec 9<"$0"');
+    expect(script).toContain("flock -n 9 || exit 0");
+    expect(script).not.toMatch(/exec 9>/);
   });
 });
 

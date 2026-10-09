@@ -5,7 +5,7 @@ on:
   pull_request:
 
 # A newer push to the same branch replaces the run in progress: on main, the
-# latest commit is the one that gets deployed.
+# latest commit is the one whose image gets published, then deployed.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -89,5 +89,5 @@ jobs:
           path: smoke-server.log
           retention-days: 7
 
-  # Deployment is not a job here: once this run succeeds on main, the homelab's
-  # own runner takes over (deploy.yml).
+  # Deployment is not a job here, nor anywhere in GitHub: the server looks for
+  # a newly published image every two minutes and pulls it (deploy/deploy.sh).

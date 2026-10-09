@@ -7,3 +7,5 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 ExecStart=/opt/elmzn/deploy.sh
+# A first start or a cache warm-up can take a few minutes, never ten.
+TimeoutStartSec=10min

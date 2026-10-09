@@ -1,10 +1,10 @@
 [Unit]
-Description=ELMZN: catch up on a missed deployment (the runner is the fast path)
+Description=ELMZN: look for a newly published image every two minutes
 
 [Timer]
-OnBootSec=5min
-OnUnitActiveSec=1h
-RandomizedDelaySec=5min
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=15s
 
 [Install]
 WantedBy=timers.target

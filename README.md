@@ -45,7 +45,7 @@ tests/unit/                 Vitest
 tests/e2e/                  Playwright, contre tests/fixtures/content
 Dockerfile                  l'image du site (serveur Next autonome), construite par la CI
 deploy/                     ce qui tourne sur le serveur : compose, déploiement, rattrapage, tests de l'image
-.github/workflows/           ci.yml (tests, image) sur GitHub ; deploy.yml sur le runner du homelab
+.github/workflows/           ci.yml (tests, image) sur GitHub ; le déploiement est fait par le serveur
 ```
 
 ## La séquence de démarrage
@@ -434,39 +434,31 @@ GitHub refuserait la connexion — le test de l'image le vérifie.
 ## Hébergement
 
 Le site tourne sur le homelab, dans Docker, derrière Nginx Proxy Manager. Le
-déploiement passe par un runner GitHub Actions installé dans le LXC du site
-(comme Watchlist) :
+serveur va chercher lui-même chaque nouvelle image : GitHub ne pousse rien.
 
 ```
 push sur main (ou enregistrement dans le CMS)
   → CI (GitHub) : typecheck, lint, unitaires, E2E
   → CI : construit l'image, la teste comme le serveur la lance (deploy/smoke-test.sh)
   → CI : la publie sur ghcr.io/dexteee-r/portfolio (:latest et :<commit>)
-  → Deploy (runner du homelab) : deploy.sh tire l'image, relance le site s'il a changé, attend qu'il soit sain
-  → Deploy : vérifie que le site sert ce commit (en-tête X-Elmzn-Version) — sinon, rouge
+  → serveur, toutes les 2 minutes (elmzn-deploy.timer) : deploy.sh tire l'image ;
+    si elle est nouvelle, relance le site et attend qu'il soit sain, vérifie qu'il
+    sert le commit de l'image (en-tête X-Elmzn-Version), retire les anciennes
+    images et préchauffe le cache des images (warm-cache.sh)
 ```
 
+Un push est donc en ligne quelques minutes après la fin de la CI. Sans
+nouvelle image, `deploy.sh` vérifie seulement que le site tourne et n'écrit
+rien. Un déploiement raté fait échouer le service : `systemctl status
+elmzn-deploy` et `journalctl -u elmzn-deploy` disent pourquoi.
+
 Rien n'est ouvert sur Internet à part le site : pas de webhook, pas de
-sous-domaine de déploiement, aucun secret de déploiement dans GitHub. Un
-minuteur horaire sur le serveur rattrape un déploiement manqué. Tant que la
-variable de dépôt `DEPLOY_ON_HOMELAB` n'est pas à `true`, le déploiement est
-simplement sauté : l'image est publiée, rien n'est déployé.
-
-**Le dépôt est public : un runner auto-hébergé ne doit jamais exécuter le
-code d'une pull request.** N'importe qui peut forker le dépôt et proposer un
-workflow qui viserait ce runner ; son code tournerait dans le LXC, avec les
-droits de Docker (autant dire root) et l'accès au `.env`. D'où trois verrous :
-
-- `.github/workflows/deploy.yml` ne part que d'un passage réussi de la CI pour
-  un push sur `main` de ce dépôt — jamais une pull request, jamais un fork —,
-  sans jeton, sans rien extraire du dépôt : il lance `deploy.sh` et vérifie la
-  version, rien d'autre ;
-- `tests/unit/deploy.test.ts` échoue si un autre workflow vise le runner ;
-- **réglage GitHub, obligatoire avant d'installer le runner** : Settings →
-  Actions → General → *Approval for running fork pull request workflows from
-  contributors* → **Require approval for all external contributors**. Les
-  workflows d'une pull request extérieure attendent alors ton approbation :
-  ne l'accorder qu'après avoir lu leurs fichiers `.github/workflows/`.
+sous-domaine de déploiement, aucun secret de déploiement dans GitHub, et
+**pas de runner GitHub Actions sur le serveur**. Le dépôt est public : un
+runner auto-hébergé est à une pull request approuvée près d'exécuter le code
+d'un inconnu sur le serveur. Il a été retiré le 2026-10-08, et
+`tests/unit/deploy.test.ts` échoue si un workflow vise de nouveau un runner
+auto-hébergé ou si un workflow de déploiement réapparaît.
 
 ### Mise en place du serveur
 
@@ -475,43 +467,29 @@ Sur srv1, un conteneur LXC Debian 12 dédié (Proxmox : cocher *nesting* et
 
 1. **Docker** : installer Docker Engine et le plugin Compose (dépôt officiel
    Docker pour Debian).
-2. **L'utilisateur du runner** : `adduser --disabled-password github-runner`
-   puis `usermod -aG docker github-runner` (le nom importe peu ; il doit
-   seulement pouvoir lancer Docker et lire `/opt/elmzn`).
-3. **Le site** : créer `/opt/elmzn/`, y copier `deploy/compose.yaml`,
+2. **Le site** : créer `/opt/elmzn/` (à root), y copier `deploy/compose.yaml`,
    `deploy/deploy.sh`, `deploy/wait-for-version.sh` et `deploy/warm-cache.sh`
    (`chmod +x` sur les trois scripts), et un `.env` (`chmod 600`) avec les
-   variables `CMS_GITHUB_*` (voir « Le CMS ») ; puis
-   `chown -R github-runner: /opt/elmzn`. `warm-cache.sh` remplit le cache des
-   images optimisées juste après chaque déploiement (ce cache vit en mémoire
-   et chaque redémarrage le vide) : sans lui, chaque image est fabriquée à la
-   première visite. Absent, le déploiement passe quand même, avec un
-   avertissement.
-4. **L'image** : le paquet `ghcr.io/dexteee-r/portfolio` est public. Lancer
-   une première fois `sudo -u github-runner /opt/elmzn/deploy.sh`.
-5. **Le réglage GitHub** ci-dessus (approbation de tous les contributeurs
-   externes), avant tout le reste.
-6. **Le runner** : GitHub → Settings → Actions → Runners → *New self-hosted
-   runner* (Linux x64). En tant que `github-runner`, dans
-   `~/actions-runner`, télécharger l'archive indiquée, puis
-   `./config.sh --url https://github.com/dexteee-r/Portfolio --token <jeton affiché> --labels portfolio --name elmzn --unattended`,
-   et en root `./svc.sh install github-runner && ./svc.sh start`.
-7. **L'interrupteur** : GitHub → Settings → Secrets and variables → Actions →
-   *Variables* → `DEPLOY_ON_HOMELAB` = `true`. Le prochain push sur `main` se
-   déploie.
-8. **Le rattrapage** : copier `deploy/elmzn-deploy.service` et `.timer` dans
-   `/etc/systemd/system/`, puis `systemctl enable --now elmzn-deploy.timer`
-   (il tourne en root ; `deploy.sh` se verrouille sur lui-même en lecture, le
-   runner et le minuteur ne se marchent donc jamais dessus).
-9. **Nginx Proxy Manager** :
+   variables `CMS_GITHUB_*` (voir « Le CMS »). `warm-cache.sh` remplit le
+   cache des images optimisées juste après chaque déploiement (ce cache vit
+   en mémoire et chaque redémarrage le vide) : sans lui, chaque image est
+   fabriquée à la première visite.
+3. **L'image** : le paquet `ghcr.io/dexteee-r/portfolio` est public. Lancer
+   une première fois `/opt/elmzn/deploy.sh`.
+4. **Le minuteur** : copier `deploy/elmzn-deploy.service` et `.timer` dans
+   `/etc/systemd/system/`, puis `systemctl daemon-reload` et
+   `systemctl enable --now elmzn-deploy.timer`. Il tourne en root, toutes les
+   2 minutes ; `deploy.sh` se verrouille sur lui-même et laisse passer son
+   tour si le précédent n'a pas fini.
+5. **Nginx Proxy Manager** :
    - `elmzn.be` → `http://<ip du LXC>:3000`, certificat Let's Encrypt,
-     *Force SSL*, *HTTP/2*, *HSTS*. NPM transmet `Host` et
-     `X-Forwarded-Proto` par défaut : ne pas les retirer.
+     *Force SSL*, *HTTP/2*, *HSTS*. NPM transmet `Host` par défaut : ne pas
+     le retirer. Le site ignore `X-Forwarded-Host`, que NPM laisse passer tel
+     que le client l'envoie : pour `elmzn.be`, l'origine est toujours
+     `https://elmzn.be` (`src/lib/public-origin.ts`).
    - `www.elmzn.be` → *Redirection Host* en 301 vers `https://elmzn.be`, en
-     gardant le chemin, avec son propre certificat. Pas un proxy vers le site :
-     la connexion GitHub du CMS construit son adresse de retour depuis `Host`,
-     et l'OAuth App n'accepte que `elmzn.be` ; le site serait aussi servi en
-     double.
+     gardant le chemin, avec son propre certificat. Pas un proxy vers le
+     site : il serait servi en double.
 
 Pour vérifier l'image sans GitHub, avec Docker en local :
 `docker build --build-arg ELMZN_VERSION=local -t elmzn:local .` puis
@@ -538,11 +516,11 @@ confidentialité promet qu'ils disparaissent au plus tard après 11 semaines
 - `tests/e2e/helpers.ts` détecte tout texte qui dépasse, même masqué par un
   conteneur ; bureau, 404 et chapitres sont vérifiés jusqu'à 320 px.
 - `tests/unit/deploy.test.ts` vérifie l'image (utilisateur non root, aucun
-  secret, contrôle de santé), le verrouillage du conteneur, l'enchaînement de
-  la CI et du déploiement — le runner du homelab n'est joignable que par
-  `deploy.yml`, pour un push sur `main` de ce dépôt, sans jeton ni code du
-  dépôt —, et exécute réellement `deploy.sh`, `wait-for-version.sh` et
-  `warm-cache.sh` contre de faux `docker` et `curl`.
+  secret, contrôle de santé), le verrouillage du conteneur, la CI — aucun
+  workflow ne vise un runner auto-hébergé, aucun ne déploie —, le minuteur du
+  serveur, et exécute réellement `deploy.sh`, `wait-for-version.sh` et
+  `warm-cache.sh` contre de faux `docker`, `curl` et `flock` (sous Windows,
+  avec le `sh` de Git dans le `PATH`, sinon ces tests sont sautés).
 - `deploy/smoke-test.sh` lance l'image en lecture seule, sans privilèges,
   derrière un faux proxy HTTPS, et contrôle pages, 404, redirections, images,
   CMS et connexion GitHub avant toute publication.

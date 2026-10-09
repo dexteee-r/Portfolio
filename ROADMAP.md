@@ -23,9 +23,10 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   GitHub) ; mentions légales et note de confidentialité (`/fr/mentions-legales`,
   `/en/legal-notice`), éditeur à titre personnel (2026-09-28).
 - Auto-hébergement sur le homelab au lieu de Vercel (décision du 2026-09-28) :
-  image Docker construite, testée et publiée par la CI, déploiement par
-  runner GitHub Actions dans le LXC (depuis le 2026-09-30, à la place du
-  webhook signé), vérification que le site sert bien la nouvelle version.
+  image Docker construite, testée et publiée par la CI ; depuis le
+  2026-10-08, le serveur la tire lui-même toutes les 2 minutes (avant : un
+  runner GitHub Actions dans le LXC, retiré après l'audit), et vérifie que le
+  site sert bien la nouvelle version.
 - Geste de balayage : un chapitre tiré vers le bas au doigt, depuis le haut de
   sa page, retourne au bureau ; le tiroir reprend là où le doigt l'a lâché.
 - Le tiroir ouvert : sommaire de chaque chapitre en dossiers suspendus à
@@ -94,8 +95,8 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   le 2026-10-08).
 - **Suites de l'audit de sécurité** (fait le 2026-10-08 ; le rapport reste
   hors du dépôt) : déjà corrigés ici, les versions de Next.js et de sharp,
-  les en-têtes de sécurité et l'origine du CMS. Restent le déploiement sans
-  runner, les réglages GitHub et le ménage côté serveur.
+  les en-têtes de sécurité, l'origine du CMS et le déploiement sans runner.
+  Restent les réglages GitHub et le ménage côté serveur.
 - **Boîte `contact@elmzn.be`** : redirigée par OVH (MX Plan « redirect »)
   vers la boîte Gmail depuis le 2026-10-05, testée — les premiers messages
   tombaient dans les spams (filtre Gmail « ne jamais envoyer dans le
