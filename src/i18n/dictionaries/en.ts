@@ -54,6 +54,14 @@ export const en: Dictionary = {
     draft: "Draft",
     preview: "Preview",
   },
+  repairWorld: {
+    stamp: "Diagnosis",
+    stampLine: "in progress",
+    lensHint: "Hover the photo to look inside",
+    seeRepair: "See the repair: {device}",
+    pause: "Pause",
+    play: "Play",
+  },
   network: {
     caption: "The homelab, as it runs",
     kinds: {

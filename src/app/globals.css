@@ -688,3 +688,168 @@ html[data-boot="play"] [data-desk-art] {
     animation: none !important;
   }
 }
+
+/*
+ * The repair world — « l'établi » (components/repair). A pegboard drawn in
+ * CSS: what shows without WebGL or JavaScript, and under the lamp's canvas
+ * until its first frame. Every colour is a chapter alias; every duration a
+ * shared one, so reduced motion stills it all.
+ */
+.workbench,
+.workbench-board {
+  background-color: var(--chapter-surface);
+  background-image: radial-gradient(
+    circle at 15px 15px,
+    color-mix(in srgb, var(--chapter-bg) 85%, transparent) 4px,
+    transparent 5px
+  );
+  background-size: 30px 30px;
+}
+
+.workbench-board {
+  box-shadow: inset 0 2rem 3rem -2rem var(--chapter-bg);
+}
+
+/* The lamp's canvas fades in over the board once it has drawn a frame. */
+.workbench-light {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.workbench-light[data-lit] {
+  opacity: 1;
+}
+
+/* The workshop's stamp: pressed onto the board once the scan has run. */
+.workbench-stamp {
+  display: none;
+  position: absolute;
+  top: -1.5rem;
+  right: 0;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--chapter-accent-text);
+  border-radius: var(--radius-sm, 0.25rem);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--chapter-accent-text);
+  transform: rotate(-8deg);
+  animation: stamp-press var(--duration-base) var(--ease-standard) calc(var(--duration-flood) * 2.2) both;
+}
+
+.workbench-stamp b {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+@media (min-width: 64rem) {
+  .workbench-stamp {
+    display: block;
+  }
+}
+
+@keyframes stamp-press {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.8);
+  }
+}
+
+.workbench-scan {
+  max-width: 34rem;
+}
+
+/* The reel: one repair at a time, cross-fading into the next. */
+[data-reel] .reel-item {
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+[data-reel] .reel-item[data-current] {
+  opacity: 1;
+}
+
+/* The scanner's line, moved by the reel's clock; a glow trails above it. */
+[data-reel] .reel-line {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: var(--chapter-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-reel] .reel-line::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 4rem;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--chapter-accent) 30%, transparent));
+}
+
+/* A part's box closes in once the line reaches it. Drawn by default: only hidden once the reel runs. */
+[data-reel] .reel-mark {
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard);
+}
+
+[data-reel] [data-armed] .reel-mark:not([data-locked]) {
+  opacity: 0;
+  transform: scale(1.15);
+}
+
+/* The X-ray lens: a crosshair over the photo, with a mouse. */
+[data-lens] {
+  cursor: crosshair;
+}
+
+/* The board: work orders in rows, each hung a little askew on its pin. */
+.work-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+  gap: 3.5rem 2.5rem;
+  padding-top: 0.75rem;
+}
+
+.work-order {
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform var(--duration-slow) cubic-bezier(0.2, 1.3, 0.4, 1);
+  filter: drop-shadow(0 1.1rem 1rem color-mix(in srgb, var(--chapter-bg) 75%, transparent));
+}
+
+.work-order:hover,
+.work-order:focus-within {
+  transform: rotate(0deg) translateY(-0.25rem);
+}
+
+.work-order-pin {
+  position: absolute;
+  z-index: 1;
+  top: -0.5rem;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  margin-left: -0.5rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    color-mix(in srgb, var(--chapter-accent) 45%, var(--chapter-ink)),
+    var(--chapter-accent) 55%,
+    color-mix(in srgb, var(--chapter-accent) 45%, var(--chapter-bg))
+  );
+  box-shadow: 0 0.2rem 0.3rem color-mix(in srgb, var(--chapter-bg) 70%, transparent);
+}
+
+/* Pinned as they come into view: a short drop onto the pin. Only once armed. */
+[data-board][data-armed] > li:not([data-pinned]) > .work-order {
+  transform: translateY(-1.75rem) rotate(calc(var(--tilt, 0deg) * 3));
+}

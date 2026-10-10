@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { ChapterView } from "@/components/ChapterView";
 import { JsonLd } from "@/components/JsonLd";
 import { chapterFromSlug, chapterIds, chapterSlugs } from "@/content/chapters";
-import { readPlaceholders } from "@/content/media";
+import { readImages, readPlaceholders } from "@/content/media";
+import { reelProjects, toReelItem } from "@/components/repair/RepairWorld";
 import { loadNetwork } from "@/content/network";
 import {
   countByChapter,
@@ -73,6 +74,10 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
   // Each cover's blurred preview, shown in its place — on its station and its folder — until it loads.
   const blurs = await readPlaceholders(localized.flatMap((p) => (p.cover ? [p.cover] : [])));
   const stations = localized.map((p) => (p.cover ? { ...p, coverBlur: blurs[p.cover] } : p));
+  // The repair world opens on a reel of diagnostics: each photo's size, so its boxes land true in the frame.
+  const reeled = chapter === "repair" ? reelProjects(stations) : [];
+  const sizes = await readImages(reeled.map((p) => p.cover!));
+  const reel = reeled.map((p) => toReelItem(p, locale, sizes[p.cover!]!));
 
   const structured = graph(
     breadcrumbLd([
@@ -93,6 +98,7 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
         stations={stations}
         publishedCount={countByChapter(all)[chapter]}
         network={chapter === "infra" ? loadNetwork() : null}
+        reel={reel}
       />
     </>
   );

@@ -57,6 +57,14 @@ export const fr = {
     draft: "Brouillon",
     preview: "Aperçu",
   },
+  repairWorld: {
+    stamp: "Diagnostic",
+    stampLine: "en cours",
+    lensHint: "Survolez la photo pour voir dedans",
+    seeRepair: "Voir l'intervention : {device}",
+    pause: "Pause",
+    play: "Relancer",
+  },
   network: {
     caption: "Le homelab, tel qu'il tourne",
     kinds: {

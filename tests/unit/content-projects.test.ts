@@ -278,12 +278,13 @@ describe("fixtures", () => {
       "gamma-draft",
       "homelab-fixture",
       "ecran-fixture",
+      "montage-fixture",
       "film-test",
     ]);
   });
 
   it("count only published projects, and every chapter appears", () => {
-    expect(countByChapter(projects)).toEqual({ dev: 2, infra: 1, repair: 1, creative: 1 });
+    expect(countByChapter(projects)).toEqual({ dev: 2, infra: 1, repair: 2, creative: 1 });
     expect(Object.keys(countByChapter([])).sort()).toEqual([...chapterIds].sort());
   });
 

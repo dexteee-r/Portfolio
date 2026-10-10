@@ -1,0 +1,16 @@
+# Fixture: a second repair, published, with a cover but no named parts — so
+# the workbench's reel has two photos to go through.
+chapter: repair
+status: published
+order: 2
+year: 2024
+device: PC de test
+cover: /media/fixtures/alpha-cover.webp
+fr:
+  title: Montage de test
+  summary: Un montage de test.
+  coverAlt: Couverture de test.
+en:
+  title: Test build
+  summary: A test build.
+  coverAlt: Test cover.

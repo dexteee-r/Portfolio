@@ -2,11 +2,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { horizontalOverflow } from "./helpers";
 
-/** Fixture content: dev 2 published + 1 draft, infra 1, repair 1, creative 1. */
+/** Fixture content: dev 2 published + 1 draft, infra 1, repair 2, creative 1. */
 const FR_MARKS = [
   { name: "Développement 2 projets", href: "/fr/dev" },
   { name: "Homelab 1 projet", href: "/fr/homelab" },
-  { name: "Réparation/Montage 1 projet", href: "/fr/repair" },
+  { name: "Réparation/Montage 2 projets", href: "/fr/repair" },
   { name: "Création 1 projet", href: "/fr/creatif" },
 ];
 
@@ -95,7 +95,7 @@ test.describe("desk", () => {
     await expect(page.getByText("Digital tinkerer based in Belgium: apps and websites, a homelab", { exact: false })).toBeVisible();
     const links = await marks(page);
     await expect(links.nth(3)).toHaveAttribute("href", "/en/creative");
-    await expect(links.nth(2)).toHaveAccessibleName("Repair/Build 1 project");
+    await expect(links.nth(2)).toHaveAccessibleName("Repair/Build 2 projects");
   });
 
   test("shows the local time once hydrated", async ({ page }) => {

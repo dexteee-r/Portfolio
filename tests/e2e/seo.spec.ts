@@ -69,8 +69,8 @@ test.describe("for crawlers", () => {
     }
     expect(xml).toContain('hreflang="en" href="https://elmzn.be/en/dev/alpha-app"');
     expect(xml).not.toContain("gamma-draft");
-    // (desk + legal notice + 4 chapters + 5 published fixture projects) × 2 languages
-    expect(xml.match(/<url>/g)).toHaveLength(22);
+    // (desk + legal notice + 4 chapters + 6 published fixture projects) × 2 languages
+    expect(xml.match(/<url>/g)).toHaveLength(24);
   });
 
   test("every listed URL answers 200", async ({ request }) => {

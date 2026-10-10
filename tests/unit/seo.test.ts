@@ -258,8 +258,8 @@ describe("sitemap and robots", () => {
   const urls = entries.map((e) => e.url);
 
   it("lists every page in every language: desk, legal notice, chapters, published projects", () => {
-    // 1 desk + 1 legal notice + 4 chapters + 5 published fixture projects, × 2 languages
-    expect(entries).toHaveLength((1 + 1 + chapterIds.length + 5) * locales.length);
+    // 1 desk + 1 legal notice + 4 chapters + 6 published fixture projects, × 2 languages
+    expect(entries).toHaveLength((1 + 1 + chapterIds.length + 6) * locales.length);
     expect(urls).toContain("https://elmzn.be/fr/repair/ecran-fixture");
     expect(urls).toContain("https://elmzn.be/fr");
     expect(urls).toContain("https://elmzn.be/en/creative");

@@ -85,6 +85,13 @@ La liste de ce qui reste à faire. Le « pourquoi » de chaque décision est dan
   lien vers la story à la une Instagram (nouveau type de lien `instagram`) ;
   la vidéo PowerTrack retrouve son son (mêmes coupes). Un extrait dans le
   texte garde désormais son son s'il en a un.
+- Un monde par chapitre (décision du 2026-10-10, après un banc d'essai des
+  quatre) : la règle du brief qui imposait la même mise en page partout est
+  levée. Premier construit, Réparation/Montage devient « l'établi » : panneau
+  perforé éclairé par une lampe qui suit la souris (WebGL), ouverture sur le
+  scan d'une réparation avec rayons X et loupe, interventions en fiches
+  punaisées. Restent le Homelab (console phosphore), le Développement
+  (lumière d'écran) et la Création (salle de projection).
 - Note de confidentialité (2026-10-05) : le courrier à `contact@elmzn.be`
   arrive chez OVHcloud, qui le fait suivre vers Gmail (Google).
 
