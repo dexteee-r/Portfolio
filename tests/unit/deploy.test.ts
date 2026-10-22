@@ -66,6 +66,12 @@ describe("the image", () => {
     expect(runtime).toContain("chown node:node .next/cache");
   });
 
+  it("carries its commit in the image's environment, where deploy.sh reads it", () => {
+    expect(runtime).toContain('ARG ELMZN_VERSION=""');
+    expect(runtime).toContain("ENV ELMZN_VERSION=${ELMZN_VERSION}");
+    expect(read("deploy/deploy.sh")).toContain("s/^ELMZN_VERSION=//p");
+  });
+
   it("never holds a secret: the CMS settings come from the server at run time", () => {
     expect(dockerfile).not.toMatch(/CMS_GITHUB|SECRET|TOKEN/);
   });

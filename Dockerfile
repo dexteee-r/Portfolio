@@ -34,6 +34,10 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 RUN mkdir -p .next/cache && chown node:node .next/cache
+# The commit, in the image's own environment: deploy.sh reads it from there to
+# check the site serves what was just pulled. Last, so it never busts the cache.
+ARG ELMZN_VERSION=""
+ENV ELMZN_VERSION=${ELMZN_VERSION}
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
