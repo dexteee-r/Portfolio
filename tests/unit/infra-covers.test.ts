@@ -41,7 +41,10 @@ describe("the infra covers (scripts/generate-infra-covers.mjs)", () => {
 
   it("states only facts from the homelab's documentation", () => {
     const homelab = covers.machines();
-    for (const fact of ["Beelink S12", "i7-6700", "ZimaOS", "EXTRANET", "INTRANET"]) expect(homelab).toContain(fact);
+    // The third machine's data disk, from the homelab's ZimaOS tutorial.
+    for (const fact of ["Beelink S12", "i7-6700", "ZIMAOS", "HDD 500G", "EXTRANET", "INTRANET"]) expect(homelab).toContain(fact);
+    // Not a NAS: its owner, 2026-11-13.
+    expect(homelab).not.toMatch(/\bNAS\b/);
   });
 
   it("draws the monitoring as an illustration: not one figure on it to misread as a measure", () => {

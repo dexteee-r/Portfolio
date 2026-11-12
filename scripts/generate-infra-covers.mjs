@@ -74,16 +74,12 @@ function homelab() {
         `<rect x="${x + 40}" y="${y + 270}" width="${w - 80}" height="34" rx="3" fill="none" stroke="${C.muted}" stroke-width="2"/>` +
         `<rect x="${x + 40}" y="${y + 318}" width="${w - 80}" height="34" rx="3" fill="none" stroke="${C.muted}" stroke-width="2"/>`,
     },
-    // A NAS: four drive bays and their lights.
+    // ZimaOS: not a NAS (its owner, 2026-11-13) — a plain box that keeps files: vents and a light, no model claimed.
     {
-      x: 1110, w: 300, h: 230, name: "NAS", spec: "ZimaOS",
-      body: (x, y, w) =>
-        Array.from({ length: 4 }, (_, i) => {
-          const bx = x + 32 + i * ((w - 64) / 4);
-          const bw = (w - 64) / 4 - 14;
-          return `<rect x="${bx}" y="${y + 36}" width="${bw}" height="140" rx="3" fill="none" stroke="${C.muted}" stroke-width="2"/>` +
-            `<circle cx="${bx + bw / 2}" cy="${y + 196}" r="5" fill="${i < 2 ? C.accent : C.line}"/>`;
-        }).join(""),
+      x: 1110, w: 300, h: 170, name: "ZIMAOS", spec: "HDD 500G",
+      body: (x, y, w, h) =>
+        Array.from({ length: 12 }, (_, i) => `<line x1="${x + 44 + i * 18}" y1="${y + 34}" x2="${x + 44 + i * 18}" y2="${y + 84}" stroke="${C.line}" stroke-width="4"/>`).join("") +
+        `<circle cx="${x + 46}" cy="${y + h - 40}" r="7" fill="${C.accent}"/>`,
     },
   ];
 

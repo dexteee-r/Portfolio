@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { chapterSlugs, type ChapterId } from "@/content/chapters";
-import type { NetworkNode } from "@/content/network-layout";
+import type { HomelabNode } from "@/content/network-layout";
 import type { LocalizedProject } from "@/content/projects";
 import type { Locale } from "@/i18n/config";
 import { formatCount, type Dictionary } from "@/i18n/dictionaries";
 import { homePath } from "@/i18n/paths";
 import { ChapterName } from "./ChapterName";
 import { DrawerIndex } from "./DrawerIndex";
-import { NetworkMap } from "./NetworkMap";
+import { HomelabWorld } from "./homelab/HomelabWorld";
 import { RepairWorld } from "./repair/RepairWorld";
 import type { ReelItem } from "./repair/ScanReel";
 import { SiteFooter } from "./SiteFooter";
@@ -22,8 +22,8 @@ interface ChapterViewProps {
   stations: LocalizedProject[];
   /** Published projects only — the same number the desk shows. */
   publishedCount: number;
-  /** The homelab, drawn under the infra chapter's title (its one effect). */
-  network?: NetworkNode[] | null;
+  /** The homelab, its machines and what they run, in the page's language. */
+  network?: HomelabNode[] | null;
   /** The repair world's opening reel: its repairs through the scanner. */
   reel?: ReelItem[] | null;
 }
@@ -31,8 +31,9 @@ interface ChapterViewProps {
 /**
  * A chapter: its own grade (data-chapter), and — chapter by chapter, since
  * 2026-10-10 — its own world: the repair chapter is a workbench
- * (repair/RepairWorld); the others still share the stroll below, one station
- * per project. Works on its own when reached from an outside link.
+ * (repair/RepairWorld), the homelab a phosphor console over its machines
+ * (homelab/HomelabWorld); the others still share the stroll below, one
+ * station per project. Works on its own when reached from an outside link.
  */
 export function ChapterView({
   locale,
@@ -61,8 +62,6 @@ export function ChapterView({
         <p className="mt-6 max-w-measure text-lg leading-snug text-chapter-muted">{copy.description}</p>
       </header>
 
-      {chapter === "infra" && network && <NetworkMap dict={dict} nodes={network} />}
-
       <DrawerIndex locale={locale} dict={dict} projects={stations} />
 
       {stations.length > 0 ? (
@@ -90,6 +89,8 @@ export function ChapterView({
 
       {chapter === "repair" ? (
         <RepairWorld locale={locale} dict={dict} stations={stations} publishedCount={publishedCount} reel={reel} />
+      ) : chapter === "infra" ? (
+        <HomelabWorld locale={locale} dict={dict} stations={stations} publishedCount={publishedCount} network={network} />
       ) : (
         stroll
       )}

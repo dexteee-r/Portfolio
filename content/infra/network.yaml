@@ -1,10 +1,13 @@
-# The homelab, as the Homelab chapter draws it — edited in the CMS (Homelab).
+# The homelab, as the Homelab chapter shows it — edited in the CMS (Homelab).
 # Drawn from github.com/dexteee-r/elmzn_homelab (README, 2026-09-30): only
 # what runs today — nothing stopped (n8n, Ollama), unused (Grafana and
 # Prometheus, left unfinished; taken off on 2026-10-04 at its owner's request)
 # or still being set up (Vaultwarden, Checkmk, Home Assistant, Pi-hole, Poste.io).
 # Names only, never an address or a port: the build refuses them.
 # Published by its owner on 2026-10-01.
+# A physical machine has a silhouette (form): that makes it one of the
+# chapter's rack units. Its hardware and zone repeat what the « Machines »
+# project already publishes, nothing more.
 status: published
 nodes:
   - id: internet
@@ -20,6 +23,14 @@ nodes:
     label: Extranet · DMZ
     kind: hypervisor
     parent: box
+    form: mini-pc
+    hardware:
+      fr: mini-PC Beelink S12
+      en: Beelink S12 mini PC
+    zone:
+      fr: DMZ — la seule ouverte à Internet
+      en: DMZ — the only one open to the internet
+    project: machines
   - id: vm-extranet
     label: vm-extranet
     kind: vm
@@ -36,14 +47,17 @@ nodes:
     label: elmzn.be
     kind: container
     parent: pve-extranet
+    project: portfolio
   - id: watchlist
     label: watchlist.elmzn.be
     kind: container
     parent: pve-extranet
+    project: watchlist
   - id: mytcg
     label: mytcg.elmzn.be
     kind: container
     parent: pve-extranet
+    project: mytcg
   - id: lxc-web
     label: lxc-web
     kind: container
@@ -52,12 +66,21 @@ nodes:
     label: WireGuard
     kind: container
     parent: pve-extranet
+    project: acces-distant
 
   # Machine 2 — the intranet, never exposed.
   - id: pve-intranet
     label: Intranet
     kind: hypervisor
     parent: box
+    form: tower
+    hardware:
+      fr: tour i7-6700 · 4 To en ZFS
+      en: i7-6700 tower · 4 TB of ZFS
+    zone:
+      fr: intranet — jamais exposé à Internet
+      en: intranet — never exposed to the internet
+    project: machines
   - id: vm-intranet
     label: vm-intranet
     kind: vm
@@ -75,8 +98,18 @@ nodes:
     kind: container
     parent: pve-intranet
 
-  # Machine 3 — the family NAS.
-  - id: nas
+  # Machine 3 — ZimaOS, not a NAS (its owner, 2026-11-13): it keeps the
+  # files that took up room on the main PC, and nothing else is shown.
+  - id: zimaos
     label: ZimaOS
-    kind: nas
+    kind: server
     parent: box
+    form: box
+    zone:
+      fr: stockage — des fichiers déplacés du PC principal
+      en: storage — files moved off the main PC
+    project: machines
+  - id: files
+    label: Partage de fichiers
+    kind: service
+    parent: zimaos

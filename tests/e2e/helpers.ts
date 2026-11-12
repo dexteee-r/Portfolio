@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
  * Waits until every animation that ends has ended — the chapters' effects
  * play once, on arrival or when seen — so a check such as axe's contrast
  * reads the page as it stays, not a frame caught halfway. Endless ones
- * (the network map's tracker) are left running.
+ * (the homelab rack's lights) are left running.
  */
 export function settled(page: Page): Promise<unknown> {
   return page.waitForFunction(

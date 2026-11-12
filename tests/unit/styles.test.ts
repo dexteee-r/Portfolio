@@ -55,14 +55,17 @@ describe("globals.css", () => {
     expect(globals).toMatch(/html:has\(\[data-view="chapter"\]\)\s*\{\s*overscroll-behavior-y:\s*none;\s*\}/);
   });
 
-  it("draws the network map by default: it only hides once armed by the script, until seen", () => {
-    expect(globals).toMatch(/\[data-network\]\[data-armed\]:not\(\[data-drawn\]\) \.net-line\s*\{\s*stroke-dashoffset: 1;/);
-    expect(globals).not.toMatch(/\[data-network\] \.net-line\s*\{[^}]*stroke-dashoffset: 1/);
+  it("shows the homelab's machines as a shelf on a phone, a rack from 48rem", () => {
+    const rack = globals.slice(globals.indexOf("/* From 48rem: the rack. */"));
+    expect(rack).toMatch(/^@media \(min-width: 48rem\) \{/m);
+    expect(rack).toMatch(/\.machine-figure\s*\{\s*display: none;/);
+    expect(rack).toMatch(/\.machine-services\s*\{\s*display: flex;/);
   });
 
-  it("paces the network map with the shared durations, and stills it under reduced motion", () => {
-    expect(globals).toMatch(/net-draw var\(--duration-slow\) var\(--ease-standard\)/);
-    expect(reducedMotionFor("[data-network]")).toMatch(/\[data-network\] \.net-brackets[\s\S]*animation: none !important/);
+  it("stills the homelab's flicker and lights under reduced motion", () => {
+    const block = reducedMotionFor(".homelab-title");
+    for (const selector of [".homelab-title", ".machine-leds", ".service-led"]) expect(block).toContain(selector);
+    expect(block).toMatch(/animation: none !important/);
   });
 
   it("rests the floppy's shutter open: it only slides from closed when animations run", () => {

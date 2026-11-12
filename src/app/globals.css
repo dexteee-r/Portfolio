@@ -427,91 +427,6 @@ html[data-boot="play"] [data-desk-art] {
 }
 
 /*
- * The infra chapter's network map (components/NetworkMap). Drawn by default:
- * only once the script has armed it does it wait, hidden, to be seen — then
- * the lines trace themselves and each node locks on, at the site's own pace.
- */
-[data-network] .net-line {
-  stroke-dasharray: 1;
-}
-
-[data-network] .net-node,
-[data-network] .net-brackets {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-[data-network][data-armed]:not([data-drawn]) .net-line {
-  stroke-dashoffset: 1;
-}
-
-[data-network][data-armed]:not([data-drawn]) .net-node {
-  opacity: 0;
-}
-
-[data-network][data-drawn] .net-line {
-  animation: net-draw var(--duration-slow) var(--ease-standard) var(--delay, 0ms) both;
-}
-
-/* Each node appears; its brackets close in on it — the tracker locks on. */
-[data-network][data-drawn] .net-node {
-  animation: net-appear var(--duration-base) var(--ease-standard) var(--delay, 0ms) both;
-}
-
-/* Afterwards, the tracker visits one node at a time. */
-[data-network][data-drawn] .net-brackets {
-  animation:
-    net-lock var(--duration-slow) var(--ease-standard) var(--delay, 0ms) both,
-    net-track 10s var(--ease-standard) calc(var(--delay, 0ms) + var(--track-delay, 0s)) infinite;
-}
-
-@keyframes net-appear {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes net-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes net-lock {
-  from {
-    transform: scale(2.2);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-@keyframes net-track {
-  0%,
-  88%,
-  100% {
-    transform: scale(1);
-  }
-  93% {
-    transform: scale(1.4);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-network] .net-line,
-  [data-network] .net-node,
-  [data-network] .net-brackets {
-    animation: none !important;
-  }
-}
-
-/*
  * The dev chapter's floppy disk (components/Floppy). Its shutter rests open;
  * once the page has faded in, it slides open from closed — the disk is read.
  * Without animation, it is simply open.
@@ -852,4 +767,408 @@ html[data-boot="play"] [data-desk-art] {
 /* Pinned as they come into view: a short drop onto the pin. Only once armed. */
 [data-board][data-armed] > li:not([data-pinned]) > .work-order {
   transform: translateY(-1.75rem) rotate(calc(var(--tilt, 0deg) * 3));
+}
+
+/*
+ * The homelab world — « console phosphore » (components/homelab): the boot
+ * log over the title, the title coming on like a tube, then the machines.
+ * Every colour is a chapter alias; every duration a shared one, so reduced
+ * motion stills it all.
+ */
+.homelab-hero {
+  background-color: var(--chapter-bg);
+}
+
+.homelab-boot {
+  display: none;
+  margin: 0 0 1.75rem;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1.55;
+  min-height: calc(9 * 1.55em);
+  white-space: pre;
+  color: var(--chapter-accent-text);
+  text-shadow: 0 0 0.4rem color-mix(in srgb, var(--chapter-accent) 70%, transparent);
+}
+
+@media (min-width: 64rem) {
+  .homelab-boot {
+    display: block;
+  }
+}
+
+/* The title comes on like a tube: a flicker, then lit. */
+.homelab-title {
+  text-shadow:
+    0 0 1.1rem color-mix(in srgb, var(--chapter-accent) 80%, transparent),
+    0 0 3.75rem color-mix(in srgb, var(--chapter-accent) 45%, transparent);
+  animation: phosphor-on 520ms steps(1, end) 380ms backwards;
+}
+
+@keyframes phosphor-on {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  35% {
+    opacity: 0.25;
+  }
+  55% {
+    opacity: 1;
+  }
+}
+
+/*
+ * The machines (components/homelab/MachineUnit): one markup, two looks. On a
+ * phone, a shelf — each machine's silhouette, its name, then what it runs as
+ * a tree. From 48rem, a rack — each machine a unit as tall as it is, what it
+ * runs as trays across its front, a VM's own inside its tray.
+ */
+.homelab-rack-room {
+  background: linear-gradient(var(--chapter-bg), color-mix(in srgb, var(--chapter-bg) 70%, black));
+}
+
+.homelab-rack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+  max-width: 70rem;
+}
+
+.machine {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 1rem;
+}
+
+.machine-u,
+.machine-ear {
+  display: none;
+}
+
+.machine-id {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.machine-leds {
+  display: none;
+  gap: 6px;
+  margin-bottom: 0.4rem;
+}
+
+.machine-leds i,
+.service-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--chapter-accent);
+  box-shadow: 0 0 8px var(--chapter-accent);
+}
+
+.machine-leds [data-led="power"] {
+  background: var(--chapter-ink);
+  box-shadow: 0 0 8px var(--chapter-ink);
+}
+
+.machine-leds [data-led="activity"],
+.service-led {
+  animation: rack-activity 0.9s steps(1) var(--blink, 0s) infinite;
+}
+
+@keyframes rack-activity {
+  63%,
+  78% {
+    opacity: 0.15;
+  }
+}
+
+.machine-zone {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--chapter-accent-text);
+}
+
+.machine-name {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1.15;
+  color: var(--chapter-ink);
+}
+
+.machine-hardware {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--chapter-muted);
+}
+
+.service-link,
+.folder-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  color: var(--chapter-accent-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--chapter-accent) 40%, transparent);
+  text-underline-offset: 3px;
+}
+
+.service-link:hover,
+.folder-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* The shelf's silhouettes — the same as the « Machines » cover draws them. */
+.machine-figure {
+  position: relative;
+  border: 2px solid var(--chapter-ink);
+  border-radius: 0.5rem;
+  background: var(--chapter-surface);
+  box-shadow: 0 1.25rem 1.5rem -1rem black;
+}
+
+.machine-figure[data-form="mini-pc"] {
+  width: 9.5rem;
+  height: 3.5rem;
+  background:
+    radial-gradient(circle at 1.1rem 50%, var(--chapter-accent) 3.5px, transparent 4.5px),
+    var(--chapter-surface);
+}
+
+.machine-figure[data-form="mini-pc"]::after {
+  content: "";
+  position: absolute;
+  right: 1rem;
+  top: calc(50% - 0.3rem);
+  width: 1.6rem;
+  height: 0.6rem;
+  background: linear-gradient(90deg, var(--chapter-muted) 0 2px, transparent 2px calc(50% - 3px), var(--chapter-muted) calc(50% - 3px) calc(50% - 1px), transparent calc(50% - 1px) calc(50% + 1px), var(--chapter-muted) calc(50% + 1px) calc(50% + 3px), transparent calc(50% + 3px) calc(100% - 2px), var(--chapter-muted) calc(100% - 2px));
+  border-block: 2px solid var(--chapter-muted);
+}
+
+.machine-figure[data-form="tower"] {
+  width: 5.75rem;
+  height: 9.5rem;
+  background:
+    repeating-linear-gradient(var(--chapter-line) 0 3px, transparent 3px 9px) 1rem 1.1rem / calc(100% - 2rem) 3.6rem no-repeat,
+    radial-gradient(circle at 50% 5.6rem, transparent 6px, var(--chapter-accent) 6.5px 8.5px, transparent 9px),
+    var(--chapter-surface);
+}
+
+.machine-figure[data-form="tower"]::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.9rem;
+  height: 1.7rem;
+  border-block: 2px solid var(--chapter-muted);
+}
+
+.machine-figure[data-form="box"] {
+  width: 8rem;
+  height: 4.75rem;
+  background:
+    repeating-linear-gradient(90deg, var(--chapter-line) 0 3px, transparent 3px 9px) 1rem 0.9rem / calc(100% - 2rem) 1.6rem no-repeat,
+    radial-gradient(circle at 1.25rem calc(100% - 1.1rem), var(--chapter-accent) 3.5px, transparent 4.5px),
+    var(--chapter-surface);
+}
+
+/* What a machine runs, as a tree. */
+.machine-services {
+  display: grid;
+  gap: 0.15rem;
+  justify-self: stretch;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--chapter-line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.machine-services .machine-services {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0.25rem;
+  border-left-style: dashed;
+}
+
+.service {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.6rem;
+  align-items: center;
+}
+
+.service-name {
+  color: var(--chapter-ink);
+  overflow-wrap: anywhere;
+}
+
+.service > .service-kind,
+.service > .service-link {
+  grid-column: 2;
+}
+
+.service-kind {
+  font-size: 0.625rem;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--chapter-muted);
+}
+
+.machine-empty {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--chapter-muted);
+}
+
+/* From 48rem: the rack. */
+@media (min-width: 48rem) {
+  .homelab-rack {
+    gap: 0.625rem;
+    padding: 1.125rem 1.625rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--chapter-bg) 60%, var(--chapter-surface)) 0 1rem,
+      var(--chapter-surface) 1rem calc(100% - 1rem),
+      color-mix(in srgb, var(--chapter-bg) 60%, var(--chapter-surface)) calc(100% - 1rem)
+    );
+    box-shadow:
+      inset 0 0 0 1px var(--chapter-line),
+      0 2.5rem 5rem -2rem black;
+  }
+
+  .machine {
+    grid-template-columns: 1.75rem 13rem minmax(0, 1fr) 9px;
+    justify-items: stretch;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: calc(var(--units) * 2.875rem);
+    padding: 0.75rem 0.875rem;
+    border: 1px solid color-mix(in srgb, var(--chapter-line) 70%, var(--chapter-accent));
+    border-radius: var(--radius-md);
+    background: linear-gradient(color-mix(in srgb, var(--chapter-surface) 88%, var(--chapter-ink)), var(--chapter-surface));
+    box-shadow: 0 0.5rem 1.1rem -0.6rem black;
+  }
+
+  .machine-u {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.2em;
+    text-align: center;
+    color: var(--chapter-muted);
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+
+  .machine-figure {
+    display: none;
+  }
+
+  .machine-id {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .machine-leds {
+    display: flex;
+  }
+
+  .machine-ear {
+    display: block;
+    align-self: stretch;
+    background:
+      radial-gradient(circle at 50% 12%, var(--chapter-muted) 2px, var(--chapter-line) 3px, transparent 4.5px),
+      radial-gradient(circle at 50% 88%, var(--chapter-muted) 2px, var(--chapter-line) 3px, transparent 4.5px);
+  }
+
+  /* What it runs: trays across its front. */
+  .machine-services {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .service {
+    min-width: 9rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid color-mix(in srgb, var(--chapter-line) 70%, var(--chapter-accent));
+    border-radius: var(--radius-sm);
+    background: var(--chapter-bg);
+    box-shadow: inset 0 1px 0 var(--chapter-surface);
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      translate var(--duration-fast) var(--ease-standard);
+  }
+
+  .service:hover {
+    border-color: var(--chapter-accent);
+    translate: 0 -1px;
+  }
+
+  /* A VM: a tray holding its own. */
+  .service[data-kind="vm"] {
+    border-style: dashed;
+  }
+
+  .machine-services .machine-services {
+    margin: 0.4rem 0 0;
+  }
+
+  .machine-services .machine-services .service {
+    min-width: 0;
+    background: var(--chapter-surface);
+  }
+}
+
+/* The chapter's folders: every project, linked. */
+.homelab-folders {
+  max-width: 70rem;
+  margin-top: 2.5rem;
+}
+
+.homelab-folders ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin-top: 0.6rem;
+}
+
+.homelab-folders li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.folder-link {
+  font-size: var(--text-xs);
+  color: var(--chapter-ink);
+}
+
+.folder-year {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--chapter-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homelab-title,
+  .machine-leds [data-led],
+  .service-led {
+    animation: none !important;
+  }
 }

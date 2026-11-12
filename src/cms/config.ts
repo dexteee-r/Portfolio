@@ -1,6 +1,14 @@
 import type { CmsConfig } from "@sveltia/cms";
 import { chapterIds } from "@/content/chapters";
-import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
+import {
+  FACT_MAX_LENGTH,
+  LABEL_MAX_LENGTH,
+  machineForms,
+  NETWORK_FILE,
+  NETWORK_MAX_NODES,
+  networkKinds,
+  type MachineForm,
+} from "@/content/network";
 import {
   DEVICE_MAX_LENGTH,
   DURATION_MAX_MINUTES,
@@ -46,6 +54,12 @@ export const PROJECT_PUBLIC_FOLDER = "/media/projects/{{slug}}";
 const STATUS_LABELS: Record<(typeof projectStatuses)[number], string> = {
   draft: "Brouillon — invisible sur le site en ligne",
   published: "Publié",
+};
+
+const FORM_LABELS: Record<MachineForm, string> = {
+  "mini-pc": "Mini-PC (boîtier plat)",
+  tower: "Tour",
+  box: "Boîtier neutre",
 };
 
 const LINK_LABELS: Record<(typeof linkKinds)[number], string> = {
@@ -324,7 +338,7 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
       {
         name: "homelab",
         label: "Homelab",
-        description: "Le schéma réseau dessiné en tête du chapitre Homelab.",
+        description: "Les machines du homelab et ce qu'elles font tourner, montrées dans le chapitre Homelab.",
         files: [
           {
             name: "network",
@@ -375,6 +389,38 @@ export function cmsConfig(settings: CmsSettings): CmsConfig {
                     widget: "string",
                     required: false,
                     hint: "L'identifiant de la machine qui l'héberge ou le sert. Vide pour la seule racine, tout en haut (Internet).",
+                  },
+                  {
+                    name: "form",
+                    label: "Silhouette",
+                    widget: "select",
+                    required: false,
+                    options: machineForms.map((form) => ({ label: FORM_LABELS[form], value: form })),
+                    hint: "Seulement pour une machine physique : sa forme dans la baie du chapitre. Choisir une silhouette en fait une machine de la baie.",
+                  },
+                  ...(["hardware", "zone"] as const).map((name) => ({
+                    name,
+                    label: name === "hardware" ? "Matériel" : "Zone",
+                    widget: "object" as const,
+                    required: false,
+                    hint:
+                      name === "hardware"
+                        ? "Pour une machine : ce qu'elle est, tel que déjà publié dans le projet « Machines »."
+                        : "Pour une machine : ouverte à Internet, ou jamais.",
+                    fields: locales.map((locale) => ({
+                      name: locale,
+                      label: locale.toUpperCase(),
+                      widget: "string" as const,
+                      maxlength: FACT_MAX_LENGTH,
+                    })),
+                  })),
+                  {
+                    name: "project",
+                    label: "Projet lié",
+                    widget: "string",
+                    required: false,
+                    pattern: [SLUG_PATTERN.source, "L'identifiant d'un projet : minuscules, chiffres et tirets"],
+                    hint: "L'identifiant du projet qui en parle : la baie du chapitre y renvoie.",
                   },
                 ],
               },

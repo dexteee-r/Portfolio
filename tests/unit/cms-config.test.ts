@@ -5,7 +5,14 @@ import { parse, stringify } from "yaml";
 import { adminPage, BUNDLE_PATH, notConfiguredPage, sveltiaVersion } from "@/cms/admin-page";
 import { CMS_AUTH_ENDPOINT, cmsConfig, PROJECT_PUBLIC_FOLDER } from "@/cms/config";
 import { chapterIds } from "@/content/chapters";
-import { LABEL_MAX_LENGTH, NETWORK_FILE, NETWORK_MAX_NODES, networkKinds } from "@/content/network";
+import {
+  FACT_MAX_LENGTH,
+  LABEL_MAX_LENGTH,
+  machineForms,
+  NETWORK_FILE,
+  NETWORK_MAX_NODES,
+  networkKinds,
+} from "@/content/network";
 import { loadProjects, parseProject } from "@/content/projects";
 import {
   COVER_PATTERN,
@@ -172,11 +179,31 @@ describe("the homelab, edited in the CMS", () => {
 
   it("offers exactly the fields and kinds the build validates", () => {
     expect(file.fields.map((f) => f.name)).toEqual(["status", "nodes"]);
-    expect(nodes.fields.map((f) => f.name)).toEqual(["id", "label", "kind", "parent"]);
+    expect(nodes.fields.map((f) => f.name)).toEqual([
+      "id",
+      "label",
+      "kind",
+      "parent",
+      "form",
+      "hardware",
+      "zone",
+      "project",
+    ]);
     expect((nodeField("kind").options as Array<{ value: string }>).map((o) => o.value)).toEqual([...networkKinds]);
     expect(nodeField("label").maxlength).toBe(LABEL_MAX_LENGTH);
     expect(nodes.max).toBe(NETWORK_MAX_NODES);
-    expect(nodeField("parent").required).toBe(false);
+    expect((nodeField("form").options as Array<{ value: string }>).map((o) => o.value)).toEqual([...machineForms]);
+    for (const name of ["parent", "form", "hardware", "zone", "project"]) {
+      expect(nodeField(name).required, name).toBe(false);
+    }
+  });
+
+  it("asks a machine's hardware and zone in every language, within one console line", () => {
+    for (const name of ["hardware", "zone"]) {
+      const fields = nodeField(name).fields as Array<{ name: string; maxlength: number }>;
+      expect(fields.map((f) => f.name)).toEqual([...locales]);
+      for (const field of fields) expect(field.maxlength).toBe(FACT_MAX_LENGTH);
+    }
   });
 
   it("starts as a draft, and warns against addresses right where they would be typed", () => {

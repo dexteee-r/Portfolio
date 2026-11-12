@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { chapterFromSlug, chapterIds, chapterSlugs } from "@/content/chapters";
 import { readImages, readPlaceholders } from "@/content/media";
 import { reelProjects, toReelItem } from "@/components/repair/RepairWorld";
-import { loadNetwork } from "@/content/network";
+import { loadNetwork, localizeNetwork } from "@/content/network";
 import {
   countByChapter,
   loadProjects,
@@ -78,6 +78,9 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
   const reeled = chapter === "repair" ? reelProjects(stations) : [];
   const sizes = await readImages(reeled.map((p) => p.cover!));
   const reel = reeled.map((p) => toReelItem(p, locale, sizes[p.cover!]!));
+  // The homelab's radar: each node in this language, linked to the shown project that bears its name.
+  const nodes = chapter === "infra" ? loadNetwork() : null;
+  const network = nodes && localizeNetwork(nodes, locale, visibleProjects(all).map((p) => localizeProject(p, locale)));
 
   const structured = graph(
     breadcrumbLd([
@@ -97,7 +100,7 @@ export default async function ChapterPage({ params }: PageProps<"/[locale]/[chap
         chapter={chapter}
         stations={stations}
         publishedCount={countByChapter(all)[chapter]}
-        network={chapter === "infra" ? loadNetwork() : null}
+        network={network}
         reel={reel}
       />
     </>

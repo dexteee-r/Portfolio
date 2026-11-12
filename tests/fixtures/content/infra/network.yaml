@@ -1,4 +1,4 @@
-# Fixture: a small published homelab, two levels under the host.
+# Fixture: a small published homelab — two machines, one with two levels under it.
 status: published
 nodes:
   - id: internet
@@ -12,6 +12,14 @@ nodes:
     label: host-fixture
     kind: hypervisor
     parent: box
+    form: mini-pc
+    hardware:
+      fr: mini-PC de test
+      en: test mini PC
+    zone:
+      fr: zone de test, ouverte
+      en: test zone, open
+    project: homelab-fixture
   - id: proxy
     label: Proxy fixture
     kind: proxy
@@ -20,7 +28,14 @@ nodes:
     label: site-fixture
     kind: container
     parent: host
+    project: alpha-app
   - id: app
     label: app-fixture
     kind: service
     parent: site
+  - id: store
+    label: store-fixture
+    kind: server
+    parent: box
+    form: box
+    project: gamma-draft

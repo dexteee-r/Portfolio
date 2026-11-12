@@ -62,13 +62,23 @@ export const en: Dictionary = {
     pause: "Pause",
     play: "Play",
   },
+  homelabWorld: {
+    boot: "elmzn-homelab: booting",
+    rack: {
+      one: "Rack 01 · {count} machine in service",
+      other: "Rack 01 · {count} machines in service",
+    },
+    machinesLabel: "Machines",
+    noServices: "no service listed",
+    folders: "The chapter's folders",
+  },
   network: {
-    caption: "The homelab, as it runs",
     kinds: {
       internet: "Internet",
       router: "Router",
       proxy: "Reverse proxy",
       hypervisor: "Hypervisor",
+      server: "Server",
       nas: "NAS",
       vm: "Virtual machine",
       container: "Container",

@@ -170,43 +170,10 @@ test.describe("the drawer, open", () => {
   });
 });
 
-test.describe("the infra chapter's network map", () => {
-  test("draws the homelab under the title: every machine named, then traced once seen", async ({ page }) => {
-    await page.goto("/fr/homelab");
-    const map = page.locator("[data-network]");
-    await expect(map.getByText("Le homelab, tel qu'il tourne")).toBeVisible();
-    const drawing = map.locator("svg:visible");
-    await expect(drawing).toHaveCount(1); // the tree on a wide screen, the list on a phone
-    // "Internet" is both a name and a kind: the names that are only names.
-    for (const label of ["host-fixture", "site-fixture", "app-fixture"]) {
-      await expect(drawing.getByText(label, { exact: true })).toBeVisible();
-    }
-    await expect(map).toHaveAttribute("data-drawn", "");
-    await expect
-      .poll(() => drawing.locator(".net-line").last().evaluate((line) => getComputedStyle(line).strokeDashoffset))
-      .toBe("0px");
-  });
-
-  test("never appears in another chapter", async ({ page }) => {
+test.describe("the infra chapter's machines (tests/e2e/homelab.spec.ts)", () => {
+  test("never appear in another chapter", async ({ page }) => {
     await page.goto("/fr/dev");
-    await expect(page.locator("[data-network]")).toHaveCount(0);
-  });
-
-  test("speaks the page's language", async ({ page }) => {
-    await page.goto("/en/homelab");
-    await expect(page.getByText("The homelab, as it runs")).toBeVisible();
-    await expect(page.locator("[data-network] svg:visible").getByText("Hypervisor").first()).toBeVisible();
-  });
-});
-
-test.describe("the network map without JavaScript", () => {
-  test.use({ javaScriptEnabled: false });
-
-  test("is simply there, drawn", async ({ page }) => {
-    await page.goto("/fr/homelab");
-    const map = page.locator("[data-network]");
-    await expect(map).not.toHaveAttribute("data-armed", "");
-    await expect(map.locator("svg:visible").getByText("host-fixture", { exact: true })).toBeVisible();
+    await expect(page.locator("[data-machine]")).toHaveCount(0);
   });
 });
 

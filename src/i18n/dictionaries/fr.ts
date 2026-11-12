@@ -65,13 +65,23 @@ export const fr = {
     pause: "Pause",
     play: "Relancer",
   },
+  homelabWorld: {
+    boot: "elmzn-homelab : démarrage",
+    rack: {
+      one: "Baie 01 · {count} machine en service",
+      other: "Baie 01 · {count} machines en service",
+    },
+    machinesLabel: "Machines",
+    noServices: "aucun service listé",
+    folders: "Dossiers du chapitre",
+  },
   network: {
-    caption: "Le homelab, tel qu'il tourne",
     kinds: {
       internet: "Internet",
       router: "Routeur",
       proxy: "Proxy inverse",
       hypervisor: "Hyperviseur",
+      server: "Serveur",
       nas: "NAS",
       vm: "Machine virtuelle",
       container: "Conteneur",

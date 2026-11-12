@@ -3,16 +3,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { stringify } from "yaml";
 import { ContentError } from "@/content/projects";
-import { loadNetwork, NETWORK_FILE, NETWORK_MAX_NODES, parseNetwork } from "@/content/network";
-import {
-  layoutHybrid,
-  layoutList,
-  layoutTree,
-  MAX_TREE_COLUMNS,
-  networkKinds,
-  networkLinks,
-  type NetworkNode,
-} from "@/content/network-layout";
+import { loadNetwork, localizeNetwork, NETWORK_FILE, NETWORK_MAX_NODES, parseNetwork } from "@/content/network";
+import { networkKinds, type NetworkNode } from "@/content/network-layout";
+import { loadProjects, localizeProject, visibleProjects } from "@/content/projects";
 import { getDictionary } from "@/i18n/dictionaries";
 import { locales } from "@/i18n/config";
 
@@ -88,90 +81,74 @@ describe("the homelab file", () => {
   });
 });
 
-describe("the layouts", () => {
-  //        internet
-  //           |
-  //          box
-  //        /     \
-  //     host      nas
-  //    /    \
-  //  web    app
-  const nodes = [
-    node("internet"),
-    node("box", "internet"),
-    node("host", "box"),
-    node("web", "host"),
-    node("app", "host"),
-    node("nas", "box"),
-  ];
+describe("what a machine says about itself", () => {
+  const machine = (extra: Record<string, unknown>) => [node("internet"), { ...node("host", "internet"), ...extra }];
 
-  it("tree: one row per level, each leaf its own column, each parent centred over its children", () => {
-    const placed = new Map(layoutTree(nodes).map((p) => [p.node.id, p]));
-    expect(placed.get("internet")!.y).toBe(0);
-    expect(placed.get("web")!.y).toBe(3);
-    expect([placed.get("web")!.x, placed.get("app")!.x, placed.get("nas")!.x]).toEqual([0, 1, 2]);
-    expect(placed.get("host")!.x).toBe(0.5);
-    expect(placed.get("box")!.x).toBe(1.25);
-    expect(placed.get("internet")!.x).toBe(1.25);
+  it("reads a silhouette, its hardware and zone in every language, and a project", () => {
+    const [, host] = parseNetwork(
+      yaml(
+        machine({
+          form: "mini-pc",
+          hardware: { fr: "mini-PC", en: "mini PC" },
+          zone: { fr: "ouverte", en: "open" },
+          project: "machines",
+        }),
+      ),
+    ).nodes;
+    expect(host).toMatchObject({ form: "mini-pc", hardware: { fr: "mini-PC", en: "mini PC" }, project: "machines" });
   });
 
-  it("tree: keeps the file's order, and never puts two nodes on the same spot", () => {
-    const placed = layoutTree(nodes);
-    expect(placed.map((p) => p.node.id)).toEqual(nodes.map((n) => n.id));
-    const spots = placed.map((p) => `${p.x}:${p.y}`);
-    expect(new Set(spots).size).toBe(spots.length);
+  it("asks every language, refuses an address there too, a made-up silhouette, and the radar's old fields", () => {
+    fails(machine({ hardware: { fr: "mini-PC" } }), /en/);
+    fails(machine({ zone: { fr: "DMZ 192.168.1.0", en: "DMZ" } }), /address or a port/);
+    fails(machine({ zone: { fr: "x".repeat(61), en: "x" } }), /zone/);
+    fails(machine({ project: "Not A Slug" }), /project/);
+    fails(machine({ form: "rack-server" }), /form/);
+    fails(machine({ sector: "DMZ" }), /sector/);
+    fails(machine({ featured: true }), /featured/);
   });
 
-  it("list: one node per row, in reading order, indented by depth — a file tree", () => {
-    const placed = layoutList(nodes);
-    expect(placed.map((p) => p.node.id)).toEqual(["internet", "box", "host", "web", "app", "nas"]);
-    expect(placed.map((p) => p.x)).toEqual([0, 1, 2, 3, 3, 2]);
-    expect(placed.map((p) => p.y)).toEqual([0, 1, 2, 3, 4, 5]);
+  it("speaks the page's language, and links only a project the page shows", () => {
+    const nodes = parseNetwork(
+      yaml([
+        node("internet"),
+        { ...node("host", "internet"), hardware: { fr: "tour", en: "tower" }, zone: { fr: "fermée", en: "closed" }, project: "shown" },
+        { ...node("app", "host"), project: "hidden" },
+      ]),
+    ).nodes;
+    const shown = { slug: "shown", chapter: "infra", title: "Montré", lang: "fr" } as never;
+    const [, host, app] = localizeNetwork(nodes, "en", [shown]);
+    expect(host).toMatchObject({ hardware: "tower", zone: "closed", project: { href: "/en/homelab/shown", title: "Montré", lang: "fr" } });
+    expect(app!.project).toBeUndefined();
+    expect(localizeNetwork(nodes, "fr", [shown])[1]!.project).toEqual({ href: "/fr/homelab/shown", title: "Montré" });
   });
 
-  it("links each node to its parent: one line fewer than nodes", () => {
-    expect(networkLinks(nodes)).toHaveLength(nodes.length - 1);
-    expect(networkLinks(nodes)).toContainEqual(["host", "web"]);
-  });
-
-  it("hybrid: a homelab that fits is simply the tree", () => {
-    const tree = layoutTree(nodes);
-    const hybrid = layoutHybrid(nodes);
-    expect(hybrid.map(({ node, x, y }) => ({ id: node.id, x, y }))).toEqual(tree.map(({ node, x, y }) => ({ id: node.id, x, y })));
-    expect(hybrid.every((p) => p.line === 0 && p.indent === 0)).toBe(true);
-  });
-
-  it("hybrid: past the columns that fit, stops the tree at the deepest level that fits and lists the rest under it", () => {
-    // Too wide for two columns: the tree stops at box's children; host's are listed under it.
-    const placed = new Map(layoutHybrid(nodes, 2).map((p) => [p.node.id, p]));
-    expect([placed.get("host")!.x, placed.get("nas")!.x]).toEqual([0, 1]);
-    expect(placed.get("host")).toMatchObject({ y: 2, line: 0, indent: 0 });
-    expect(placed.get("web")).toMatchObject({ x: 0, y: 2, line: 1, indent: 1, depth: 3 });
-    expect(placed.get("app")).toMatchObject({ x: 0, y: 2, line: 2, indent: 1 });
-    expect(placed.get("nas")).toMatchObject({ line: 0 });
-  });
-
-  it("hybrid: lists deeper levels in reading order, indented by how far below the column they sit", () => {
-    const deep = [...nodes, node("db", "app")];
-    const placed = new Map(layoutHybrid(deep, 2).map((p) => [p.node.id, p]));
-    expect(["web", "app", "db"].map((id) => placed.get(id)!.line)).toEqual([1, 2, 3]);
-    expect(placed.get("db")!.indent).toBe(2);
-    expect(layoutHybrid(deep, 2).map((p) => p.node.id)).toEqual(deep.map((n) => n.id)); // file order kept
-  });
-
-  it("hybrid: never puts two nodes on the same spot", () => {
-    const spots = layoutHybrid(nodes, 2).map((p) => `${p.x + (p.indent ?? 0) / 10}:${p.y}:${p.line}`);
-    expect(new Set(spots).size).toBe(spots.length);
-  });
-
-  it("draws the real homelab as its three machines side by side, everything they host listed under them", () => {
+  it("in the real homelab: its three machines, every project it names real, nothing the Machines project does not say", () => {
     const network = loadNetwork(join(ROOT, "content"), true)!;
-    const placed = new Map(layoutHybrid(network).map((p) => [p.node.id, p]));
-    const machines = network.filter((n) => n.parent === "box");
-    expect(machines.map((m) => m.kind)).toEqual(["hypervisor", "hypervisor", "nas"]);
-    expect(machines.map((m) => placed.get(m.id)!.x)).toEqual([0, 1, 2]);
-    expect(Math.max(...[...placed.values()].map((p) => p.x)) + 1).toBeLessThanOrEqual(MAX_TREE_COLUMNS);
-    expect(placed.get("portfolio")).toMatchObject({ x: 0, indent: 1 });
-    expect(placed.get("immich")).toMatchObject({ x: 1, indent: 2 });
+    const machines = network.filter((n) => n.form);
+    expect(machines.map((m) => m.label)).toEqual(["Extranet · DMZ", "Intranet", "ZimaOS"]);
+    expect(machines.map((m) => m.form)).toEqual(["mini-pc", "tower", "box"]);
+    // The third is a server that keeps files, not a NAS (its owner, 2026-11-13).
+    expect(machines.map((m) => m.kind)).toEqual(["hypervisor", "hypervisor", "server"]);
+    expect(network.filter((n) => n.parent === "zimaos").map((n) => n.label)).toEqual(["Partage de fichiers"]);
+    const slugs = loadProjects(join(ROOT, "content")).map((p) => p.slug);
+    for (const n of network.filter((n) => n.project)) expect(slugs, n.id).toContain(n.project);
+    // The hardware's model names and figures are already published on the « Machines » project.
+    const published = readFileSync(join(ROOT, "content", "projects", "machines.yaml"), "utf8");
+    for (const m of machines) {
+      for (const locale of locales) {
+        for (const word of (m.hardware?.[locale] ?? "").split(/\s+/).filter((w) => /\d/.test(w))) {
+          expect(published, `${m.id}: ${word}`).toContain(word);
+        }
+      }
+    }
+  });
+
+  it("links the fixture's machine and site to their projects, and its draft to nothing in production", () => {
+    const projects = visibleProjects(loadProjects(FIXTURES), false).map((p) => localizeProject(p, "fr"));
+    const byId = new Map(localizeNetwork(loadNetwork(FIXTURES, false)!, "fr", projects).map((n) => [n.id, n]));
+    expect(byId.get("host")!.project?.href).toBe("/fr/homelab/homelab-fixture");
+    expect(byId.get("site")!.project?.href).toBe("/fr/dev/alpha-app");
+    expect(byId.get("store")!.project).toBeUndefined();
   });
 });
