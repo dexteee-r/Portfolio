@@ -15,7 +15,8 @@ const reducedMotionFor = (selector: string) =>
 
 describe("globals.css", () => {
   it("imports tokens.css unlayered, so tokens win over Tailwind's layered defaults", () => {
-    const line = globals.split("\n").find((l) => l.includes("tokens.css") && l.startsWith("@import"));
+    // Any line ending: a Windows checkout (core.autocrlf) gives CRLF.
+    const line = globals.split(/\r?\n/).find((l) => l.includes("tokens.css") && l.startsWith("@import"));
     expect(line).toBe('@import "../styles/tokens.css";');
   });
 
